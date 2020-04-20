@@ -11,6 +11,11 @@ const config = require("./config/secret");
 
 //models
 require("./models/User");
+require("./models/SubCategoryOne");
+require("./models/SubCategoryTwo");
+require("./models/MainCategory");
+require("./models/Product");
+require("./models/Variant");
 
 
 app.use(express.static(__dirname + "/public"));
@@ -27,6 +32,7 @@ mongoose.connect(config.database, {
 require("./routes/buyer/authBuyer")(app);
 require("./routes/seller/authSeller")(app);
 require("./routes/api")(app);
+require("./routes/adminApi")(app);
 
 
 
