@@ -7,7 +7,7 @@ const variantSchema = new Schema({
   name:{type: String, default:""},
   variantContent: [{
     content:{type: String, default:""},
-    price:{type: String, default:""},
+    price:{type: String, default:"0.00"},
   }],
 });
 

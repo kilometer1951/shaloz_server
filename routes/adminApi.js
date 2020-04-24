@@ -27,7 +27,7 @@ cloudinary.config({
 });
 
 module.exports = (app) => {
-  app.post("/api/admin/main_category", async (req, res) => {
+  app.post("/api/admin/add/main_category", async (req, res) => {
     try {
       const newData = {
         name: req.body.name,
@@ -43,7 +43,7 @@ module.exports = (app) => {
       });
     }
   });
-  app.post("/api/admin/sub_category_one", async (req, res) => {
+  app.post("/api/admin/add/sub_category_one", async (req, res) => {
     try {
       const newData = {
         mainCategory: req.body.mainCategory,
@@ -60,7 +60,7 @@ module.exports = (app) => {
       });
     }
   });
-  app.post("/api/admin/sub_category_two", async (req, res) => {
+  app.post("/api/admin/add/sub_category_two", async (req, res) => {
     try {
       const newData = {
         subCategoryOne: req.body.subCategoryOne,
@@ -78,9 +78,10 @@ module.exports = (app) => {
     }
   });
 
-  app.get("/api/admin/main_category", async (req, res) => {
+  app.get("/api/admin/view/main_category", async (req, res) => {
     try {
       const data = await MainCategory.find({});
+      
       return httpRespond.severResponse(res, {
         status: true,
         data,
@@ -91,10 +92,28 @@ module.exports = (app) => {
       });
     }
   });
-  app.get("/api/admin/sub_category_one/:mainCategory", async (req, res) => {
+  app.get("/api/admin/view/main_category/:main_category_name/:sub_category1", async (req, res) => {
+    try {
+      const main_data = await MainCategory.findOne({name:req.params.main_category_name});
+      const sub_data = await SubCategoryOne.findOne({name:req.params.sub_category1});
+      console.log(sub_data);
+      console.log(main_data);
+      
+      return httpRespond.severResponse(res, {
+        status: true,
+        main_data,
+        sub_data
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+  app.get("/api/admin/view/sub_category_one/:mainCategory_id", async (req, res) => {
     try {
       const data = await SubCategoryOne.find({
-        mainCategory: req.params.mainCategory,
+        mainCategory: req.params.mainCategory_id,
       });
       return httpRespond.severResponse(res, {
         status: true,
@@ -106,10 +125,10 @@ module.exports = (app) => {
       });
     }
   });
-  app.get("/api/admin/sub_category_two/:subCategoryOne", async (req, res) => {
+  app.get("/api/admin/view/sub_category_two/:sub_category1_id", async (req, res) => {
     try {
       const data = await SubCategoryTwo.find({
-        subCategoryOne: req.params.subCategoryOne,
+        subCategoryOne: req.params.sub_category1_id,
       });
       return httpRespond.severResponse(res, {
         status: true,

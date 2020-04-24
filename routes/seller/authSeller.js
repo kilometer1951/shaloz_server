@@ -292,6 +292,9 @@ module.exports = (app) => {
         }
       );
 
+      user.shop_setup = "complete"
+      user.save()
+
       return httpRespond.severResponse(res, {
         status: true,
       });

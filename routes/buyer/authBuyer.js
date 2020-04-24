@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const User = mongoose.model("users");
+const Shipping = mongoose.model("shippings");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 let messageBody = "";
 
@@ -23,7 +24,6 @@ cloudinary.config({
   api_key: "887482388487867",
   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
 });
-
 
 module.exports = (app) => {
   app.post("/api/verification", async (req, res) => {
@@ -63,6 +63,7 @@ module.exports = (app) => {
         phone: req.body.phone,
         email: req.body.email,
       });
+
       const newUser = {
         first_name: req.body.first_name,
         last_name: req.body.last_name,
@@ -73,8 +74,16 @@ module.exports = (app) => {
         currency: "USD",
       };
       const createdUser = await new User(newUser).save();
-      console.log(createdUser);
-      
+
+      const newShipping = {
+        user: createdUser._id,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        country: "United States",
+      };
+
+      await new Shipping(newShipping).save();
+
       return httpRespond.severResponse(res, {
         status: true,
         message: "user created",

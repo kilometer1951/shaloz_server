@@ -16,6 +16,8 @@ require("./models/SubCategoryTwo");
 require("./models/MainCategory");
 require("./models/Product");
 require("./models/Variant");
+require("./models/ShoppingCart");
+require("./models/Shipping");
 
 
 app.use(express.static(__dirname + "/public"));
@@ -33,6 +35,7 @@ require("./routes/buyer/authBuyer")(app);
 require("./routes/seller/authSeller")(app);
 require("./routes/api")(app);
 require("./routes/adminApi")(app);
+require("./routes/home_api")(app);
 
 
 
