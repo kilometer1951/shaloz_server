@@ -32,109 +32,213 @@ module.exports = (app) => {
     try {
       // user: { $ne: req.params.user_id },
 
-      const health_beauty = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Health & Beauty",
-          },
-        }, // filter the results
-        { $sample: { size: 10 } },
-      ]);
+      let health_beauty;
+      let baby_kids_mat;
+      let cell_phone_acc;
+      let hair_products;
+      let jewelry;
+      let home_garden;
+      let musical_instru;
+      let wedding_party;
+      let work_out_suplement;
+      let barber_product;
+      let all_cat;
 
-      const baby_kids_mat = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Baby, Kids & Maternity",
-          },
-        }, // filter the results
-        { $sample: { size: 10 } },
-      ]);
+      if (req.params.user_id === "undefined") {
+        health_beauty = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Health & Beauty",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
 
-      const cell_phone_acc = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Cell Phones & Accessories",
-          },
-        }, // filter the results
-        { $sample: { size: 4 } },
-      ]);
+        baby_kids_mat = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Baby, Kids & Maternity",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
 
-      const hair_products = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Hair Products & Supplies",
-          },
-        }, // filter the results
-        { $sample: { size: 10 } },
-      ]);
+        cell_phone_acc = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Cell Phones & Accessories",
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
 
-      const jewelry = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Jewelry",
-          },
-        }, // filter the results
-        { $sample: { size: 4 } },
-      ]);
+        hair_products = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Hair Products & Supplies",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
 
-      const home_garden = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Home & Garden",
-          },
-        }, // filter the results
-        { $sample: { size: 10 } },
-      ]);
+        jewelry = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Jewelry",
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
 
-      const musical_instru = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Musical Instruments",
-          },
-        }, // filter the results
-        { $sample: { size: 4 } },
-      ]);
+        home_garden = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Home & Garden",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
 
-      const wedding_party = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Wedding, Party & Events",
-          },
-        }, // filter the results
-        { $sample: { size: 10 } },
-      ]);
+        musical_instru = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Musical Instruments",
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
 
-      const work_out_suplement = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Workout Supplements",
-          },
-        }, // filter the results
-        { $sample: { size: 4 } },
-      ]);
+        wedding_party = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Wedding, Party & Events",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
 
-      const barber_product = await Product.aggregate([
-        {
-          $match: {
-            user: { $ne: ObjectId(req.params.user_id) },
-            main_category: "Barber Products & Supplies",
-          },
-        }, // filter the results
-        { $sample: { size: 10 } },
-      ]);
+        work_out_suplement = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Workout Supplements",
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
 
-      const all_cat = await Product.aggregate([{ $sample: { size: 4 } }]);
+        barber_product = await Product.aggregate([
+          {
+            $match: {
+              main_category: "Barber Products & Supplies",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
 
-      console.log(all_cat);
+        all_cat = await Product.aggregate([{ $sample: { size: 4 } }]);
+      } else {
+        health_beauty = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Health & Beauty",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
+
+        baby_kids_mat = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Baby, Kids & Maternity",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
+
+        cell_phone_acc = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Cell Phones & Accessories",
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
+
+        hair_products = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Hair Products & Supplies",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
+
+        jewelry = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Jewelry",
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
+
+        home_garden = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Home & Garden",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
+
+        musical_instru = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Musical Instruments",
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
+
+        wedding_party = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Wedding, Party & Events",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
+
+        work_out_suplement = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Workout Supplements",
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
+
+        barber_product = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              main_category: "Barber Products & Supplies",
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+        ]);
+
+        all_cat = await Product.aggregate([{ $sample: { size: 4 } }]);
+      }
 
       const data = {
         health_beauty,
@@ -172,22 +276,20 @@ module.exports = (app) => {
         skip: per_page * (page_no - 1),
       };
       //
-    //   {
-    //     $match: {
-    //       user: { $ne: ObjectId(req.params.user_id) },
-    //       discount: { $ne: "" },
-    //     },
-    //   }, // filter the results
+      //   {
+      //     $match: {
+      //       user: { $ne: ObjectId(req.params.user_id) },
+      //       discount: { $ne: "" },
+      //     },
+      //   }, // filter the results
       const deals = await Product.aggregate([
-       
         { $sample: { size: 10 } },
         { $limit: pagination.limit },
         { $skip: pagination.skip },
       ]);
 
-
       console.log(deals);
-      
+
       return httpRespond.severResponse(res, {
         status: true,
         deals,
