@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const User = mongoose.model("users");
 const Variant = mongoose.model("variants");
 const Product = mongoose.model("products");
+const ReviewProduct = mongoose.model("reviewProducts");
+const RecentView = mongoose.model("recentViews");
 const ShoppingCart = mongoose.model("shoppingcarts");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 var ObjectId = require("mongodb").ObjectID;
@@ -237,7 +239,14 @@ module.exports = (app) => {
           { $sample: { size: 10 } },
         ]);
 
-        all_cat = await Product.aggregate([{ $sample: { size: 4 } }]);
+        all_cat = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+            },
+          }, // filter the results
+          { $sample: { size: 4 } },
+        ]);
       }
 
       const data = {
@@ -275,14 +284,14 @@ module.exports = (app) => {
         limit: per_page,
         skip: per_page * (page_no - 1),
       };
-      //
-      //   {
-      //     $match: {
-      //       user: { $ne: ObjectId(req.params.user_id) },
-      //       discount: { $ne: "" },
-      //     },
-      //   }, // filter the results
+
       const deals = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.params.user_id) },
+            discount: { $ne: "" },
+          },
+        }, // filter the results
         { $sample: { size: 10 } },
         { $limit: pagination.limit },
         { $skip: pagination.skip },
@@ -303,4 +312,49 @@ module.exports = (app) => {
       });
     }
   });
+
+  app.get(
+    "/api/view/fetch_single_product/:product_id/:user_id",
+    async (req, res) => {
+      try {
+        const product = await Product.findOne({
+          _id: req.params.product_id,
+        }).populate("user").populate("variants")
+
+        //add recentyl viewed only if it does not exist
+        const data = await RecentView.find({
+          user: req.params.user_id,
+          product: req.params.product_id,
+        })
+
+        if (data.length === 0) {
+          //add
+          await new RecentView({
+            user: req.params.user_id,
+            product: req.params.product_id,
+          }).save();
+        }
+
+        const recent_viewed = await RecentView.find({
+          user: req.params.user_id,
+          product: { $ne: ObjectId(req.params.product_id) },
+        }).populate("product");
+
+        const reviews = await ReviewProduct.find({
+          product: req.params.product_id,
+        }).limit(5);
+        return httpRespond.severResponse(res, {
+          status: true,
+          product,
+          reviews,
+          recent_viewed,
+        });
+      } catch (e) {
+        return httpRespond.severResponse(res, {
+          status: false,
+          e: e,
+        });
+      }
+    }
+  );
 };

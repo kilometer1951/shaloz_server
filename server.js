@@ -18,6 +18,8 @@ require("./models/Product");
 require("./models/Variant");
 require("./models/ShoppingCart");
 require("./models/Shipping");
+require("./models/ReviewProduct");
+require("./models/RecentView");
 
 
 app.use(express.static(__dirname + "/public"));
@@ -35,7 +37,7 @@ require("./routes/buyer/authBuyer")(app);
 require("./routes/seller/authSeller")(app);
 require("./routes/api")(app);
 require("./routes/adminApi")(app);
-require("./routes/home_api")(app);
+require("./routes/product_api")(app);
 
 
 

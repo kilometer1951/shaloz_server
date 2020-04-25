@@ -3,10 +3,9 @@ const { Schema } = mongoose;
 
 const shopingCartItemSchema = new Schema({
   product: { type: Schema.Types.ObjectId, ref: "products" },
-  qty: { type: Number, default: 0 },
+  qty: { type: String, default: "" },
   price: { type: String, default: "" },
-  added: { type: Boolean, default: true },
-  discountIsApplied: { type: Boolean, default: false },
+  discount: { type: String, default: "" },
   selected_variant_value: [],
   discount: { type: String, default: "" },
   product_personalization_note:{ type: String, default: "" },

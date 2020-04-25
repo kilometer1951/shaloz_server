@@ -26,16 +26,7 @@ let userSchema = new Schema({
   country_code: { type: String, default: "+1" },
   date_created_seller_account: { type: Date, default: Date.now },
   shop_setup:{ type: String, default: "not_complete" },
-  shipping_address:[{
-    country:{ type: String, default: "" },
-    first_name:{ type: String, default: "" },
-    last_name:{ type: String, default: "" },
-    stree_address:{ type: String, default: "" },
-    apt_suite_other:{ type: String, default: "" },
-    zipe_code:{ type: String, default: "" },
-    city:{ type: String, default: "" },
-    state:{ type: String, default: "" },
-  }]
+  
 });
 
 mongoose.model("users", userSchema);
