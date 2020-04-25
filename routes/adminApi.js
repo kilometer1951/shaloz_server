@@ -95,7 +95,7 @@ module.exports = (app) => {
   app.get("/api/admin/view/main_category/:main_category_name/:sub_category1", async (req, res) => {
     try {
       const main_data = await MainCategory.findOne({name:req.params.main_category_name});
-      const sub_data = await SubCategoryOne.findOne({name:req.params.sub_category1});
+      const sub_data = await SubCategoryOne.findOne({mainCategory:main_data._id});
       console.log(sub_data);
       console.log(main_data);
       
