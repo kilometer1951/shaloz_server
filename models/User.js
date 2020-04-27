@@ -26,6 +26,7 @@ let userSchema = new Schema({
   country_code: { type: String, default: "+1" },
   date_created_seller_account: { type: Date, default: Date.now },
   shop_setup:{ type: String, default: "not_complete" },
+  about:{ type: String, default: "" },
   
 });
 

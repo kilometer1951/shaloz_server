@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const shopingCartItemSchema = new Schema({
-  product: { type: Schema.Types.ObjectId, ref: "products" },
+  product: { type: Schema.Types.ObjectId, ref: "products" },//for product details
   qty: { type: String, default: "" },
   price: { type: String, default: "" },
   discount: { type: String, default: "" },

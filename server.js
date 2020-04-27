@@ -21,6 +21,9 @@ require("./models/Shipping");
 require("./models/ReviewProduct");
 require("./models/RecentView");
 
+require("./models/FavoriteProduct");
+require("./models/FavoriteShop");
+
 
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,6 +41,7 @@ require("./routes/seller/authSeller")(app);
 require("./routes/api")(app);
 require("./routes/adminApi")(app);
 require("./routes/product_api")(app);
+require("./routes/cart_api")(app);
 
 
 

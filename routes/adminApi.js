@@ -105,6 +105,8 @@ module.exports = (app) => {
         sub_data
       });
     } catch (e) {
+      console.log(e);
+      
       return httpRespond.severResponse(res, {
         status: false,
       });

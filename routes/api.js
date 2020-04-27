@@ -554,7 +554,7 @@ module.exports = (app) => {
         ],
       })
         .sort("-date")
-        .limit(100)
+        .limit(20)
         .populate("user")
         .populate("variants");
 

@@ -5,6 +5,7 @@ const shopingCartItemSchema = require("./ShopingCartItem");
 var shoppingcartSchema = new Schema({
   date_added: { type: Date, default: Date.now },
   user: { type: Schema.Types.ObjectId, ref: "users" },
+  seller: { type: Schema.Types.ObjectId, ref: "users" },
   items: [shopingCartItemSchema],
   has_checkedout: { type: Boolean, default: false },
   order_shipped: { type: Boolean, default: false },
@@ -12,7 +13,7 @@ var shoppingcartSchema = new Schema({
   tracking_number: { type: String, default: "" },
   expected_arrival_date:{ type: String, default: "" },
 
-  shipping: { type: Schema.Types.ObjectId, ref: "shippings" },
+  shipping_details: { type: Schema.Types.ObjectId, ref: "shippings" },
 
 
   stripe_fee: { type: String, default: "" },
