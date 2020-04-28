@@ -77,8 +77,7 @@ module.exports = (app) => {
 
       const newShipping = {
         user: createdUser._id,
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
+        full_name: req.body.first_name+" "+req.body.last_name,
         country: "United States",
       };
 
