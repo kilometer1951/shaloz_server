@@ -291,7 +291,7 @@ module.exports = (app) => {
       });
 
       //get seller phone number 
-      const seller_info = await user.findOne({
+      const seller_info = await User.findOne({
         _id: shoppingCart.seller,
       });
 
