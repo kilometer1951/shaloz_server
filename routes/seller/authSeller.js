@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const User = mongoose.model("users");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const Shipping = mongoose.model("shippings");
 
 const password = require("../../functions/password");
 const httpRespond = require("../../functions/httpRespond");
@@ -77,6 +78,9 @@ module.exports = (app) => {
         await user.save();
       }
 
+     
+      
+
       return httpRespond.severResponse(res, {
         status: true,
       });
@@ -136,6 +140,22 @@ module.exports = (app) => {
       user.shop_address = req.body.address;
       user.shop_name = req.body.shopName;
       user.save();
+
+
+
+        //update shipping info
+        const shipping = await Shipping.findOne({
+          user: req.body.user_id
+        });  
+
+        shipping.country = "United States"
+        shipping.stree_address = req.body.address
+        shipping.zipe_code = req.body.postalCode
+        shipping.city = req.body.locationCity
+        shipping.state = req.body.locationState
+        shipping.save()
+
+
       return httpRespond.severResponse(res, {
         status: true,
       });

@@ -571,7 +571,7 @@ module.exports = (app) => {
 
       const data = await FavoriteProduct.find({
         user: ObjectId(req.body.user_id),
-      });
+      }).populate("product");
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -962,6 +962,34 @@ module.exports = (app) => {
      });
     }
  });
+
+
+
+ app.post("/api/update/update_cart_personilization_note", async (req, res) => {
+  try{
+   const updated = await ShoppingCart.updateOne(
+     {
+       _id: req.body.cart_id,
+       user: req.body.user_id,
+       items: {
+         $elemMatch: { _id: req.body.item_id }
+       }
+     },
+     {
+       $set: { "items.$.product_personalization_note": req.body.product_personalization_note }
+     }
+   );      
+
+   return httpRespond.severResponse(res, {
+     status: true,
+   });
+  } catch(e) {
+   return httpRespond.severResponse(res, {
+     status: false,
+     e: e,
+   });
+  }
+});
 
 
  app.post("/api/delete/delete_cart_item", async (req, res) => {

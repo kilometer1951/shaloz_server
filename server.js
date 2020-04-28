@@ -42,6 +42,8 @@ require("./routes/api")(app);
 require("./routes/adminApi")(app);
 require("./routes/product_api")(app);
 require("./routes/cart_api")(app);
+require("./routes/checkout_api")(app);
+require("./routes/seller_shop")(app);
 
 
 

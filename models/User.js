@@ -27,6 +27,10 @@ let userSchema = new Schema({
   date_created_seller_account: { type: Date, default: Date.now },
   shop_setup:{ type: String, default: "not_complete" },
   about:{ type: String, default: "" },
+  shop_offers_discount_above_max_items:{ type: Boolean, default: false },
+  max_amount_to_get_discount:{ type: String, default: "" },
+  auto_discount_amount:{ type: String, default: "" },
+  deactivate_user:{ type: Boolean, default: false }
   
 });
 

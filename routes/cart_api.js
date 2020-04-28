@@ -36,7 +36,7 @@ module.exports = (app) => {
         limit: per_page,
         skip: per_page * (page_no - 1),
       };
-      const cartData = await ShoppingCart.find({ user: req.params.user_id })
+      const cartData = await ShoppingCart.find({ user: req.params.user_id,has_checkedout:"false" })
         .populate("items.product")
         .populate("seller")
         .limit(pagination.limit)

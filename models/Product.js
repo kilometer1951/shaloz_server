@@ -29,6 +29,8 @@ var productSchema = new Schema({
   deleted: { type: Boolean, default: false },
   product_offers_free_shipping:{ type: Boolean, default: false },
   max_price_for_free_shipping:{ type: String, default: "" },
+  product_weight:{ type: String, default: "" },
+  product_weight_unit:{ type: String, default: "" },
 });
 
 mongoose.model("products", productSchema);

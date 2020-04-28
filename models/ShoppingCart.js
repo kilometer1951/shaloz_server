@@ -13,21 +13,20 @@ var shoppingcartSchema = new Schema({
   tracking_number: { type: String, default: "" },
   expected_arrival_date:{ type: String, default: "" },
 
-  shipping_details: { type: Schema.Types.ObjectId, ref: "shippings" },
+  shipping_details:{ type: String, default: "" },
 
 
-  stripe_fee: { type: String, default: "" },
   stripe_refund_id: { type: String, default: "" },
-  ibeauty_connect_takes: { type: String, default: "" },
   stripe_transfer_id: { type: String, default: "" },
   stripe_charge_id: { type: String, default: "" },
 
-  partner_takes: { type: String, default: "0.00" },
+  seller_takes: { type: String, default: "0.00" },
   stripe_takes: { type: String, default: "0.00" },
   theshop_takes: { type: String, default: "" },
 
   sub_total: { type: String, default: "" },
   tax: { type: String, default: "" },
+  processing_fee: { type: String, default: "" },
   shippment_price: { type: String, default: "" },
   total: { type: String, default: "" },
 });
