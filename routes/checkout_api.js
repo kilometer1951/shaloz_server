@@ -314,6 +314,7 @@ module.exports = (app) => {
         shoppingCart.tax = req.body.tax
         shoppingCart.processing_fee = req.body.processing_fee
         shoppingCart.total = req.body.total
+        shoppingCart.stripe_charge_id = charge.id;
         shoppingCart.save()
 
         messageBody = "Hi "+seller_info.first_name+"you have a new order from "+user.first_name+". Open theShop to view the order"

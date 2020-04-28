@@ -233,6 +233,8 @@ module.exports = (app) => {
         discount_end_date,
         allow_purchase_when_out_of_stock,
         productCanBeCustomized,
+        product_weight,
+product_weight_unit
       } = req.body._data;
 
       let newVariant = [];
@@ -262,6 +264,8 @@ module.exports = (app) => {
           discount_end_date:
             discount_end_date === "Select date" ? "" : discount_end_date,
           product_can_be_customized: productCanBeCustomized,
+          product_weight: product_weight,
+          product_weight_unit: product_weight_unit,
         };
         const createdProduct = await new Product(newProduct).save();
         return httpRespond.severResponse(res, {
@@ -288,6 +292,8 @@ module.exports = (app) => {
           (product.discount_end_date =
             discount_end_date === "Select date" ? "" : discount_end_date),
           (product.product_can_be_customized = productCanBeCustomized);
+          (product.product_weight = product_weight);
+          (product.product_weight_unit = product_weight_unit);
         product.save();
         return httpRespond.severResponse(res, {
           status: true,
@@ -320,6 +326,8 @@ module.exports = (app) => {
         discount_end_date,
         allow_purchase_when_out_of_stock,
         productCanBeCustomized,
+        product_weight,
+        product_weight_unit
       } = req.body._data;
 
       let newVariant = [];
@@ -347,6 +355,8 @@ module.exports = (app) => {
         (product.discount_end_date =
           discount_end_date === "Select date" ? "" : discount_end_date),
         (product.product_can_be_customized = productCanBeCustomized);
+        (product.product_weight = product_weight);
+        (product.product_weight_unit = product_weight_unit);
       product.save();
 
       return httpRespond.severResponse(res, {
