@@ -199,6 +199,7 @@ module.exports = (app) => {
                 shoppingCart.seller_takes = seller_takes;
                 shoppingCart.theshop_takes = theshop_takes;
                shoppingCart.stripe_transfer_id = transfer.id;
+               shoppingCart.order_shipped = true
                shoppingCart.save();
               } else {
                 console.log("charge 6% + 2.50");
@@ -235,6 +236,7 @@ module.exports = (app) => {
                 shoppingCart.seller_takes = seller_takes;
                 shoppingCart.theshop_takes = theshop_takes;
                shoppingCart.stripe_transfer_id = transfer.id;
+               shoppingCart.order_shipped = true
                shoppingCart.save();
               }
 
