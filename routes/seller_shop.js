@@ -149,6 +149,8 @@ module.exports = (app) => {
         request(options, async function (error, response) {
           try {
             if (error) {
+              console.log(error);
+              
               return httpRespond.severResponse(res, {
                 status: false,
                 event_not_found: false,
@@ -196,8 +198,8 @@ module.exports = (app) => {
                 shoppingCart.tracking_number = req.body.tracking_number;
                 shoppingCart.seller_takes = seller_takes;
                 shoppingCart.theshop_takes = theshop_takes;
-                shoppingCart.stripe_transfer_id = transfer.id;
-                shoppingCart.save();
+               shoppingCart.stripe_transfer_id = transfer.id;
+               shoppingCart.save();
               } else {
                 console.log("charge 6% + 2.50");
                 const cart_total = parseFloat(shoppingCart.total).toFixed(2);
@@ -232,8 +234,8 @@ module.exports = (app) => {
                 shoppingCart.tracking_number = req.body.tracking_number;
                 shoppingCart.seller_takes = seller_takes;
                 shoppingCart.theshop_takes = theshop_takes;
-                shoppingCart.stripe_transfer_id = transfer.id;
-                shoppingCart.save();
+               shoppingCart.stripe_transfer_id = transfer.id;
+               shoppingCart.save();
               }
 
               messageBody =
@@ -244,9 +246,9 @@ module.exports = (app) => {
                 ". Your order should arrive by " +
                 data.actual_delivery_date +
                 ". Open theShop app to track your order. theShop://purchased_orders";
-              await smsFunctions.sendSMS(seller_info.phone, messageBody);
+              await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
               return httpRespond.severResponse(res, {
-                status: false,
+                status: true,
                 event_not_found: true,
               });
             }
