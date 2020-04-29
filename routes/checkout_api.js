@@ -317,7 +317,7 @@ module.exports = (app) => {
         shoppingCart.stripe_charge_id = charge.id;
         shoppingCart.save()
 
-        messageBody = "Hi "+seller_info.first_name+"you have a new order from "+user.first_name+". Open theShop to view the order"
+        messageBody = "Hi "+seller_info.shop_name+"you have a new order from "+user.first_name+". Open theShop to view the order. theShop://view_orders"
               await smsFunctions.sendSMS(seller_info.phone, messageBody);
 
       return httpRespond.severResponse(res, {

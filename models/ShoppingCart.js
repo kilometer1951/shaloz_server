@@ -21,7 +21,6 @@ var shoppingcartSchema = new Schema({
   stripe_charge_id: { type: String, default: "" },
 
   seller_takes: { type: String, default: "0.00" },
-  stripe_takes: { type: String, default: "0.00" },
   theshop_takes: { type: String, default: "" },
 
   sub_total: { type: String, default: "" },
