@@ -78,8 +78,8 @@ module.exports = (app) => {
       const data = await VideoAd.aggregate([
         {
           $match: {
-            seller: { $ne: ObjectId(req.params.user_id) },
-            active: true,
+           // seller: { $ne: ObjectId(req.params.user_id) },
+            //active: true,
           },
         }, // filter the results
         { $limit: 10 },
