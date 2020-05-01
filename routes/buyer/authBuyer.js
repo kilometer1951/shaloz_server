@@ -7,7 +7,7 @@ let messageBody = "";
 const password = require("../../functions/password");
 const httpRespond = require("../../functions/httpRespond");
 const smsFunctions = require("../../functions/SMS");
-const cloudinary = require("cloudinary");
+//const cloudinary = require("cloudinary");
 
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -19,10 +19,19 @@ const upload = multer({
   storage: storage,
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
-cloudinary.config({
-  cloud_name: "ibc",
-  api_key: "887482388487867",
-  api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
+// cloudinary.config({
+//   cloud_name: "ibc",
+//   api_key: "887482388487867",
+//   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
+// });
+
+const bucketName = "the-shop-123";
+const path = require("path");
+const serviceKey = path.join(__dirname, "../keys.json");
+const { Storage } = require("@google-cloud/storage");
+const storage_google = new Storage({
+  keyFilename: serviceKey,
+  projectId: "theshop-275817",
 });
 
 module.exports = (app) => {

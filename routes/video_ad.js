@@ -8,7 +8,7 @@ const fs = require("fs");
 const MainCategory = mongoose.model("mainCategories");
 
 const httpRespond = require("../functions/httpRespond");
-const cloudinary = require("cloudinary");
+//const cloudinary = require("cloudinary");
 
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -20,13 +20,59 @@ const upload = multer({
   storage: storage,
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
-cloudinary.config({
-  cloud_name: "ibc",
-  api_key: "887482388487867",
-  api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
+
+const bucketName = "the-shop-123";
+const path = require("path");
+const serviceKey = path.join(__dirname, "../keys.json");
+const { Storage } = require("@google-cloud/storage");
+const storage_google = new Storage({
+  keyFilename: serviceKey,
+  projectId: "theshop-275817",
 });
 
+// cloudinary.config({
+//   cloud_name: "ibc",
+//   api_key: "887482388487867",
+//   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
+// });
+
+// const Cloud = require('@google-cloud/storage')
+
+// const { Storage } = Cloud
+// const storage_google = new Storage({
+//   keyFilename: serviceKey,
+//   projectId: 'theshop-275817',
+// })
+
+//await storage_google.bucket(bucketName).file("1588366258886IMG_0003.JPG").delete();
+// let uri = `https://storage.cloud.google.com/${bucketName}/${data[0].metadata.name}`
+// let id = data[0].metadata.name
 module.exports = (app) => {
+  //   app.post("/api/test", upload.single("photo"), async (req, res) => {
+  //     try {
+  //       const data = await storage_google
+  //         .bucket(bucketName)
+  //         .upload(req.file.path, {
+  //           gzip: true,
+
+  //           metadata: {
+  //             cacheControl: "public, max-age=31536000",
+  //           },
+  //         });
+  // console.log(data);
+
+  //       return httpRespond.severResponse(res, {
+  //         status: true,
+  //       });
+  //     } catch (e) {
+  //       console.log(e);
+
+  //       return httpRespond.severResponse(res, {
+  //         status: false,
+  //       });
+  //     }
+  //   });
+
   app.get("/api/view/fetch_video_ad/:user_id/", async (req, res) => {
     try {
       const data = await VideoAd.aggregate([
@@ -97,29 +143,44 @@ module.exports = (app) => {
 
         if (!view_data) {
           //add
-          const cloud_id = await cloudinary.v2.uploader.upload(req.file.path, {
-            resource_type: "video",
-          });
-          uri = cloud_id.url;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+
           const newData = {
             seller: req.params.user_id,
-            video: cloud_id.url,
-            cloudinary_id: cloud_id.public_id,
+            video: uri,
+            cloud_id: response[0].metadata.name,
             video_ad_category: req.params.video_ad_category,
           };
           await new VideoAd(newData).save();
         } else {
           //            //update
-          await cloudinary.v2.uploader.destroy(view_data.cloudinary_id, {
-            resource_type: "video",
-          });
+          await storage_google
+            .bucket(bucketName)
+            .file(view_data.cloud_id)
+            .delete();
           // //upload new photo
-          const cloud_id = await cloudinary.v2.uploader.upload(req.file.path, {
-            resource_type: "video",
-          });
-          uri = cloud_id.url;
-          view_data.video = cloud_id.url;
-          view_data.cloudinary_id = cloud_id.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+
+          view_data.video = uri;
+          view_data.cloud_id = response[0].metadata.name;
           view_data.video_ad_category = req.params.video_ad_category;
           view_data.save();
         }

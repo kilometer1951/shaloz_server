@@ -8,7 +8,7 @@ const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 let messageBody = "";
 const smsFunctions = require("../functions/SMS");
 const httpRespond = require("../functions/httpRespond");
-const cloudinary = require("cloudinary");
+//const cloudinary = require("cloudinary");
 
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -20,10 +20,19 @@ const upload = multer({
   storage: storage,
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
-cloudinary.config({
-  cloud_name: "ibc",
-  api_key: "887482388487867",
-  api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
+// cloudinary.config({
+//   cloud_name: "ibc",
+//   api_key: "887482388487867",
+//   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
+// });
+
+const bucketName = "the-shop-123";
+const path = require("path");
+const serviceKey = path.join(__dirname, "../keys.json");
+const { Storage } = require("@google-cloud/storage");
+const storage_google = new Storage({
+  keyFilename: serviceKey,
+  projectId: "theshop-275817",
 });
 
 module.exports = (app) => {
@@ -234,7 +243,7 @@ module.exports = (app) => {
         allow_purchase_when_out_of_stock,
         productCanBeCustomized,
         product_weight,
-product_weight_unit
+        product_weight_unit,
       } = req.body._data;
 
       let newVariant = [];
@@ -292,8 +301,8 @@ product_weight_unit
           (product.discount_end_date =
             discount_end_date === "Select date" ? "" : discount_end_date),
           (product.product_can_be_customized = productCanBeCustomized);
-          (product.product_weight = product_weight);
-          (product.product_weight_unit = product_weight_unit);
+        product.product_weight = product_weight;
+        product.product_weight_unit = product_weight_unit;
         product.save();
         return httpRespond.severResponse(res, {
           status: true,
@@ -327,7 +336,7 @@ product_weight_unit
         allow_purchase_when_out_of_stock,
         productCanBeCustomized,
         product_weight,
-        product_weight_unit
+        product_weight_unit,
       } = req.body._data;
 
       let newVariant = [];
@@ -355,8 +364,8 @@ product_weight_unit
         (product.discount_end_date =
           discount_end_date === "Select date" ? "" : discount_end_date),
         (product.product_can_be_customized = productCanBeCustomized);
-        (product.product_weight = product_weight);
-        (product.product_weight_unit = product_weight_unit);
+      product.product_weight = product_weight;
+      product.product_weight_unit = product_weight_unit;
       product.save();
 
       return httpRespond.severResponse(res, {
@@ -377,21 +386,40 @@ product_weight_unit
     async (req, res) => {
       try {
         const product = await Product.findOne({ _id: req.params.product_id });
-        if (product.cloudinary_main_image_id === "") {
+        if (product.cloud_main_image_id === "") {
           //new upload
-          const response = await cloudinary.uploader.upload(req.file.path);
-          product.main_image = response.url;
-          product.cloudinary_main_image_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          product.main_image = uri;
+          product.cloud_main_image_id = response[0].metadata.name;
           product.save();
         } else {
           //delete old photo and upload new photo
-          await cloudinary.v2.uploader.destroy(
-            product.cloudinary_main_image_id
-          );
+          await storage_google
+            .bucket(bucketName)
+            .file(product.cloud_main_image_id)
+            .delete();
           // //upload new photo
-          const response = await cloudinary.uploader.upload(req.file.path);
-          product.main_image = response.url;
-          product.cloudinary_main_image_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          product.main_image = uri;
+          product.cloud_main_image_id = response[0].metadata.name;
           product.save();
         }
         // const products = await Product.find({ user: req.params.user_id });
@@ -416,21 +444,39 @@ product_weight_unit
     async (req, res) => {
       try {
         const product = await Product.findOne({ _id: req.params.product_id });
-        if (product.cloudinary_sub_image_1_id === "") {
+        if (product.cloud_sub_image_1_id === "") {
           //new upload
-          const response = await cloudinary.uploader.upload(req.file.path);
-          product.sub_image_1 = response.url;
-          product.cloudinary_sub_image_1_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          product.sub_image_1 = uri;
+          product.cloud_sub_image_1_id = response[0].metadata.name;
           product.save();
         } else {
           //delete old photo and upload new photo
-          await cloudinary.v2.uploader.destroy(
-            product.cloudinary_sub_image_1_id
-          );
+          await storage_google
+            .bucket(bucketName)
+            .file(product.cloud_sub_image_1_id)
+            .delete();
           // //upload new photo
-          const response = await cloudinary.uploader.upload(req.file.path);
-          product.sub_image_1 = response.url;
-          product.cloudinary_sub_image_1_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          product.sub_image_1 = uri;
+          product.cloud_sub_image_1_id = response[0].metadata.name;
           product.save();
         }
 
@@ -453,21 +499,39 @@ product_weight_unit
     async (req, res) => {
       try {
         const product = await Product.findOne({ _id: req.params.product_id });
-        if (product.cloudinary_sub_image_2_id === "") {
+        if (product.cloud_sub_image_2_id === "") {
           //new upload
-          const response = await cloudinary.uploader.upload(req.file.path);
-          product.sub_image_2 = response.url;
-          product.cloudinary_sub_image_2_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          product.sub_image_2 = uri;
+          product.cloud_sub_image_2_id = response[0].metadata.name;
           product.save();
         } else {
           //delete old photo and upload new photo
-          await cloudinary.v2.uploader.destroy(
-            product.cloudinary_sub_image_2_id
-          );
+          await storage_google
+            .bucket(bucketName)
+            .file(product.cloud_sub_image_2_id)
+            .delete();
           // //upload new photo
-          const response = await cloudinary.uploader.upload(req.file.path);
-          product.sub_image_2 = response.url;
-          product.cloudinary_sub_image_2_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          product.sub_image_2 = uri;
+          product.cloud_sub_image_2_id = response[0].metadata.name;
           product.save();
         }
 
@@ -490,21 +554,39 @@ product_weight_unit
     async (req, res) => {
       try {
         const product = await Product.findOne({ _id: req.params.product_id });
-        if (product.cloudinary_sub_image_3_id === "") {
+        if (product.cloud_sub_image_3_id === "") {
           //new upload
-          const response = await cloudinary.uploader.upload(req.file.path);
-          product.sub_image_3 = response.url;
-          product.cloudinary_sub_image_3_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          product.sub_image_3 = uri;
+          product.cloud_sub_image_3_id = response[0].metadata.name;
           product.save();
         } else {
           //delete old photo and upload new photo
-          await cloudinary.v2.uploader.destroy(
-            product.cloudinary_sub_image_3_id
-          );
+          await storage_google
+            .bucket(bucketName)
+            .file(product.cloud_sub_image_3_id)
+            .delete();
           // //upload new photo
-          const response = await cloudinary.uploader.upload(req.file.path);
-          product.sub_image_3 = response.url;
-          product.cloudinary_sub_image_3_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          product.sub_image_3 = uri;
+          product.cloud_sub_image_3_id = response[0].metadata.name;
           product.save();
         }
 
@@ -582,7 +664,4 @@ product_weight_unit
       });
     }
   });
-
-
-
 };

@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "theshop-275817",
+  "private_key_id": "84fe9baacbcb5d48fcd6d4329f076c6972854480",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCLhdTr5W+a1mB/\njP6pmkx4A153e9bLV6H7BLQuhLE7hGmebnm3urT4saFknQQxoP0FTSwNibC/SsKF\nfNiDKDCoBd2esX6Jc67rlFiZmcqY5bPzdcMkH86gNhG4WyugKhWihbysKdLWZX57\nJULs5Gfhbo0asY0lZdxltl5QYJf2MKTccyraTUid9hhhrYL6a3Eu4Gpq313hiTMj\nunOOhdY8EqjlZNneVN5QZcBNWXAj3t5PaLWuF2fEpIkVoOmsQBhd59IMCcSpSI/C\nfLSET+EPCRBeajQdbyM5o41hz6wEMyVgAdX3fHN9vr8r/5+2qbl4Emth29sMvGDE\nOofag1CzAgMBAAECggEABviFHn1pvw2uPTvZJAt5KJcv1WkS3o6eoYD8U5qo6Yqr\nEDxVc9At5y2mHPXEq4oZ5Mrp7t84knDKGTXsnK5EXWYK9Y5z/lVmTDou1wsaVoXw\ny117MMcvYU0c7jNikZpTVw8MJySLy88UVlNn7ZgCd1PjqY1sujfwSVtRiP3aecqk\n064z+byJresk9M4NhnWYUB0zMgmwMFavQOTuMYr9HpuKdSVGkqGljdJEFHscwp1d\nrbjeuZ4qKIuGLw82ORqBbwSzPJ3LK8hTvXw1Ri633ZISsQrs8NEbxpya7a63kAAW\n4D7vPWxejNpVASS9i06B5jREMhmG9lEc6YneNSNjAQKBgQDBEM9guOOZHft04Pt7\nHBPUgUS3d66pT6igi1m1Fa+N9nDmCcQEzRtiOiancoEyHJMQ86NRKpACi82egJw0\nL7+RfABOn5XlGistknJz3GsETV1L5dVeiV75IUySh1uF8entY84aJQ1liP/YsAQ1\n4snvdp4H1PdsG0pSOWIkSISHgQKBgQC5AOgfgxOSlp0xVQrFCI1XlhzpqPoQLFOI\n6ER17rlax/BUsgDP3L77cBgDS8DSBpvQPpDKxCS4A+8R/kZp1PL/iAIuIFnuz907\nXvr/3O3m3y1ZiFOGqKx8XcoTkCDqdx5HhH3JtfQMHUe7tOTRDX3cWWyyEgj3aYey\nIVceZzVSMwKBgBxZ85oojIO3u212fHefr+nM8eJfWO7UG9c3n3zQKm+WeQ3O8VIj\nLJpIH9UHI6HQQGiE3r7UmUFGdnOIP2gKev9KTmE9Xi2+ogiXMOeCvtRq6AB1R9gS\nJDhBg5Ug+3e4Brotpd6BAm6ep7OSZYvkOfNIX/yWcZ8WgtuAQcFCRPQBAoGBALg6\nLOzkbGM3VMXBd/4JrCaiN5x/RrVATtcw5KvD1BSQscTFlYVov05Hq8Hsd9Et/496\nHlmsxRvx3uo+GgRdqLXJzNH+KVBk8lujE7QjX0zexZw442RfJ5SZGRguGHkjsaVq\nTJDHfoVpyvsjAhEjrEf3TQRubTtjfVtnVAfUowZ9AoGBAK1WunSur1IOKtOKdjV+\n5iTOeAVRTOZtEo8n+sfR+yOtT70YqH4w68mYokj7b2KTZkRSvXUQk/OTT3Z5HHdK\nqgKF6aUIwqBbIkfShlFEzE/3GrjHL6fohc7mrzbJxitgIzJu4LaioPTaDe3P3oP2\nBWEFbeoI7VCuCk56qoSY7h2Q\n-----END PRIVATE KEY-----\n",
+  "client_email": "theshop@theshop-275817.iam.gserviceaccount.com",
+  "client_id": "113396247014715587462",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/theshop%40theshop-275817.iam.gserviceaccount.com"
+}

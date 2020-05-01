@@ -16,7 +16,7 @@ let userSchema = new Schema({
   shop_name: { type: String, default: "" },
   ssn_number: { type: String, default: "" },
   stripe_seller_account_id: { type: String, default: "" },
-  cloudinary_image_id: { type: String, default: "" },
+  cloud_id: { type: String, default: "" },
   stripe_payment_id: { type: String, default: "" },
   shop_address: { type: String, default: "" },
   shop_location_city: { type: String, default: "" },

@@ -10,7 +10,7 @@ let messageBody = "";
 const ip = require("ip");
 
 const fs = require("fs");
-const cloudinary = require("cloudinary");
+//const cloudinary = require("cloudinary");
 
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -22,10 +22,19 @@ const upload = multer({
   storage: storage,
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
-cloudinary.config({
-  cloud_name: "ibc",
-  api_key: "887482388487867",
-  api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
+// cloudinary.config({
+//   cloud_name: "ibc",
+//   api_key: "887482388487867",
+//   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
+// });
+
+const bucketName = "the-shop-123";
+const path = require("path");
+const serviceKey = path.join(__dirname, "../../keys.json");
+const { Storage } = require("@google-cloud/storage");
+const storage_google = new Storage({
+  keyFilename: serviceKey,
+  projectId: "theshop-275817",
 });
 
 module.exports = (app) => {
@@ -78,9 +87,6 @@ module.exports = (app) => {
         await user.save();
       }
 
-     
-      
-
       return httpRespond.severResponse(res, {
         status: true,
       });
@@ -100,19 +106,37 @@ module.exports = (app) => {
       try {
         const user = await User.findOne({ _id: req.params.user_id });
 
-        if (user.cloudinary_image_id === "") {
+        if (user.cloud_id === "") {
           //new upload
-          const response = await cloudinary.uploader.upload(req.file.path);
-          user.shop_logo = response.url;
-          user.cloudinary_image_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          user.shop_logo = uri;
+          user.cloud_id = response[0].metadata.name;
           user.save();
         } else {
           //delete old photo and upload new photo
-          await cloudinary.v2.uploader.destroy(user.cloudinary_image_id);
+          await storage_google.bucket(bucketName).file(user.cloud_id).delete();
           // //upload new photo
-          const response = await cloudinary.uploader.upload(req.file.path);
-          user.shop_logo = response.url;
-          user.cloudinary_image_id = response.public_id;
+          const response = await storage_google
+            .bucket(bucketName)
+            .upload(req.file.path, {
+              gzip: true,
+
+              metadata: {
+                cacheControl: "public, max-age=31536000",
+              },
+            });
+          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+          user.shop_logo = uri;
+          user.cloud_id = response[0].metadata.name;
           user.save();
         }
 
@@ -141,20 +165,17 @@ module.exports = (app) => {
       user.shop_name = req.body.shopName;
       user.save();
 
+      //update shipping info
+      const shipping = await Shipping.findOne({
+        user: req.body.user_id,
+      });
 
-
-        //update shipping info
-        const shipping = await Shipping.findOne({
-          user: req.body.user_id
-        });  
-
-        shipping.country = "United States"
-        shipping.stree_address = req.body.address
-        shipping.zipe_code = req.body.postalCode
-        shipping.city = req.body.locationCity
-        shipping.state = req.body.locationState
-        shipping.save()
-
+      shipping.country = "United States";
+      shipping.stree_address = req.body.address;
+      shipping.zipe_code = req.body.postalCode;
+      shipping.city = req.body.locationCity;
+      shipping.state = req.body.locationState;
+      shipping.save();
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -221,7 +242,6 @@ module.exports = (app) => {
         });
 
         console.log(photofileId);
-        
 
         return httpRespond.severResponse(res, {
           status: true,
@@ -298,22 +318,19 @@ module.exports = (app) => {
           external_account: req.body.bankAccountToken,
         }
       );
-       await stripe.accounts.update(
-        user.stripe_seller_account_id,
-        {
-          individual: {
-            id_number: user.ssn_number,
-            dob: {
-              day: parseInt(newDob[1].trim(""), 10),
-              month: parseInt(newDob[0].trim(""), 10),
-              year: parseInt(newDob[2].trim(""), 10),
-            },
+      await stripe.accounts.update(user.stripe_seller_account_id, {
+        individual: {
+          id_number: user.ssn_number,
+          dob: {
+            day: parseInt(newDob[1].trim(""), 10),
+            month: parseInt(newDob[0].trim(""), 10),
+            year: parseInt(newDob[2].trim(""), 10),
           },
-        }
-      );
+        },
+      });
 
-      user.shop_setup = "complete"
-      user.save()
+      user.shop_setup = "complete";
+      user.save();
 
       return httpRespond.severResponse(res, {
         status: true,

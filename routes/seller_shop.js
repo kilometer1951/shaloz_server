@@ -454,7 +454,7 @@ module.exports = (app) => {
         skip: per_page * (page_no - 1),
       };
       const data = await ShoppingCart.find({
-        user: { $eq: req.params.user_id },
+       user: { $eq: req.params.user_id },
         has_checkedout: true,
         order_shipped: true,
       })
