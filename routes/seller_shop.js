@@ -6,6 +6,7 @@ const ShoppingCart = mongoose.model("shoppingcarts");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 var ObjectId = require("mongodb").ObjectID;
 var request = require("request");
+const Moment = require("moment");
 
 let messageBody = "";
 const smsFunctions = require("../functions/SMS");
@@ -150,7 +151,7 @@ module.exports = (app) => {
           try {
             if (error) {
               console.log(error);
-              
+
               return httpRespond.severResponse(res, {
                 status: false,
                 event_not_found: false,
@@ -198,9 +199,10 @@ module.exports = (app) => {
                 shoppingCart.tracking_number = req.body.tracking_number;
                 shoppingCart.seller_takes = seller_takes;
                 shoppingCart.theshop_takes = theshop_takes;
-               shoppingCart.stripe_transfer_id = transfer.id;
-               shoppingCart.order_shipped = true
-               shoppingCart.save();
+                shoppingCart.stripe_transfer_id = transfer.id;
+                shoppingCart.order_shipped = true;
+                shoppingCart.date_entered_tracking = new Date();
+                shoppingCart.save();
               } else {
                 console.log("charge 6% + 2.50");
                 const cart_total = parseFloat(shoppingCart.total).toFixed(2);
@@ -235,9 +237,10 @@ module.exports = (app) => {
                 shoppingCart.tracking_number = req.body.tracking_number;
                 shoppingCart.seller_takes = seller_takes;
                 shoppingCart.theshop_takes = theshop_takes;
-               shoppingCart.stripe_transfer_id = transfer.id;
-               shoppingCart.order_shipped = true
-               shoppingCart.save();
+                shoppingCart.stripe_transfer_id = transfer.id;
+                shoppingCart.order_shipped = true;
+                shoppingCart.date_entered_tracking = new Date();
+                shoppingCart.save();
               }
 
               messageBody =
@@ -264,6 +267,265 @@ module.exports = (app) => {
           }
         });
       }
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get(
+    "/api/view/seller_weekly_activity/:seller_id/:dateTime",
+    async (req, res) => {
+      try {
+        let per_page = 15;
+        let page_no = parseInt(req.query.page);
+        let pagination = {
+          limit: per_page,
+          skip: per_page * (page_no - 1),
+        };
+        let curr = new Date(req.params.dateTime); // get current date
+        let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+        let last = first + 6; // last day is the first day + 6
+
+        const firstDayOfWeek = Moment(
+          new Date(curr.setDate(first)),
+          "DD-MM-YYYY"
+        ).add(1, "day");
+        const lastDayOfWeek = Moment(
+          new Date(curr.setDate(last)),
+          "DD-MM-YYYY"
+        ).add(1, "day");
+
+        const startOfWeek = Moment(firstDayOfWeek).format();
+        const endOfWeek = Moment(lastDayOfWeek).format();
+
+        //convert date to regular time zone
+        let newStartDate = Moment(startOfWeek).format("YYYY-MM-DD");
+        let newStartOfWeekDateTime = new Date(
+          newStartDate + "" + "T05:00:00.000Z"
+        );
+
+        let newEndDate = Moment(endOfWeek).format("YYYY-MM-DD");
+        let newEndOfWeekDateTime = new Date(newEndDate + "" + "T05:00:00.000Z");
+
+        const weeklyActivity = await ShoppingCart.find({
+          seller: req.params.seller_id,
+          has_checkedout: true,
+          order_shipped: true,
+          date_added: {
+            $gte: newStartOfWeekDateTime,
+            $lte: newEndOfWeekDateTime,
+          },
+        })
+          .populate("items.product")
+          .populate("seller")
+          .populate("user")
+          .limit(pagination.limit)
+          .skip(pagination.skip);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          weeklyActivity,
+          endOfFile: weeklyActivity.length === 0 ? true : false,
+        });
+      } catch (e) {
+        console.log(e);
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
+  app.get("/api/get_earnings/:seller_id/:dateTime", async (req, res) => {
+    try {
+      const seller_info = await User.findOne({ _id: req.params.seller_id });
+
+      const earnings = {};
+      let curr = new Date(req.params.dateTime); // get current date
+      let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+      let last = first + 6; // last day is the first day + 6
+
+      const firstDayOfWeek = Moment(
+        new Date(curr.setDate(first)),
+        "DD-MM-YYYY"
+      ).add(1, "day");
+      const lastDayOfWeek = Moment(
+        new Date(curr.setDate(last)),
+        "DD-MM-YYYY"
+      ).add(1, "day");
+
+      const startOfWeek = Moment(firstDayOfWeek).format();
+      const endOfWeek = Moment(lastDayOfWeek).format();
+
+      //convert date to regular time zone
+      let newStartDate = Moment(startOfWeek).format("YYYY-MM-DD");
+      let newStartOfWeekDateTime = new Date(
+        newStartDate + "" + "T05:00:00.000Z"
+      );
+
+      let newEndDate = Moment(endOfWeek).format("YYYY-MM-DD");
+      let newEndOfWeekDateTime = new Date(newEndDate + "" + "T05:00:00.000Z");
+
+      const balance = await stripe.balance.retrieve({
+        stripeAccount: seller_info.stripe_seller_account_id,
+      });
+
+      const total_earned_per_week = await ShoppingCart.find({
+        seller: req.params.seller_id,
+        order_shipped: true,
+        has_checkedout: true,
+        date_added: {
+          $gte: newStartOfWeekDateTime,
+          $lte: newEndOfWeekDateTime,
+        },
+      });
+      // console.log(total_earned_per_week);
+
+      let total = 0;
+
+      for (var i = 0; i < total_earned_per_week.length; i++) {
+        let total_earned = parseFloat(total_earned_per_week[i].seller_takes);
+        total += parseFloat(total_earned);
+      }
+
+      earnings.available_balance = parseFloat(
+        (balance.pending[0].amount + balance.available[0].amount) / 100
+      ).toFixed(2);
+
+      earnings.total_earned_per_week = parseFloat(total).toFixed(2);
+
+      //console.log(Moment(curr).format());
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        earnings,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/view/completed_orders_history/:seller_id", async (req, res) => {
+    try {
+      let per_page = 10;
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+      const orders = await ShoppingCart.find({
+        seller: req.params.seller_id,
+        has_checkedout: true,
+        order_shipped: true,
+      })
+        .populate("items.product")
+        .populate("seller")
+        .populate("user")
+        .limit(pagination.limit)
+        .skip(pagination.skip);
+
+      console.log(orders);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        orders,
+        endOfFile: orders.length === 0 ? true : false,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/view/fetch_purchased_package/:user_id", async (req, res) => {
+    try {
+      let per_page = 10;
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+      const data = await ShoppingCart.find({
+        user: { $eq: req.params.user_id },
+        has_checkedout: true,
+        order_shipped: true,
+      })
+        .populate("items.product")
+        .populate("seller")
+        .populate("user")
+        .sort("-date_added")
+        .limit(pagination.limit)
+        .skip(pagination.skip);
+
+      console.log(data);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        endOfFile: data.length === 0 ? true : false,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get(
+    "/api/view/track_package_progress/:tracking_number",
+    async (req, res) => {
+      try {
+        var options = {
+          method: "GET",
+          url:
+            "https://api.shipengine.com/v1/tracking?carrier_code=stamps_com&tracking_number=" +
+            req.params.tracking_number,
+          headers: {
+            Host: "api.shipengine.com",
+            "API-Key": "TEST_4fXNkXGqxlhbxfcSEnGdfDZXpAK0bpSl84HUKvoZjcs",
+          },
+        };
+        request(options, async function (error, response) {
+          if (error) {
+            if (error) {
+              console.log(error);
+              return httpRespond.severResponse(res, {
+                status: false,
+              });
+            }
+          }
+          const data = JSON.parse(response.body);
+          console.log(data.events);
+
+          return httpRespond.severResponse(res, {
+            status: true,
+            data: data.events,
+          });
+        });
+      } catch (e) {
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
+  app.get("/api/view/fetch_shop_about_me/:seller_id", async (req, res) => {
+    try {
+      const seller = await User.findOne({ _id: req.params.seller_id });
+      return httpRespond.severResponse(res, {
+        status: true,
+        seller,
+      });
     } catch (e) {
       console.log(e);
       return httpRespond.severResponse(res, {

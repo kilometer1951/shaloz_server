@@ -19,10 +19,12 @@ require("./models/Variant");
 require("./models/ShoppingCart");
 require("./models/Shipping");
 require("./models/ReviewProduct");
+require("./models/ReviewShop");
 require("./models/RecentView");
 
 require("./models/FavoriteProduct");
 require("./models/FavoriteShop");
+require("./models/VideoAd");
 
 
 app.use(express.static(__dirname + "/public"));
@@ -44,6 +46,7 @@ require("./routes/product_api")(app);
 require("./routes/cart_api")(app);
 require("./routes/checkout_api")(app);
 require("./routes/seller_shop")(app);
+require("./routes/video_ad")(app);
 
 
 

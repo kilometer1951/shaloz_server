@@ -10,8 +10,9 @@ const MainCategory = mongoose.model("mainCategories");
 const SubCategoryOne = mongoose.model("subCategoriesOne");
 const SubCategoryTwo = mongoose.model("subCategoriesTwo");
 const ShoppingCart = mongoose.model("shoppingcarts");
+const ReviewShop = mongoose.model("reviewShops");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
-var ObjectId = require("mongodb").ObjectID;
+let ObjectId = require("mongodb").ObjectID;
 
 let messageBody = "";
 const smsFunctions = require("../functions/SMS");
@@ -368,7 +369,13 @@ module.exports = (app) => {
 
         const reviews = await ReviewProduct.find({
           product: req.params.product_id,
-        }).limit(5);
+        })
+          .populate("product")
+          .populate("user")
+          .limit(5);
+        const reviews_count = await ReviewProduct.countDocuments({
+          product: req.params.product_id,
+        });
 
         //fetch fav
         const fav_products = await FavoriteProduct.findOne({
@@ -383,6 +390,7 @@ module.exports = (app) => {
           otherProducts,
           moreItemsFromShop,
           fav_products: fav_products ? true : false,
+          reviews_count,
         });
       } catch (e) {
         return httpRespond.severResponse(res, {
@@ -889,12 +897,11 @@ module.exports = (app) => {
     }
   });
 
-
   app.get("/api/view/cart_product_variant/:product_id", async (req, res) => {
     try {
       const data = await Product.findOne({
         _id: req.params.product_id,
-      }).populate("variants")
+      }).populate("variants");
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -908,151 +915,252 @@ module.exports = (app) => {
     }
   });
 
-
-
   app.post("/api/update/update_cart_qty", async (req, res) => {
-     try{
+    try {
       const updated = await ShoppingCart.updateOne(
         {
           _id: req.body.cart_id,
           user: req.body.user_id,
           items: {
-            $elemMatch: { _id: req.body.item_id }
-          }
+            $elemMatch: { _id: req.body.item_id },
+          },
         },
         {
-          $set: { "items.$.qty": req.body.qty }
+          $set: { "items.$.qty": req.body.qty },
         }
-      );      
+      );
 
       return httpRespond.severResponse(res, {
         status: true,
       });
-     } catch(e) {
+    } catch (e) {
       return httpRespond.severResponse(res, {
         status: false,
         e: e,
       });
-     }
+    }
   });
 
-
   app.post("/api/update/update_cart_variants", async (req, res) => {
-    try{
-     const updated = await ShoppingCart.updateOne(
-       {
-         _id: req.body.cart_id,
-         user: req.body.user_id,
-         items: {
-           $elemMatch: { _id: req.body.item_id }
-         }
-       },
-       {
-         $set: { "items.$.selected_variant_value": req.body.newVariant }
-       }
-     );      
-
-     return httpRespond.severResponse(res, {
-       status: true,
-     });
-    } catch(e) {
-     return httpRespond.severResponse(res, {
-       status: false,
-       e: e,
-     });
-    }
- });
-
-
-
- app.post("/api/update/update_cart_personilization_note", async (req, res) => {
-  try{
-   const updated = await ShoppingCart.updateOne(
-     {
-       _id: req.body.cart_id,
-       user: req.body.user_id,
-       items: {
-         $elemMatch: { _id: req.body.item_id }
-       }
-     },
-     {
-       $set: { "items.$.product_personalization_note": req.body.product_personalization_note }
-     }
-   );      
-
-   return httpRespond.severResponse(res, {
-     status: true,
-   });
-  } catch(e) {
-   return httpRespond.severResponse(res, {
-     status: false,
-     e: e,
-   });
-  }
-});
-
-
- app.post("/api/delete/delete_cart_item", async (req, res) => {
-  try{
-
-    await ShoppingCart.updateOne(
-      {
-        _id: req.body.cart_id,
-        user: req.body.user_id,
-      },
-      {
-        $pull: {
+    try {
+      const updated = await ShoppingCart.updateOne(
+        {
+          _id: req.body.cart_id,
+          user: req.body.user_id,
           items: {
-            _id: req.body.item_id
-          }
+            $elemMatch: { _id: req.body.item_id },
+          },
+        },
+        {
+          $set: { "items.$.selected_variant_value": req.body.newVariant },
         }
-      },
-      {
-        multi: true
-      }
-    );    
-    
-    
-    const cart = await ShoppingCart.findOne({_id:req.body.cart_id})
-    if(cart.items.length === 0){
-      //remove the cart 
-      await ShoppingCart.deleteOne({
-        _id:req.body.cart_id,
-        user: req.body.user_id,
+      );
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+        e: e,
       });
     }
+  });
 
-   return httpRespond.severResponse(res, {
-     status: true,
-   });
-  } catch(e) {
-   return httpRespond.severResponse(res, {
-     status: false,
-     e: e,
-   });
-  }
-});
+  app.post("/api/update/update_cart_personilization_note", async (req, res) => {
+    try {
+      const updated = await ShoppingCart.updateOne(
+        {
+          _id: req.body.cart_id,
+          user: req.body.user_id,
+          items: {
+            $elemMatch: { _id: req.body.item_id },
+          },
+        },
+        {
+          $set: {
+            "items.$.product_personalization_note":
+              req.body.product_personalization_note,
+          },
+        }
+      );
 
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+        e: e,
+      });
+    }
+  });
 
-app.post("/api/delete/delete_cart", async (req, res) => {
-  try{
-    await ShoppingCart.deleteOne({
-      _id:req.body.cart_id,
-      user: req.body.user_id,
-    });    
+  app.post("/api/delete/delete_cart_item", async (req, res) => {
+    try {
+      await ShoppingCart.updateOne(
+        {
+          _id: req.body.cart_id,
+          user: req.body.user_id,
+        },
+        {
+          $pull: {
+            items: {
+              _id: req.body.item_id,
+            },
+          },
+        },
+        {
+          multi: true,
+        }
+      );
 
-   return httpRespond.severResponse(res, {
-     status: true,
-   });
-  } catch(e) {
-    console.log(e);
-    
-   return httpRespond.severResponse(res, {
-     status: false,
-     e: e,
-   });
-  }
-});
+      const cart = await ShoppingCart.findOne({ _id: req.body.cart_id });
+      if (cart.items.length === 0) {
+        //remove the cart
+        await ShoppingCart.deleteOne({
+          _id: req.body.cart_id,
+          user: req.body.user_id,
+        });
+      }
 
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+        e: e,
+      });
+    }
+  });
 
+  app.post("/api/delete/delete_cart", async (req, res) => {
+    try {
+      await ShoppingCart.deleteOne({
+        _id: req.body.cart_id,
+        user: req.body.user_id,
+      });
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+        e: e,
+      });
+    }
+  });
+
+  app.post("/api/add/review_product/", async (req, res) => {
+    try {
+      //add fav products
+      await new ReviewProduct({
+        user: req.body.user_id,
+        product: req.body.product_id,
+        comment: req.body.comment,
+        rateNumber: req.body.rateNumber,
+      }).save();
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+        e: e,
+      });
+    }
+  });
+
+  app.post("/api/add/review_shop/", async (req, res) => {
+    try {
+      //add fav products
+      await new ReviewShop({
+        user: req.body.user_id,
+        shop: req.body.shop_id,
+        comment: req.body.comment,
+        rateNumber: req.body.rateNumber,
+      }).save();
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+        e: e,
+      });
+    }
+  });
+
+  app.get("/api/view/fetch_product_review/:product_id", async (req, res) => {
+    try {
+      let per_page = 10;
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+      const data = await ReviewProduct.find({
+        product_id: req.params.product_id,
+      })
+        .populate("product")
+        .populate("user")
+        .sort("-dateReviewed")
+        .limit(pagination.limit)
+        .skip(pagination.skip);
+
+      //console.log(data);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        endOfFile: data.length === 0 ? true : false,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/view/fetch_shop_review/:shop_id", async (req, res) => {
+    try {
+      let per_page = 10;
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+      console.log(req.params.shop_id);
+
+      const data = await ReviewShop.find({
+        shop: req.params.shop_id,
+      })
+        .populate("shop")
+        .populate("user")
+        .sort("-dateReviewed")
+        .limit(pagination.limit)
+        .skip(pagination.skip);
+
+      //console.log(data);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        endOfFile: data.length === 0 ? true : false,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+ 
 };
