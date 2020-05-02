@@ -13,6 +13,8 @@ var shoppingcartSchema = new Schema({
   tracking_number: { type: String, default: "" },
   expected_arrival_date:{ type: String, default: "" },
 
+  shipping_carrier_rate_estimation:{ type: String, default: "" },
+
   shipping_details:{ type: String, default: "" },
   date_entered_tracking :{ type: String, default: "" },
   date_user_checked_out:{ type: String, default: "" },

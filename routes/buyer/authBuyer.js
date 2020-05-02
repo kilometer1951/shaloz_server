@@ -42,7 +42,7 @@ module.exports = (app) => {
       messageBody =
         "Your verification code is: " +
         code +
-        ". theShops is a marketplace where you can buy and sell anything";
+        ". theShop is a marketplace where you can buy and sell anything";
       await smsFunctions.verification(req.body.phone, messageBody, code);
       return httpRespond.severResponse(res, {
         status: true,
@@ -56,9 +56,42 @@ module.exports = (app) => {
     }
   });
 
-  app.post("/api/signup_buyer", async (req, res) => {
+
+  app.post("/api/verify_user", async (req, res) => {
     try {
       const user = await User.findOne({ phone: req.body.phone });
+      if(user) {
+        //user found 
+        const code = Math.floor(Math.random() * 100) + 9000;
+        //  send verification code
+        messageBody =
+          "Your verification code is: " +
+          code +
+          ". theShop is a marketplace that allows you to build your online store and start selling in minutes. Buy and sell with theShop";
+        await smsFunctions.verification(req.body.phone, messageBody, code);
+        return httpRespond.severResponse(res, {
+          status: true,
+          code: code,
+          user
+        });
+      } else {
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+
+      
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+        message: e,
+      });
+    }
+  });
+
+  app.post("/api/signup_buyer", async (req, res) => {
+    try {
+      const user = await User.findOne({ phone: req.body.phone, email:req.body.email });
       if (user) {
         return httpRespond.severResponse(res, {
           status: false,
@@ -79,6 +112,7 @@ module.exports = (app) => {
         phone: req.body.phone,
         email: req.body.email,
         stripe_payment_id: customer.id,
+        password: password.encryptPassword(req.body.password),
         country: "usa",
         currency: "USD",
       };
@@ -86,7 +120,7 @@ module.exports = (app) => {
 
       const newShipping = {
         user: createdUser._id,
-        full_name: req.body.first_name+" "+req.body.last_name,
+        full_name: req.body.first_name + " " + req.body.last_name,
         country: "United States",
       };
 
@@ -104,7 +138,37 @@ module.exports = (app) => {
       });
     }
   });
+  app.post("/api/login_users", async (req, res) => {
+    //login
+    try {
+      const user = await User.findOne({ email: req.body.email });            
+      if (!user) {
+        return httpRespond.severResponse(res, {
+          status: false,
+          message: "user not found",
+        });
+      }
 
+      if (!password.comparePassword(req.body.password, user.password)) {
+        return httpRespond.severResponse(res, {
+          status: false,
+          message: "user not found",
+        });
+      }
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        message: "user found",
+        user: user,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+        message: "api error",
+      });
+    }
+  });
   //   app.post("/api/update_device_token", async (req, res) => {
   //     const client = await Client.findOne({ _id: req.body.clientId });
   //     client.deviceToken = req.body.token;

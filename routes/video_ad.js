@@ -48,38 +48,38 @@ const storage_google = new Storage({
 // let uri = `https://storage.cloud.google.com/${bucketName}/${data[0].metadata.name}`
 // let id = data[0].metadata.name
 module.exports = (app) => {
-  //   app.post("/api/test", upload.single("photo"), async (req, res) => {
-  //     try {
-  //       const data = await storage_google
-  //         .bucket(bucketName)
-  //         .upload(req.file.path, {
-  //           gzip: true,
+//   app.post("/api/test", upload.single("photo"), async (req, res) => {
+//     try {
+//       const data = await storage_google
+//         .bucket(bucketName)
+//         .upload(req.file.path, {
+//           gzip: true,
 
-  //           metadata: {
-  //             cacheControl: "public, max-age=31536000",
-  //           },
-  //         });
-  // console.log(data);
+//           metadata: {
+//             cacheControl: "public, max-age=31536000",
+//           },
+//         });
+// console.log(data);
 
-  //       return httpRespond.severResponse(res, {
-  //         status: true,
-  //       });
-  //     } catch (e) {
-  //       console.log(e);
+//       return httpRespond.severResponse(res, {
+//         status: true,
+//       });
+//     } catch (e) {
+//       console.log(e);
 
-  //       return httpRespond.severResponse(res, {
-  //         status: false,
-  //       });
-  //     }
-  //   });
+//       return httpRespond.severResponse(res, {
+//         status: false,
+//       });
+//     }
+//   });
 
   app.get("/api/view/fetch_video_ad/:user_id/", async (req, res) => {
     try {
       const data = await VideoAd.aggregate([
         {
           $match: {
-           // seller: { $ne: ObjectId(req.params.user_id) },
-            //active: true,
+            seller: { $ne: ObjectId(req.params.user_id) },
+            active: true,
           },
         }, // filter the results
         { $limit: 10 },
@@ -143,44 +143,29 @@ module.exports = (app) => {
 
         if (!view_data) {
           //add
-          const response = await storage_google
-            .bucket(bucketName)
-            .upload(req.file.path, {
-              gzip: true,
-
-              metadata: {
-                cacheControl: "public, max-age=31536000",
-              },
-            });
-          uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
-
+          const cloud_id = await cloudinary.v2.uploader.upload(req.file.path, {
+            resource_type: "video",
+          });
+          uri = cloud_id.url;
           const newData = {
             seller: req.params.user_id,
-            video: uri,
-            cloud_id: response[0].metadata.name,
+            video: cloud_id.url,
+            cloudinary_id: cloud_id.public_id,
             video_ad_category: req.params.video_ad_category,
           };
           await new VideoAd(newData).save();
         } else {
           //            //update
-          await storage_google
-            .bucket(bucketName)
-            .file(view_data.cloud_id)
-            .delete();
+          await cloudinary.v2.uploader.destroy(view_data.cloudinary_id, {
+            resource_type: "video",
+          });
           // //upload new photo
-          const response = await storage_google
-            .bucket(bucketName)
-            .upload(req.file.path, {
-              gzip: true,
-
-              metadata: {
-                cacheControl: "public, max-age=31536000",
-              },
-            });
-          uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
-
-          view_data.video = uri;
-          view_data.cloud_id = response[0].metadata.name;
+          const cloud_id = await cloudinary.v2.uploader.upload(req.file.path, {
+            resource_type: "video",
+          });
+          uri = cloud_id.url;
+          view_data.video = cloud_id.url;
+          view_data.cloudinary_id = cloud_id.public_id;
           view_data.video_ad_category = req.params.video_ad_category;
           view_data.save();
         }

@@ -8,6 +8,7 @@ let userSchema = new Schema({
   last_name: String,
   phone: String,
   email: String,
+  password:String,
   shop_logo: {
     type: String,
     default: "https://oarnation.com/content/no-picture.jpg",
