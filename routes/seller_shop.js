@@ -456,7 +456,7 @@ module.exports = (app) => {
       const data = await ShoppingCart.find({
        user: { $eq: req.params.user_id },
         has_checkedout: true,
-        order_shipped: true,
+        //order_shipped: true,
       })
         .populate("items.product")
         .populate("seller")
@@ -465,7 +465,6 @@ module.exports = (app) => {
         .limit(pagination.limit)
         .skip(pagination.skip);
 
-      console.log(data);
 
       return httpRespond.severResponse(res, {
         status: true,

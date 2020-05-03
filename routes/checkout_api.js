@@ -256,7 +256,7 @@ module.exports = (app) => {
           }),
         };
 
-        //console.log(req.params.total_qty);
+        console.log(req.params.total_qty);
         
 
         request(options, async function (error, response) {
