@@ -250,7 +250,7 @@ module.exports = (app) => {
                 shoppingCart.seller.shop_name +
                 ". Your order should arrive by " +
                 data.actual_delivery_date +
-                ". Open theShop app to track your order. theShop://purchased_orders";
+                ". Open theShops app to track your order. theShops://purchased_orders";
               await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
               return httpRespond.severResponse(res, {
                 status: true,

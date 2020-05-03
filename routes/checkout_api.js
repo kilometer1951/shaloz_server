@@ -251,14 +251,23 @@ module.exports = (app) => {
                 country_code: "US",
                 address_residential_indicator: "no",
               },
-              packages: [{ weight: { value: parseInt(req.params.total_qty), unit:  req.params.unit} }],
+              packages: [{ weight: { value: parseFloat(req.params.total_qty), unit:  req.params.unit} }],
             },
           }),
         };
 
+        //console.log(req.params.total_qty);
+        
+
         request(options, async function (error, response) {
-          if (error) throw new Error(error);
+          if (error) {
+            console.log(error);
+            
+            throw new Error(error)
+          };
           const data = JSON.parse(response.body);
+         // console.log(data.rate_response.rates[0]);
+          
 
           return httpRespond.severResponse(res, {
             status: true,
@@ -266,7 +275,7 @@ module.exports = (app) => {
           });
         });
       } catch (e) {
-        console.log(e);
+       // console.log(e);
         return httpRespond.severResponse(res, {
           status: false,
           message: e,
@@ -305,7 +314,7 @@ module.exports = (app) => {
           transfer_group: req.body.cart_id,
           description:
             "Payment for products",
-          statement_descriptor: "theShop"
+          statement_descriptor: "theShops"
         });
 
         shoppingCart.has_checkedout = true
@@ -318,7 +327,7 @@ module.exports = (app) => {
         shoppingCart.date_user_checked_out = new Date();
         shoppingCart.save()
 
-        messageBody = "Hi "+seller_info.shop_name+"you have a new order from "+user.first_name+". Open theShop to view the order. theShop://view_orders"
+        messageBody = "Hi "+seller_info.shop_name+"you have a new order from "+user.first_name+". Open theShops to view the order. theShops://view_orders"
               await smsFunctions.sendSMS(seller_info.phone, messageBody);
 
       return httpRespond.severResponse(res, {
