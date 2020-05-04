@@ -297,7 +297,7 @@ module.exports = (app) => {
       //get shopping cart 
       const shoppingCart = await ShoppingCart.findOne({
         _id: req.body.cart_id,
-      });
+      })
 
       //get seller phone number 
       const seller_info = await User.findOne({
@@ -317,6 +317,7 @@ module.exports = (app) => {
           statement_descriptor: "theShops"
         });
 
+       
         shoppingCart.has_checkedout = true
         shoppingCart.sub_total = req.body.sub_total
         shoppingCart.shippment_price = req.body.shippment_price
@@ -326,6 +327,27 @@ module.exports = (app) => {
         shoppingCart.stripe_charge_id = charge.id;
         shoppingCart.date_user_checked_out = new Date();
         shoppingCart.save()
+
+
+        //update product qty
+        for(let i = 0; i < shoppingCart.items.length; i++){
+          const product = await Product.findOne({_id: shoppingCart.items[i].product})
+          const qty_in_stock = parseInt(product.product_qty)
+          const qty_bought = parseInt(shoppingCart.items[i].qty)
+          const newQty = qty_in_stock - qty_bought
+          if(newQty <= 0){
+            if(!product.allow_purchase_when_out_of_stock){
+              product.inStock = false
+            }
+          }
+          product.product_qty = newQty
+          product.save()
+        }
+
+
+
+
+
 
         messageBody = "Hi "+seller_info.shop_name+"you have a new order from "+user.first_name+". Open theShops to view the order. theShops://view_orders"
               await smsFunctions.sendSMS(seller_info.phone, messageBody);

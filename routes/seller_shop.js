@@ -37,6 +37,7 @@ module.exports = (app) => {
         //search products
         const products = await Product.find({
           user: { $eq: ObjectId(req.params.seller_id) },
+          inStock:true,
           $or: [
             { product_name: { $regex: new RegExp(req.params.value, "i") } },
             { main_category: { $regex: new RegExp(req.params.value, "i") } },
@@ -71,6 +72,7 @@ module.exports = (app) => {
           {
             $match: {
               user: { $eq: ObjectId(req.params.seller_id) },
+              inStock:true,
             },
           }, // filter the results
           { $limit: 6 },
@@ -454,7 +456,7 @@ module.exports = (app) => {
         skip: per_page * (page_no - 1),
       };
       const data = await ShoppingCart.find({
-       user: { $eq: req.params.user_id },
+        user: { $eq: req.params.user_id },
         has_checkedout: true,
         //order_shipped: true,
       })
@@ -464,7 +466,6 @@ module.exports = (app) => {
         .sort("-date_added")
         .limit(pagination.limit)
         .skip(pagination.skip);
-
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -524,6 +525,63 @@ module.exports = (app) => {
       return httpRespond.severResponse(res, {
         status: true,
         seller,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+
+  app.get("/api/view/fetch_promo/:shop_id", async (req, res) => {
+    try {
+      const shop = await User.findOne({ _id: req.params.shop_id });
+      return httpRespond.severResponse(res, {
+        status: true,
+        shop,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+
+
+  app.post("/api/add/shipping_promo", async (req, res) => {
+    try {
+      const shop = await User.findOne({ _id: req.body.shop_id });
+      shop.offers_free_shipping = req.body.offers_free_shipping
+      shop.price_threshold = req.body.price_threshold
+      shop.save()
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+
+
+  app.post("/api/add/discount_promo", async (req, res) => {
+    try {
+      const shop = await User.findOne({ _id: req.body.shop_id });
+      shop.offers_discount_on_price_threshold = req.body.offers_discount_on_price_threshold
+      shop.max_items_to_get_discount = req.body.max_items_to_get_discount
+      shop.discount_amount_for_threshold = req.body.discount_amount_for_threshold
+      shop.save()
+
+      return httpRespond.severResponse(res, {
+        status: true,
       });
     } catch (e) {
       console.log(e);

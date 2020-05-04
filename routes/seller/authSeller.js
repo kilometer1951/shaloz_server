@@ -334,6 +334,7 @@ module.exports = (app) => {
 
       return httpRespond.severResponse(res, {
         status: true,
+        user
       });
     } catch (e) {
       console.log(e);

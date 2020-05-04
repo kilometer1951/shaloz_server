@@ -57,6 +57,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Health & Beauty",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -66,6 +67,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Baby, Kids & Maternity",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -75,6 +77,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Cell Phones & Accessories",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -84,6 +87,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Hair Products & Supplies",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -93,6 +97,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Jewelry",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -102,6 +107,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Home & Garden",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -111,6 +117,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Musical Instruments",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -120,6 +127,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Wedding, Party & Events",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -129,6 +137,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Workout Supplements",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -138,6 +147,7 @@ module.exports = (app) => {
           {
             $match: {
               main_category: "Barber Products & Supplies",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -150,6 +160,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Health & Beauty",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -160,6 +171,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Baby, Kids & Maternity",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -170,6 +182,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Cell Phones & Accessories",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -180,6 +193,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Hair Products & Supplies",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -190,6 +204,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Jewelry",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -200,6 +215,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Home & Garden",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -210,6 +226,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Musical Instruments",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -220,6 +237,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Wedding, Party & Events",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -230,6 +248,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Workout Supplements",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -240,6 +259,7 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Barber Products & Supplies",
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 10 } },
@@ -249,6 +269,7 @@ module.exports = (app) => {
           {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
+              inStock:true
             },
           }, // filter the results
           { $sample: { size: 4 } },
@@ -296,6 +317,7 @@ module.exports = (app) => {
           $match: {
             user: { $ne: ObjectId(req.params.user_id) },
             discount: { $ne: "" },
+            inStock:true
           },
         }, // filter the results
 
@@ -380,7 +402,12 @@ module.exports = (app) => {
         //fetch fav
         const fav_products = await FavoriteProduct.findOne({
           product: { $eq: ObjectId(req.params.product_id) },
+          user: { $eq: ObjectId(req.params.user_id) },
+
         });
+
+      //  console.log(fav_products);
+        
 
         return httpRespond.severResponse(res, {
           status: true,
@@ -444,6 +471,7 @@ module.exports = (app) => {
         {
           $match: {
             user: { $ne: ObjectId(req.params.user_id) },
+            inStock:true
           },
         }, // filter the results
         { $skip: pagination.skip },
@@ -480,6 +508,7 @@ module.exports = (app) => {
         {
           $match: {
             user: { $eq: ObjectId(req.params.seller_id) },
+            inStock:true
           },
         }, // filter the results
         { $skip: pagination.skip },
@@ -515,6 +544,7 @@ module.exports = (app) => {
           $match: {
             user: { $eq: ObjectId(req.params.seller_id) },
             discount: { $ne: "" },
+            inStock:true
           },
         }, // filter the results
         { $skip: pagination.skip },
@@ -743,6 +773,7 @@ module.exports = (app) => {
       //search products
       const products = await Product.find({
         user: { $ne: ObjectId(req.params.user_id) },
+        inStock:true,
         $or: [
           { product_name: { $regex: new RegExp(req.params.value, "i") } },
           { main_category: { $regex: new RegExp(req.params.value, "i") } },
@@ -757,7 +788,7 @@ module.exports = (app) => {
 
       //search users
       const shops = await User.find({
-        user: { $ne: ObjectId(req.params.user_id) },
+        _id: { $ne: ObjectId(req.params.user_id) },
         shop_setup: "complete",
         $or: [
           { first_name: { $regex: new RegExp(req.params.value, "i") } },
@@ -765,6 +796,8 @@ module.exports = (app) => {
           { shop_name: { $regex: new RegExp(req.params.value, "i") } },
         ],
       }).limit(6);
+      
+      
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -786,6 +819,7 @@ module.exports = (app) => {
         {
           $match: {
             user: { $ne: ObjectId(req.params.user_id) },
+            inStock:true,
           },
         }, // filter the results
         { $limit: 5 },
@@ -796,7 +830,7 @@ module.exports = (app) => {
         {
           $match: {
             shop_setup: "complete",
-            user: { $ne: ObjectId(req.params.user_id) },
+            _id: { $ne: ObjectId(req.params.user_id) },
           },
         }, // filter the results
         { $limit: 6 },
@@ -841,6 +875,7 @@ module.exports = (app) => {
           $match: {
             user: { $ne: ObjectId(req.body.user_id) },
             main_category: req.body.main_cat,
+            inStock:true,
             $or: [
               {
                 sub_category1: {
@@ -865,6 +900,7 @@ module.exports = (app) => {
           {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
+              inStock:true,
             },
           }, // filter the results
           { $limit: 10 },

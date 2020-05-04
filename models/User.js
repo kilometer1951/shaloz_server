@@ -28,12 +28,12 @@ let userSchema = new Schema({
   date_created_seller_account: { type: Date, default: Date.now },
   shop_setup:{ type: String, default: "not_complete" },
   about:{ type: String, default: "" },
-  
-  shop_offers_discount_above_max_items:{ type: Boolean, default: false },
-  max_amount_to_get_discount:{ type: String, default: "" },
-  discount_amount_for_item_threshold:{ type: String, default: "" },
 
-  shop_offers_free_shipping_above_price_threshold:{ type: Boolean, default: false },
+  offers_discount_on_price_threshold:{ type: Boolean, default: false },
+  max_items_to_get_discount:{ type: String, default: "" },
+  discount_amount_for_threshold:{ type: String, default: "" },
+
+  offers_free_shipping:{ type: Boolean, default: false },
   price_threshold:{ type: String, default: "" },
 
 

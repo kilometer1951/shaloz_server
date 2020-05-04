@@ -21,7 +21,7 @@ var productSchema = new Schema({
   variants: [{ type: Schema.Types.ObjectId, ref: "variants" }],
   user: { type: Schema.Types.ObjectId, ref: "users" },
   discount: { type: String, default: "" },
-  //inStock: { type: Boolean, default: true },
+  inStock: { type: Boolean, default: true },
   discount_start_date: { type: String, default: "" },
   discount_end_date: { type: String, default: "" },
   allow_purchase_when_out_of_stock: { type: Boolean, default: false },
