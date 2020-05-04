@@ -899,7 +899,7 @@ module.exports = (app) => {
         otherProducts = await Product.aggregate([
           {
             $match: {
-              user: { $ne: ObjectId(req.params.user_id) },
+              user: { $ne: ObjectId(req.body.user_id) },
               inStock:true,
             },
           }, // filter the results
@@ -909,13 +909,16 @@ module.exports = (app) => {
         shops = await User.aggregate([
           {
             $match: {
-              user: { $ne: ObjectId(req.params.user_id) },
+              _id: { $ne: ObjectId(req.body.user_id) },
             },
           }, // filter the results
           { $limit: 10 },
           { $sample: { size: 10 } },
         ]);
       }
+
+      console.log(otherProducts);
+      
 
       return httpRespond.severResponse(res, {
         status: true,
