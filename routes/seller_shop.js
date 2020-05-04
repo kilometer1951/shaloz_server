@@ -159,7 +159,7 @@ module.exports = (app) => {
                 event_not_found: false,
               });
             }
-            const data = JSON.parse(response.body);
+            const data = JSON.parse(response.body);            
 
             if (data.events.length === 0) {
               console.log("event not found erorr");
@@ -170,76 +170,76 @@ module.exports = (app) => {
             } else {
               if (parseFloat(shoppingCart.total) < 300) {
                 console.log("charge 4% + 1");
-                const cart_total = parseFloat(shoppingCart.total).toFixed(2);
-                const processing_fee = parseFloat(
-                  shoppingCart.processing_fee
-                ).toFixed(2);
+                // const cart_total = parseFloat(shoppingCart.total).toFixed(2);
+                // const processing_fee = parseFloat(
+                //   shoppingCart.processing_fee
+                // ).toFixed(2);
 
-                const newTotal = (
-                  parseFloat(cart_total) - parseFloat(processing_fee)
-                ).toFixed(2);
+                // const newTotal = (
+                //   parseFloat(cart_total) - parseFloat(processing_fee)
+                // ).toFixed(2);
 
-                const theshop_takes = (parseFloat(newTotal) * 0.04 + 1).toFixed(
-                  2
-                );
-                const seller_takes = (
-                  parseFloat(newTotal) - parseFloat(theshop_takes)
-                ).toFixed(2);
+                // const theshop_takes = (parseFloat(newTotal) * 0.04 + 1).toFixed(
+                //   2
+                // );
+                // const seller_takes = (
+                //   parseFloat(newTotal) - parseFloat(theshop_takes)
+                // ).toFixed(2);
 
-                const amount_to_transfer = Math.round(
-                  parseFloat(seller_takes) * 100
-                );
+                // const amount_to_transfer = Math.round(
+                //   parseFloat(seller_takes) * 100
+                // );
 
-                const transfer = await stripe.transfers.create({
-                  amount: amount_to_transfer,
-                  currency: "usd",
-                  source_transaction: shoppingCart.stripe_charge_id,
-                  destination: shoppingCart.seller.stripe_seller_account_id,
-                });
+                // const transfer = await stripe.transfers.create({
+                //   amount: amount_to_transfer,
+                //   currency: "usd",
+                //   source_transaction: shoppingCart.stripe_charge_id,
+                //   destination: shoppingCart.seller.stripe_seller_account_id,
+                // });
                 // update shopping cart
                 shoppingCart.expected_arrival_date = data.actual_delivery_date;
                 shoppingCart.tracking_number = req.body.tracking_number;
-                shoppingCart.seller_takes = seller_takes;
-                shoppingCart.theshop_takes = theshop_takes;
-                shoppingCart.stripe_transfer_id = transfer.id;
+                //shoppingCart.seller_takes = seller_takes;
+                //shoppingCart.theshop_takes = theshop_takes;
+              //  shoppingCart.stripe_transfer_id = transfer.id;
                 shoppingCart.order_shipped = true;
                 shoppingCart.date_entered_tracking = new Date();
                 shoppingCart.save();
               } else {
                 console.log("charge 6% + 2.50");
-                const cart_total = parseFloat(shoppingCart.total).toFixed(2);
-                const processing_fee = parseFloat(
-                  shoppingCart.processing_fee
-                ).toFixed(2);
+                // const cart_total = parseFloat(shoppingCart.total).toFixed(2);
+                // const processing_fee = parseFloat(
+                //   shoppingCart.processing_fee
+                // ).toFixed(2);
 
-                const newTotal = (
-                  parseFloat(cart_total) - parseFloat(processing_fee)
-                ).toFixed(2);
+                // const newTotal = (
+                //   parseFloat(cart_total) - parseFloat(processing_fee)
+                // ).toFixed(2);
 
-                const theshop_takes = (
-                  parseFloat(newTotal) * 0.06 +
-                  2.5
-                ).toFixed(2);
-                const seller_takes = (
-                  parseFloat(newTotal) - parseFloat(theshop_takes)
-                ).toFixed(2);
+                // const theshop_takes = (
+                //   parseFloat(newTotal) * 0.06 +
+                //   2.5
+                // ).toFixed(2);
+                // const seller_takes = (
+                //   parseFloat(newTotal) - parseFloat(theshop_takes)
+                // ).toFixed(2);
 
-                const amount_to_transfer = Math.round(
-                  parseFloat(seller_takes) * 100
-                );
+                // const amount_to_transfer = Math.round(
+                //   parseFloat(seller_takes) * 100
+                // );
 
-                const transfer = await stripe.transfers.create({
-                  amount: amount_to_transfer,
-                  currency: "usd",
-                  source_transaction: shoppingCart.stripe_charge_id,
-                  destination: shoppingCart.seller.stripe_seller_account_id,
-                });
+                // const transfer = await stripe.transfers.create({
+                //   amount: amount_to_transfer,
+                //   currency: "usd",
+                //   source_transaction: shoppingCart.stripe_charge_id,
+                //   destination: shoppingCart.seller.stripe_seller_account_id,
+                // });
                 // update shopping cart
                 shoppingCart.expected_arrival_date = data.actual_delivery_date;
                 shoppingCart.tracking_number = req.body.tracking_number;
-                shoppingCart.seller_takes = seller_takes;
-                shoppingCart.theshop_takes = theshop_takes;
-                shoppingCart.stripe_transfer_id = transfer.id;
+               // shoppingCart.seller_takes = seller_takes;
+                //shoppingCart.theshop_takes = theshop_takes;
+                //shoppingCart.stripe_transfer_id = transfer.id;
                 shoppingCart.order_shipped = true;
                 shoppingCart.date_entered_tracking = new Date();
                 shoppingCart.save();
@@ -591,3 +591,164 @@ module.exports = (app) => {
     }
   });
 };
+
+
+
+
+
+
+
+
+
+// app.post("/api/add/update_tracking_number_pay_seller", async (req, res) => {
+//   try {
+//     //get the cart
+//     const shoppingCart = await ShoppingCart.findOne({
+//       _id: req.body.cart_id,
+//       has_checkedout: true,
+//       order_shipped: false,
+//     })
+//       .populate("user")
+//       .populate("seller");
+
+//     if (shoppingCart) {
+//       //get shipping
+//       var options = {
+//         method: "GET",
+//         url:
+//           "https://api.shipengine.com/v1/tracking?carrier_code=stamps_com&tracking_number=" +
+//           req.body.tracking_number,
+//         headers: {
+//           Host: "api.shipengine.com",
+//           "API-Key": "TEST_4fXNkXGqxlhbxfcSEnGdfDZXpAK0bpSl84HUKvoZjcs",
+//         },
+//       };
+//       request(options, async function (error, response) {
+//         try {
+//           if (error) {
+//             console.log(error);
+
+//             return httpRespond.severResponse(res, {
+//               status: false,
+//               event_not_found: false,
+//             });
+//           }
+//           const data = JSON.parse(response.body);
+//           console.log(data.events);
+          
+
+//           if (data.events.length === 0) {
+//             console.log("event not found erorr");
+//             return httpRespond.severResponse(res, {
+//               status: false,
+//               event_not_found: false,
+//             });
+//           } else {
+//             if (parseFloat(shoppingCart.total) < 300) {
+//               console.log("charge 4% + 1");
+//               const cart_total = parseFloat(shoppingCart.total).toFixed(2);
+//               const processing_fee = parseFloat(
+//                 shoppingCart.processing_fee
+//               ).toFixed(2);
+
+//               const newTotal = (
+//                 parseFloat(cart_total) - parseFloat(processing_fee)
+//               ).toFixed(2);
+
+//               const theshop_takes = (parseFloat(newTotal) * 0.04 + 1).toFixed(
+//                 2
+//               );
+//               const seller_takes = (
+//                 parseFloat(newTotal) - parseFloat(theshop_takes)
+//               ).toFixed(2);
+
+//               const amount_to_transfer = Math.round(
+//                 parseFloat(seller_takes) * 100
+//               );
+
+//               // const transfer = await stripe.transfers.create({
+//               //   amount: amount_to_transfer,
+//               //   currency: "usd",
+//               //   source_transaction: shoppingCart.stripe_charge_id,
+//               //   destination: shoppingCart.seller.stripe_seller_account_id,
+//               // });
+//               // update shopping cart
+//               shoppingCart.expected_arrival_date = data.actual_delivery_date;
+//               shoppingCart.tracking_number = req.body.tracking_number;
+//               shoppingCart.seller_takes = seller_takes;
+//               shoppingCart.theshop_takes = theshop_takes;
+//             //  shoppingCart.stripe_transfer_id = transfer.id;
+//               shoppingCart.order_shipped = true;
+//               shoppingCart.date_entered_tracking = new Date();
+//             //  shoppingCart.save();
+//             } else {
+//               console.log("charge 6% + 2.50");
+//               const cart_total = parseFloat(shoppingCart.total).toFixed(2);
+//               const processing_fee = parseFloat(
+//                 shoppingCart.processing_fee
+//               ).toFixed(2);
+
+//               const newTotal = (
+//                 parseFloat(cart_total) - parseFloat(processing_fee)
+//               ).toFixed(2);
+
+//               const theshop_takes = (
+//                 parseFloat(newTotal) * 0.06 +
+//                 2.5
+//               ).toFixed(2);
+//               const seller_takes = (
+//                 parseFloat(newTotal) - parseFloat(theshop_takes)
+//               ).toFixed(2);
+
+//               const amount_to_transfer = Math.round(
+//                 parseFloat(seller_takes) * 100
+//               );
+
+//               const transfer = await stripe.transfers.create({
+//                 amount: amount_to_transfer,
+//                 currency: "usd",
+//                 source_transaction: shoppingCart.stripe_charge_id,
+//                 destination: shoppingCart.seller.stripe_seller_account_id,
+//               });
+//               // update shopping cart
+//               shoppingCart.expected_arrival_date = data.actual_delivery_date;
+//               shoppingCart.tracking_number = req.body.tracking_number;
+//               shoppingCart.seller_takes = seller_takes;
+//               shoppingCart.theshop_takes = theshop_takes;
+//               shoppingCart.stripe_transfer_id = transfer.id;
+//               shoppingCart.order_shipped = true;
+//               shoppingCart.date_entered_tracking = new Date();
+//               shoppingCart.save();
+//             }
+
+//             messageBody =
+//               "Hi " +
+//               shoppingCart.user.first_name +
+//               ", your order has been shipped by " +
+//               shoppingCart.seller.shop_name +
+//               ". Your order should arrive by " +
+//               data.actual_delivery_date +
+//               ". Open theShops app to track your order. theShops://purchased_orders";
+//             await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
+//             return httpRespond.severResponse(res, {
+//               status: true,
+//               event_not_found: true,
+//             });
+//           }
+//         } catch (e) {
+//           console.log(e);
+
+//           return httpRespond.severResponse(res, {
+//             status: false,
+//             event_not_found: false,
+//           });
+//         }
+//       });
+//     }
+//   } catch (e) {
+//     console.log(e);
+//     return httpRespond.severResponse(res, {
+//       status: false,
+//     });
+//   }
+// });

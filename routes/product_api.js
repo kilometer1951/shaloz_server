@@ -911,6 +911,7 @@ module.exports = (app) => {
           {
             $match: {
               _id: { $ne: ObjectId(req.body.user_id) },
+              shop_setup: "complete",
             },
           }, // filter the results
           { $limit: 10 },
