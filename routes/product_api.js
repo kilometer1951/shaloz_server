@@ -357,6 +357,7 @@ module.exports = (app) => {
           {
             $match: {
               user: { $eq: ObjectId(product.user._id) },
+              inStock:true,
             },
           }, // filter the results
           { $sample: { size: 4 } },
