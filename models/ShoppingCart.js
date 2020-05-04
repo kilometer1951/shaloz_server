@@ -26,6 +26,7 @@ var shoppingcartSchema = new Schema({
 
   seller_takes: { type: String, default: "0.00" },
   theshop_takes: { type: String, default: "" },
+  date_paid: { type: String, default: "" },
 
   sub_total: { type: String, default: "" },
   tax: { type: String, default: "" },

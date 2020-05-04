@@ -604,7 +604,7 @@ module.exports = (app) => {
   );
   app.get("/api/view/my_shop_product/:user_id", async (req, res) => {
     try {
-      let per_page = 15;
+      let per_page = 10;
       let page_no = parseInt(req.query.page);
       let pagination = {
         limit: per_page,

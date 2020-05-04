@@ -349,7 +349,7 @@ module.exports = (app) => {
 
 
 
-        messageBody = "Hi "+seller_info.shop_name+"you have a new order from "+user.first_name+". Open theShops to view the order. theShops://view_orders"
+        messageBody = "Hi "+seller_info.shop_name+" you have a new order from "+user.first_name+". Open theShops to view the order. theShops://view_orders"
               await smsFunctions.sendSMS(seller_info.phone, messageBody);
 
       return httpRespond.severResponse(res, {

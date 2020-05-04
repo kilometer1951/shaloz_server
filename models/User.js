@@ -38,7 +38,9 @@ let userSchema = new Schema({
 
 
   auto_discount_amount:{ type: String, default: "" },
-  deactivate_user:{ type: Boolean, default: false }
+  deactivate_user:{ type: Boolean, default: false },
+  admin:{ type: Boolean, default: false },
+
   
 });
 

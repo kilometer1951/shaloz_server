@@ -91,7 +91,9 @@ module.exports = (app) => {
 
   app.post("/api/signup_buyer", async (req, res) => {
     try {
-      const user = await User.findOne({ phone: req.body.phone, email:req.body.email });
+      const user = await User.findOne({ phone: req.body.phone});
+      console.log(user);
+      
       if (user) {
         return httpRespond.severResponse(res, {
           status: false,

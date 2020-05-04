@@ -37,7 +37,7 @@ module.exports = (app) => {
         //search products
         const products = await Product.find({
           user: { $eq: ObjectId(req.params.seller_id) },
-          inStock:true,
+          inStock: true,
           $or: [
             { product_name: { $regex: new RegExp(req.params.value, "i") } },
             { main_category: { $regex: new RegExp(req.params.value, "i") } },
@@ -72,7 +72,7 @@ module.exports = (app) => {
           {
             $match: {
               user: { $eq: ObjectId(req.params.seller_id) },
-              inStock:true,
+              inStock: true,
             },
           }, // filter the results
           { $limit: 6 },
@@ -111,8 +111,6 @@ module.exports = (app) => {
         .limit(pagination.limit)
         .skip(pagination.skip);
 
-      console.log(orders);
-
       return httpRespond.severResponse(res, {
         status: true,
         orders,
@@ -126,7 +124,7 @@ module.exports = (app) => {
     }
   });
 
-  app.post("/api/add/update_tracking_number_pay_seller", async (req, res) => {
+  app.post("/api/add/update_tracking_number", async (req, res) => {
     try {
       //get the cart
       const shoppingCart = await ShoppingCart.findOne({
@@ -159,7 +157,7 @@ module.exports = (app) => {
                 event_not_found: false,
               });
             }
-            const data = JSON.parse(response.body);            
+            const data = JSON.parse(response.body);
 
             if (data.events.length === 0) {
               console.log("event not found erorr");
@@ -201,7 +199,7 @@ module.exports = (app) => {
                 shoppingCart.tracking_number = req.body.tracking_number;
                 //shoppingCart.seller_takes = seller_takes;
                 //shoppingCart.theshop_takes = theshop_takes;
-              //  shoppingCart.stripe_transfer_id = transfer.id;
+                //  shoppingCart.stripe_transfer_id = transfer.id;
                 shoppingCart.order_shipped = true;
                 shoppingCart.date_entered_tracking = new Date();
                 shoppingCart.save();
@@ -237,7 +235,7 @@ module.exports = (app) => {
                 // update shopping cart
                 shoppingCart.expected_arrival_date = data.actual_delivery_date;
                 shoppingCart.tracking_number = req.body.tracking_number;
-               // shoppingCart.seller_takes = seller_takes;
+                // shoppingCart.seller_takes = seller_takes;
                 //shoppingCart.theshop_takes = theshop_takes;
                 //shoppingCart.stripe_transfer_id = transfer.id;
                 shoppingCart.order_shipped = true;
@@ -415,7 +413,7 @@ module.exports = (app) => {
 
   app.get("/api/view/completed_orders_history/:seller_id", async (req, res) => {
     try {
-      let per_page = 10;
+      let per_page = 5;
       let page_no = parseInt(req.query.page);
       let pagination = {
         limit: per_page,
@@ -432,7 +430,7 @@ module.exports = (app) => {
         .limit(pagination.limit)
         .skip(pagination.skip);
 
-      console.log(orders);
+      console.log(orders.length);
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -534,7 +532,6 @@ module.exports = (app) => {
     }
   });
 
-
   app.get("/api/view/fetch_promo/:shop_id", async (req, res) => {
     try {
       const shop = await User.findOne({ _id: req.params.shop_id });
@@ -550,14 +547,12 @@ module.exports = (app) => {
     }
   });
 
-
-
   app.post("/api/add/shipping_promo", async (req, res) => {
     try {
       const shop = await User.findOne({ _id: req.body.shop_id });
-      shop.offers_free_shipping = req.body.offers_free_shipping
-      shop.price_threshold = req.body.price_threshold
-      shop.save()
+      shop.offers_free_shipping = req.body.offers_free_shipping;
+      shop.price_threshold = req.body.price_threshold;
+      shop.save();
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -570,15 +565,63 @@ module.exports = (app) => {
     }
   });
 
-
-
   app.post("/api/add/discount_promo", async (req, res) => {
     try {
       const shop = await User.findOne({ _id: req.body.shop_id });
-      shop.offers_discount_on_price_threshold = req.body.offers_discount_on_price_threshold
-      shop.max_items_to_get_discount = req.body.max_items_to_get_discount
-      shop.discount_amount_for_threshold = req.body.discount_amount_for_threshold
-      shop.save()
+      shop.offers_discount_on_price_threshold =
+        req.body.offers_discount_on_price_threshold;
+      shop.max_items_to_get_discount = req.body.max_items_to_get_discount;
+      shop.discount_amount_for_threshold =
+        req.body.discount_amount_for_threshold;
+      shop.save();
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/view/check_stripe_document/:seller_id", async (req, res) => {
+    try {
+      const user = await User.findOne({
+        _id: req.params.seller_id,
+      });
+
+      const ac = await stripe.accounts.retrieve(user.stripe_seller_account_id);
+      console.log(ac.individual.verification.status);
+
+      if (ac.individual.verification.status !== "unverified") {
+        return httpRespond.severResponse(res, {
+          verification: true,
+        });
+      } else {
+        return httpRespond.severResponse(res, {
+          verification: false,
+        });
+      }
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.post("/api/update/stripe_details", async (req, res) => {
+    try {
+      const seller = await User.findOne({ _id: req.body.seller_id });
+
+    const newUpdate = await stripe.accounts.update(seller.stripe_seller_account_id, {
+      individual: { first_name: req.body.first_name, last_name: req.body.last_name },
+      });
+
+
+      console.log(newUpdate.individual);
+      
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -592,163 +635,3 @@ module.exports = (app) => {
   });
 };
 
-
-
-
-
-
-
-
-
-// app.post("/api/add/update_tracking_number_pay_seller", async (req, res) => {
-//   try {
-//     //get the cart
-//     const shoppingCart = await ShoppingCart.findOne({
-//       _id: req.body.cart_id,
-//       has_checkedout: true,
-//       order_shipped: false,
-//     })
-//       .populate("user")
-//       .populate("seller");
-
-//     if (shoppingCart) {
-//       //get shipping
-//       var options = {
-//         method: "GET",
-//         url:
-//           "https://api.shipengine.com/v1/tracking?carrier_code=stamps_com&tracking_number=" +
-//           req.body.tracking_number,
-//         headers: {
-//           Host: "api.shipengine.com",
-//           "API-Key": "TEST_4fXNkXGqxlhbxfcSEnGdfDZXpAK0bpSl84HUKvoZjcs",
-//         },
-//       };
-//       request(options, async function (error, response) {
-//         try {
-//           if (error) {
-//             console.log(error);
-
-//             return httpRespond.severResponse(res, {
-//               status: false,
-//               event_not_found: false,
-//             });
-//           }
-//           const data = JSON.parse(response.body);
-//           console.log(data.events);
-          
-
-//           if (data.events.length === 0) {
-//             console.log("event not found erorr");
-//             return httpRespond.severResponse(res, {
-//               status: false,
-//               event_not_found: false,
-//             });
-//           } else {
-//             if (parseFloat(shoppingCart.total) < 300) {
-//               console.log("charge 4% + 1");
-//               const cart_total = parseFloat(shoppingCart.total).toFixed(2);
-//               const processing_fee = parseFloat(
-//                 shoppingCart.processing_fee
-//               ).toFixed(2);
-
-//               const newTotal = (
-//                 parseFloat(cart_total) - parseFloat(processing_fee)
-//               ).toFixed(2);
-
-//               const theshop_takes = (parseFloat(newTotal) * 0.04 + 1).toFixed(
-//                 2
-//               );
-//               const seller_takes = (
-//                 parseFloat(newTotal) - parseFloat(theshop_takes)
-//               ).toFixed(2);
-
-//               const amount_to_transfer = Math.round(
-//                 parseFloat(seller_takes) * 100
-//               );
-
-//               // const transfer = await stripe.transfers.create({
-//               //   amount: amount_to_transfer,
-//               //   currency: "usd",
-//               //   source_transaction: shoppingCart.stripe_charge_id,
-//               //   destination: shoppingCart.seller.stripe_seller_account_id,
-//               // });
-//               // update shopping cart
-//               shoppingCart.expected_arrival_date = data.actual_delivery_date;
-//               shoppingCart.tracking_number = req.body.tracking_number;
-//               shoppingCart.seller_takes = seller_takes;
-//               shoppingCart.theshop_takes = theshop_takes;
-//             //  shoppingCart.stripe_transfer_id = transfer.id;
-//               shoppingCart.order_shipped = true;
-//               shoppingCart.date_entered_tracking = new Date();
-//             //  shoppingCart.save();
-//             } else {
-//               console.log("charge 6% + 2.50");
-//               const cart_total = parseFloat(shoppingCart.total).toFixed(2);
-//               const processing_fee = parseFloat(
-//                 shoppingCart.processing_fee
-//               ).toFixed(2);
-
-//               const newTotal = (
-//                 parseFloat(cart_total) - parseFloat(processing_fee)
-//               ).toFixed(2);
-
-//               const theshop_takes = (
-//                 parseFloat(newTotal) * 0.06 +
-//                 2.5
-//               ).toFixed(2);
-//               const seller_takes = (
-//                 parseFloat(newTotal) - parseFloat(theshop_takes)
-//               ).toFixed(2);
-
-//               const amount_to_transfer = Math.round(
-//                 parseFloat(seller_takes) * 100
-//               );
-
-//               const transfer = await stripe.transfers.create({
-//                 amount: amount_to_transfer,
-//                 currency: "usd",
-//                 source_transaction: shoppingCart.stripe_charge_id,
-//                 destination: shoppingCart.seller.stripe_seller_account_id,
-//               });
-//               // update shopping cart
-//               shoppingCart.expected_arrival_date = data.actual_delivery_date;
-//               shoppingCart.tracking_number = req.body.tracking_number;
-//               shoppingCart.seller_takes = seller_takes;
-//               shoppingCart.theshop_takes = theshop_takes;
-//               shoppingCart.stripe_transfer_id = transfer.id;
-//               shoppingCart.order_shipped = true;
-//               shoppingCart.date_entered_tracking = new Date();
-//               shoppingCart.save();
-//             }
-
-//             messageBody =
-//               "Hi " +
-//               shoppingCart.user.first_name +
-//               ", your order has been shipped by " +
-//               shoppingCart.seller.shop_name +
-//               ". Your order should arrive by " +
-//               data.actual_delivery_date +
-//               ". Open theShops app to track your order. theShops://purchased_orders";
-//             await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
-//             return httpRespond.severResponse(res, {
-//               status: true,
-//               event_not_found: true,
-//             });
-//           }
-//         } catch (e) {
-//           console.log(e);
-
-//           return httpRespond.severResponse(res, {
-//             status: false,
-//             event_not_found: false,
-//           });
-//         }
-//       });
-//     }
-//   } catch (e) {
-//     console.log(e);
-//     return httpRespond.severResponse(res, {
-//       status: false,
-//     });
-//   }
-// });
