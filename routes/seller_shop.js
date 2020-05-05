@@ -279,7 +279,7 @@ module.exports = (app) => {
     "/api/view/seller_weekly_activity/:seller_id/:dateTime",
     async (req, res) => {
       try {
-        let per_page = 15;
+        let per_page = 8;
         let page_no = parseInt(req.query.page);
         let pagination = {
           limit: per_page,

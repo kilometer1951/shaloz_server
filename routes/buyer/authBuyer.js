@@ -67,7 +67,7 @@ module.exports = (app) => {
         messageBody =
           "Your verification code is: " +
           code +
-          ". theShop is a marketplace that allows you to build your online store and start selling in minutes. Buy and sell with theShop";
+          ". theShops is a marketplace that allows you to build your online store and start selling in minutes. Buy and sell with theShops";
         await smsFunctions.verification(req.body.phone, messageBody, code);
         return httpRespond.severResponse(res, {
           status: true,

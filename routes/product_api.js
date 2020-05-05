@@ -1203,5 +1203,66 @@ module.exports = (app) => {
       });
     }
   });
+
+
+  app.post("/api/edit/remove_from_stock", async (req, res) => {
+    try {
+      const product = await Product.findOne({_id:req.body.product_id})
+      product.inStock = false
+      product.save()
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+
+
+  app.post("/api/edit/add_to_stock_without_qty", async (req, res) => {
+    try {
+      const product = await Product.findOne({_id:req.body.product_id})
+      product.inStock = true
+      product.save()
+      console.log(product);
+      
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+  app.post("/api/edit/add_to_stock_with_qty", async (req, res) => {
+    try {
+      const product = await Product.findOne({_id:req.body.product_id})
+      product.product_qty = req.body.product_qty
+      product.inStock = true
+      product.save()
+      console.log(product);
+      
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
  
 };

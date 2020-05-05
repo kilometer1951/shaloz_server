@@ -366,6 +366,10 @@ module.exports = (app) => {
         (product.product_can_be_customized = productCanBeCustomized);
       product.product_weight = product_weight;
       product.product_weight_unit = product_weight_unit;
+      if(parseInt(product_qty) > 0){
+        product.inStock = true
+      }
+      
       product.save();
 
       return httpRespond.severResponse(res, {
