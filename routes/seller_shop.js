@@ -104,6 +104,7 @@ module.exports = (app) => {
         seller: req.params.seller_id,
         has_checkedout: true,
         order_shipped: false,
+        stripe_refund_id: { $eq: "" },
       })
         .populate("items.product")
         .populate("seller")
@@ -314,6 +315,7 @@ module.exports = (app) => {
           seller: req.params.seller_id,
           has_checkedout: true,
           order_shipped: true,
+          stripe_refund_id: { $eq: "" },
           date_added: {
             $gte: newStartOfWeekDateTime,
             $lte: newEndOfWeekDateTime,
@@ -377,6 +379,7 @@ module.exports = (app) => {
         seller: req.params.seller_id,
         order_shipped: true,
         has_checkedout: true,
+        stripe_refund_id: { $eq: "" },
         date_added: {
           $gte: newStartOfWeekDateTime,
           $lte: newEndOfWeekDateTime,
@@ -423,6 +426,7 @@ module.exports = (app) => {
         seller: req.params.seller_id,
         has_checkedout: true,
         order_shipped: true,
+        stripe_refund_id: { $eq: "" },
       })
         .populate("items.product")
         .populate("seller")
@@ -456,6 +460,7 @@ module.exports = (app) => {
       const data = await ShoppingCart.find({
         user: { $eq: req.params.user_id },
         has_checkedout: true,
+        stripe_refund_id: { $eq: "" },
         //order_shipped: true,
       })
         .populate("items.product")
@@ -615,13 +620,17 @@ module.exports = (app) => {
     try {
       const seller = await User.findOne({ _id: req.body.seller_id });
 
-    const newUpdate = await stripe.accounts.update(seller.stripe_seller_account_id, {
-      individual: { first_name: req.body.first_name, last_name: req.body.last_name },
-      });
-
+      const newUpdate = await stripe.accounts.update(
+        seller.stripe_seller_account_id,
+        {
+          individual: {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+          },
+        }
+      );
 
       console.log(newUpdate.individual);
-      
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -634,4 +643,3 @@ module.exports = (app) => {
     }
   });
 };
-

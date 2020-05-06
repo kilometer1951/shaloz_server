@@ -170,7 +170,8 @@ module.exports = (app) => {
       const data = await ShoppingCart.find({
         has_checkedout: true,
         order_shipped: true,
-        seller_takes: "0.00"
+        seller_takes: "0.00",
+        stripe_refund_id:{$eq: ""}
       })
         .populate("items.product")
         .populate("seller")
@@ -267,7 +268,7 @@ module.exports = (app) => {
         messageBody =
           "Hi " +
           shoppingCart.seller.first_name +
-          " we just processed your payment.theShops://purchased_orders";
+          " we just processed your payment. theShops://purchased_orders";
         await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
       }
       return httpRespond.severResponse(res, {
@@ -291,4 +292,41 @@ module.exports = (app) => {
       });
     }
   });
+
+
+
+
+  app.get("/api/view/fetch_cancel_order/:user_id", async (req, res) => {
+    try {
+      let per_page = 10;
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+      const data = await ShoppingCart.find({
+        has_checkedout: true,
+        stripe_refund_id: { $eq: "" },
+        order_shipped: false,
+      })
+        .populate("items.product")
+        .populate("seller")
+        .populate("user")
+        .sort("-date_added")
+        .limit(pagination.limit)
+        .skip(pagination.skip);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        endOfFile: data.length === 0 ? true : false,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
 };
