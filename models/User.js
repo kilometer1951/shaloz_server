@@ -13,6 +13,7 @@ let userSchema = new Schema({
     type: String,
     default: "https://oarnation.com/content/no-picture.jpg",
   },
+  shop_slogan:{ type: String, default: "" },
   deviceToken: { type: String, default: "" },
   shop_name: { type: String, default: "" },
   ssn_number: { type: String, default: "" },
@@ -40,6 +41,9 @@ let userSchema = new Schema({
   auto_discount_amount:{ type: String, default: "" },
   deactivate_user:{ type: Boolean, default: false },
   admin:{ type: Boolean, default: false },
+
+
+  logged_in:{ type: Boolean, default: true },
 
   
 });

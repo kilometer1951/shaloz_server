@@ -250,7 +250,7 @@ module.exports = (app) => {
                 ", your order has been shipped by " +
                 shoppingCart.seller.shop_name +
                 ". Your order should arrive by " +
-                data.actual_delivery_date +
+                Moment(new Date(data.actual_delivery_date)).format('MMM Do, YYYY')+
                 ". Open theShops app to track your order. theShops://purchased_orders";
               await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
               return httpRespond.severResponse(res, {

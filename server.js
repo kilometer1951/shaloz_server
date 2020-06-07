@@ -2,7 +2,9 @@ const express = require("express"),
   app = express(),
   bodyParser = require("body-parser"),
   mongoose = require("mongoose"),
-  Agenda = require("agenda");
+  Agenda = require("agenda"),
+  cors = require("cors")
+
 
 let http = require("http").Server(app);
 let io = require("socket.io")(http);
@@ -30,7 +32,7 @@ require("./models/AgendaJob");
 // require("./models/Message");
 // require("./models/Conversation");
 
-
+app.use(cors())
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

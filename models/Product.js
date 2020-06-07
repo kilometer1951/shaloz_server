@@ -31,6 +31,8 @@ var productSchema = new Schema({
   max_price_for_free_shipping:{ type: String, default: "" },
   product_weight:{ type: String, default: "" },
   product_weight_unit:{ type: String, default: "" },
+  total_rate_number:{type:String, default:""},
+  product_can_be_customized_is_optional:{ type: Boolean, default: true },
 });
 
 mongoose.model("products", productSchema);

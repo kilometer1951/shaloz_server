@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const User = mongoose.model("users");
 const Shipping = mongoose.model("shippings");
+const jwt = require("jwt-simple");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 let messageBody = "";
 
@@ -24,6 +25,14 @@ const upload = multer({
 //   api_key: "887482388487867",
 //   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
 // });
+
+
+const tokenForUser = (user) => {
+  const timestamp = new Date().getTime();
+  return jwt.encode({ sub: user, iat: timestamp },"sdsfsfsf");
+};
+
+
 
 const bucketName = "the-shop-123";
 const path = require("path");
@@ -132,6 +141,7 @@ module.exports = (app) => {
         status: true,
         message: "user created",
         user: createdUser,
+        token: tokenForUser(createdUser)
       });
     } catch (e) {
       return httpRespond.severResponse(res, {
@@ -162,6 +172,7 @@ module.exports = (app) => {
         status: true,
         message: "user found",
         user: user,
+        token: tokenForUser(user)
       });
     } catch (e) {
       console.log(e);

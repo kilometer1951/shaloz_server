@@ -7,7 +7,6 @@ const shopingCartItemSchema = new Schema({
   price: { type: String, default: "" },
   discount: { type: String, default: "" },
   selected_variant_value: [],
-  discount: { type: String, default: "" },
   product_personalization_note:{ type: String, default: "" },
 });
 

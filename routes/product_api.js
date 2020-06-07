@@ -51,119 +51,245 @@ module.exports = (app) => {
       let work_out_suplement;
       let barber_product;
       let all_cat;
+      let deals;
 
       if (req.params.user_id === "undefined") {
+        deals = await Product.aggregate([
+          {
+            $match: {
+              discount: { $ne: "" },
+              inStock: true,
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
+        ]);
+
         health_beauty = await Product.aggregate([
           {
             $match: {
               main_category: "Health & Beauty",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         baby_kids_mat = await Product.aggregate([
           {
             $match: {
               main_category: "Baby, Kids & Maternity",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         cell_phone_acc = await Product.aggregate([
           {
             $match: {
               main_category: "Cell Phones & Accessories",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         hair_products = await Product.aggregate([
           {
             $match: {
               main_category: "Hair Products & Supplies",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         jewelry = await Product.aggregate([
           {
             $match: {
               main_category: "Jewelry",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         home_garden = await Product.aggregate([
           {
             $match: {
               main_category: "Home & Garden",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         musical_instru = await Product.aggregate([
           {
             $match: {
               main_category: "Musical Instruments",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         wedding_party = await Product.aggregate([
           {
             $match: {
               main_category: "Wedding, Party & Events",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         work_out_suplement = await Product.aggregate([
           {
             $match: {
               main_category: "Workout Supplements",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         barber_product = await Product.aggregate([
           {
             $match: {
               main_category: "Barber Products & Supplies",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         all_cat = await Product.aggregate([{ $sample: { size: 4 } }]);
       } else {
+        deals = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              discount: { $ne: "" },
+              inStock: true,
+            },
+          }, // filter the results
+          { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
+        ]);
+
         health_beauty = await Product.aggregate([
           {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Health & Beauty",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         baby_kids_mat = await Product.aggregate([
@@ -171,10 +297,18 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Baby, Kids & Maternity",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         cell_phone_acc = await Product.aggregate([
@@ -182,10 +316,18 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Cell Phones & Accessories",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         hair_products = await Product.aggregate([
@@ -193,10 +335,18 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Hair Products & Supplies",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         jewelry = await Product.aggregate([
@@ -204,10 +354,18 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Jewelry",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         home_garden = await Product.aggregate([
@@ -215,10 +373,18 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Home & Garden",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         musical_instru = await Product.aggregate([
@@ -226,10 +392,18 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Musical Instruments",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         wedding_party = await Product.aggregate([
@@ -237,10 +411,18 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Wedding, Party & Events",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         work_out_suplement = await Product.aggregate([
@@ -248,10 +430,18 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Workout Supplements",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         barber_product = await Product.aggregate([
@@ -259,20 +449,36 @@ module.exports = (app) => {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
               main_category: "Barber Products & Supplies",
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
           { $sample: { size: 10 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
 
         all_cat = await Product.aggregate([
           {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
-              inStock:true
+              inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 4 } },
+          { $sample: { size: 6 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
         ]);
       }
 
@@ -288,6 +494,7 @@ module.exports = (app) => {
         work_out_suplement,
         barber_product,
         all_cat,
+        deals,
       };
 
       return httpRespond.severResponse(res, {
@@ -317,7 +524,7 @@ module.exports = (app) => {
           $match: {
             user: { $ne: ObjectId(req.params.user_id) },
             discount: { $ne: "" },
-            inStock:true
+            inStock: true,
           },
         }, // filter the results
 
@@ -342,6 +549,33 @@ module.exports = (app) => {
     }
   });
 
+  app.get("/api/fetch_cats", async (req, res) => {
+    try {
+      const main_cat = await MainCategory.aggregate([
+        { $sample: { size: 40 } },
+      ]);
+
+      const subcat_one_data = await SubCategoryOne.aggregate([
+        { $sample: { size: 40 } },
+      ]);
+      const subcat_two_data = await SubCategoryTwo.aggregate([
+        { $sample: { size: 40 } },
+      ]);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        main_cat,
+        subcat_one_data,
+        subcat_two_data,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+        e,
+      });
+    }
+  });
+
   app.get(
     "/api/view/fetch_single_product/:product_id/:user_id",
     async (req, res) => {
@@ -357,9 +591,10 @@ module.exports = (app) => {
           {
             $match: {
               user: { $eq: ObjectId(product.user._id) },
-              inStock:true,
+              inStock: true,
             },
           }, // filter the results
+          { $limit: 4 },
           { $sample: { size: 4 } },
         ]);
 
@@ -376,6 +611,24 @@ module.exports = (app) => {
           { $sample: { size: 4 } },
         ]);
 
+        //other products website
+        const otherProducts_website = await Product.aggregate([
+          // filter the results
+          { $limit: 12 },
+          { $sample: { size: 12 } },
+        ]);
+
+        const moreItemsFromShop_website = await Product.aggregate([
+          {
+            $match: {
+              user: { $eq: ObjectId(product.user._id) },
+              inStock: true,
+            },
+          }, // filter the results
+          { $limit: 12 },
+          { $sample: { size: 12 } },
+        ]);
+
         if (!data) {
           //add
           await new RecentView({
@@ -388,27 +641,46 @@ module.exports = (app) => {
           user: req.params.user_id,
         })
           .populate("product")
-          .limit(5);
+          .limit(12);
 
         const reviews = await ReviewProduct.find({
           product: req.params.product_id,
         })
           .populate("product")
           .populate("user")
-          .limit(5);
+          .limit(12);
+
         const reviews_count = await ReviewProduct.countDocuments({
           product: req.params.product_id,
         });
+
+        const number_of_product_review_pages = Math.ceil(reviews_count / 12);
+
+        const shop_reviews = await ReviewShop.find({
+          shop: product.user._id,
+        })
+          .populate("user")
+          .populate("shop")
+          .limit(12);
+
+        const shop_reviews_count = await ReviewShop.countDocuments({
+          shop: product.user._id,
+        });
+
+        const number_of_shop_review_pages = Math.ceil(shop_reviews_count / 12);
 
         //fetch fav
         const fav_products = await FavoriteProduct.findOne({
           product: { $eq: ObjectId(req.params.product_id) },
           user: { $eq: ObjectId(req.params.user_id) },
-
         });
 
-      //  console.log(fav_products);
-        
+        const cart_data = await ShoppingCart.find({
+          user: { $eq: ObjectId(req.params.user_id) },
+          has_checkedout: false,
+        });
+
+        const main_cat = await MainCategory.find({});
 
         return httpRespond.severResponse(res, {
           status: true,
@@ -418,7 +690,17 @@ module.exports = (app) => {
           otherProducts,
           moreItemsFromShop,
           fav_products: fav_products ? true : false,
+
           reviews_count,
+
+          number_of_product_review_pages,
+          shop_reviews,
+          shop_reviews_count,
+          number_of_shop_review_pages,
+          cart_data,
+          otherProducts_website,
+          moreItemsFromShop_website,
+          main_cat,
         });
       } catch (e) {
         return httpRespond.severResponse(res, {
@@ -431,7 +713,7 @@ module.exports = (app) => {
 
   app.get("/api/view/recently_viewed/:user_id", async (req, res) => {
     try {
-      let per_page = 10;
+      let per_page = 12;
       let page_no = parseInt(req.query.page);
       let pagination = {
         limit: per_page,
@@ -472,7 +754,7 @@ module.exports = (app) => {
         {
           $match: {
             user: { $ne: ObjectId(req.params.user_id) },
-            inStock:true
+            inStock: true,
           },
         }, // filter the results
         { $skip: pagination.skip },
@@ -509,7 +791,7 @@ module.exports = (app) => {
         {
           $match: {
             user: { $eq: ObjectId(req.params.seller_id) },
-            inStock:true
+            inStock: true,
           },
         }, // filter the results
         { $skip: pagination.skip },
@@ -545,7 +827,7 @@ module.exports = (app) => {
           $match: {
             user: { $eq: ObjectId(req.params.seller_id) },
             discount: { $ne: "" },
-            inStock:true
+            inStock: true,
           },
         }, // filter the results
         { $skip: pagination.skip },
@@ -774,7 +1056,7 @@ module.exports = (app) => {
       //search products
       const products = await Product.find({
         user: { $ne: ObjectId(req.params.user_id) },
-        inStock:true,
+        inStock: true,
         $or: [
           { product_name: { $regex: new RegExp(req.params.value, "i") } },
           { main_category: { $regex: new RegExp(req.params.value, "i") } },
@@ -797,8 +1079,6 @@ module.exports = (app) => {
           { shop_name: { $regex: new RegExp(req.params.value, "i") } },
         ],
       }).limit(6);
-      
-      
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -820,7 +1100,7 @@ module.exports = (app) => {
         {
           $match: {
             user: { $ne: ObjectId(req.params.user_id) },
-            inStock:true,
+            inStock: true,
           },
         }, // filter the results
         { $limit: 5 },
@@ -859,6 +1139,584 @@ module.exports = (app) => {
     }
   });
 
+  app.get(
+    "/api/view/web_site_query_products/:user_id/:main_cat",
+    async (req, res) => {
+      try {
+        let per_page = 12;
+        let page_no = parseInt(req.query.page);
+        let pagination = {
+          limit: per_page,
+          skip: per_page * (page_no - 1),
+        };
+
+        let products;
+        let count;
+        let header_products;
+        if (req.params.main_cat === "all") {
+          products = await Product.aggregate([
+            {
+              $match: {
+                user: { $ne: ObjectId(req.params.user_id) },
+                inStock: true,
+              },
+            }, // filter the results
+
+            { $skip: pagination.skip },
+            { $limit: pagination.limit },
+            { $sample: { size: pagination.limit } },
+            {
+              $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "seller",
+              },
+            },
+          ]);
+
+          header_products = await Product.aggregate([
+            {
+              $match: {
+                user: { $ne: ObjectId(req.params.user_id) },
+                inStock: true,
+              },
+            }, // filter the results
+
+            { $limit: 6 },
+            { $sample: { size: 6 } },
+            {
+              $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "seller",
+              },
+            },
+          ]);
+
+          count = await Product.find({
+            user: { $ne: ObjectId(req.params.user_id) },
+            inStock: true,
+          }).countDocuments();
+        } else {
+          products = await Product.aggregate([
+            {
+              $match: {
+                user: { $ne: ObjectId(req.params.user_id) },
+                main_category: req.params.main_cat,
+                inStock: true,
+              },
+            }, // filter the results
+
+            { $skip: pagination.skip },
+            { $limit: pagination.limit },
+            { $sample: { size: pagination.limit } },
+            {
+              $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "seller",
+              },
+            },
+          ]);
+
+          header_products = await Product.aggregate([
+            {
+              $match: {
+                user: { $ne: ObjectId(req.params.user_id) },
+                main_category: req.params.main_cat,
+                inStock: true,
+              },
+            }, // filter the results
+
+            { $limit: 6 },
+            { $sample: { size: 6 } },
+            {
+              $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "seller",
+              },
+            },
+          ]);
+
+          count = await Product.find({
+            user: { $ne: ObjectId(req.params.user_id) },
+            main_category: req.params.main_cat,
+            inStock: true,
+          }).countDocuments();
+        }
+
+        const pageCount = Math.ceil(count / per_page);
+
+        let otherProducts = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              inStock: true,
+            },
+          }, // filter the results
+          { $limit: 12 },
+          { $sample: { size: 12 } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
+        ]);
+        let shops = await User.aggregate([
+          {
+            $match: {
+              _id: { $ne: ObjectId(req.params.user_id) },
+              shop_setup: "complete",
+            },
+          }, // filter the results
+          { $limit: 10 },
+          { $sample: { size: 10 } },
+        ]);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          products,
+          otherProducts,
+          shops,
+          endOfFile: products.length === 0 ? true : false,
+          pageCount,
+          header_products,
+        });
+      } catch (e) {
+        console.log(e);
+
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
+  app.post("/api/view/query_all_products_not_on_sale", async (req, res) => {
+    try {
+      let per_page = 20;
+      let page_no = parseInt(req.body.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            inStock: true,
+          },
+        }, // filter the results
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+        { $sample: { size: pagination.limit } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "seller",
+          },
+        },
+      ]);
+
+      const count = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            inStock: true,
+          },
+        },
+      ]);
+
+      const pageCount = Math.ceil(count.length / per_page);
+
+      const otherProducts = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            inStock: true,
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+      const shops = await User.aggregate([
+        {
+          $match: {
+            _id: { $ne: ObjectId(req.body.user_id) },
+            shop_setup: "complete",
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+
+      const recent_viewed = await RecentView.find({
+        user: req.body.user_id,
+      })
+        .populate("product")
+        .limit(12);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        otherProducts,
+        shops,
+        endOfFile: data.length === 0 ? true : false,
+        pageCount,
+        recent_viewed,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.post("/api/view/query_all_products_on_sale", async (req, res) => {
+    try {
+      let per_page = 20;
+      let page_no = parseInt(req.body.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            discount: { $ne: "" },
+            inStock: true,
+          },
+        }, // filter the results
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+        { $sample: { size: pagination.limit } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "seller",
+          },
+        },
+      ]);
+
+      const count = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            discount: { $ne: "" },
+            inStock: true,
+          },
+        },
+      ]);
+
+      const pageCount = Math.ceil(count.length / per_page);
+
+      const otherProducts = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            inStock: true,
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+      const shops = await User.aggregate([
+        {
+          $match: {
+            _id: { $ne: ObjectId(req.body.user_id) },
+            shop_setup: "complete",
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+
+      const recent_viewed = await RecentView.find({
+        user: req.body.user_id,
+      })
+        .populate("product")
+        .limit(12);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        otherProducts,
+        shops,
+        endOfFile: data.length === 0 ? true : false,
+        pageCount,
+        recent_viewed,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.post("/api/view/query_products_by_category_on_sale", async (req, res) => {
+    try {
+      let per_page = 20;
+      let page_no = parseInt(req.body.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            discount: { $ne: "" },
+            inStock: true,
+            $or: [
+              {
+                main_category: {
+                  $regex: new RegExp(req.body.main_cat, "i"),
+                },
+              },
+              {
+                sub_category1: {
+                  $regex: new RegExp(req.body.sub_cat_one, "i"),
+                },
+              },
+              {
+                sub_category2: {
+                  $regex: new RegExp(req.body.sub_cat_two, "i"),
+                },
+              },
+            ],
+          },
+        }, // filter the results
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+        { $sample: { size: pagination.limit } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "seller",
+          },
+        },
+      ]);
+
+      const count = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            discount: { $ne: "" },
+            inStock: true,
+            $or: [
+              {
+                main_category: {
+                  $regex: new RegExp(req.body.main_cat, "i"),
+                },
+              },
+              {
+                sub_category1: {
+                  $regex: new RegExp(req.body.sub_cat_one, "i"),
+                },
+              },
+              {
+                sub_category2: {
+                  $regex: new RegExp(req.body.sub_cat_two, "i"),
+                },
+              },
+            ],
+          },
+        },
+      ]);
+
+      const pageCount = Math.ceil(count.length / per_page);
+
+      const otherProducts = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.body.user_id) },
+            inStock: true,
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+      const shops = await User.aggregate([
+        {
+          $match: {
+            _id: { $ne: ObjectId(req.body.user_id) },
+            shop_setup: "complete",
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+
+      const recent_viewed = await RecentView.find({
+        user: req.body.user_id,
+      })
+        .populate("product")
+        .limit(12);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        otherProducts,
+        shops,
+        endOfFile: data.length === 0 ? true : false,
+        pageCount,
+        recent_viewed,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.post(
+    "/api/view/query_products_by_category_not_on_sale",
+    async (req, res) => {
+      try {
+        let per_page = 20;
+        let page_no = parseInt(req.body.page);
+        let pagination = {
+          limit: per_page,
+          skip: per_page * (page_no - 1),
+        };
+
+        const data = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.body.user_id) },
+
+              inStock: true,
+              $or: [
+                {
+                  main_category: {
+                    $regex: new RegExp(req.body.main_cat, "i"),
+                  },
+                },
+                {
+                  sub_category1: {
+                    $regex: new RegExp(req.body.sub_cat_one, "i"),
+                  },
+                },
+                {
+                  sub_category2: {
+                    $regex: new RegExp(req.body.sub_cat_two, "i"),
+                  },
+                },
+              ],
+            },
+          }, // filter the results
+          { $skip: pagination.skip },
+          { $limit: pagination.limit },
+          { $sample: { size: pagination.limit } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
+        ]);
+
+        const count = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.body.user_id) },
+              inStock: true,
+              $or: [
+                {
+                  main_category: {
+                    $regex: new RegExp(req.body.main_cat, "i"),
+                  },
+                },
+                {
+                  sub_category1: {
+                    $regex: new RegExp(req.body.sub_cat_one, "i"),
+                  },
+                },
+                {
+                  sub_category2: {
+                    $regex: new RegExp(req.body.sub_cat_two, "i"),
+                  },
+                },
+              ],
+            },
+          },
+        ]);
+
+        const pageCount = Math.ceil(count.length / per_page);
+
+        const otherProducts = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.body.user_id) },
+              inStock: true,
+            },
+          }, // filter the results
+          { $limit: 12 },
+          { $sample: { size: 12 } },
+        ]);
+
+        const shops = await User.aggregate([
+          {
+            $match: {
+              _id: { $ne: ObjectId(req.body.user_id) },
+              shop_setup: "complete",
+            },
+          }, // filter the results
+          { $limit: 6 },
+          { $sample: { size: 6 } },
+        ]);
+
+        const recent_viewed = await RecentView.find({
+          user: req.body.user_id,
+        })
+          .populate("product")
+          .limit(12);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          data,
+          otherProducts,
+          shops,
+          endOfFile: data.length === 0 ? true : false,
+          pageCount,
+          recent_viewed,
+        });
+      } catch (e) {
+        console.log(e);
+
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
   app.post("/api/view/query_products_by_category", async (req, res) => {
     try {
       let per_page = 10;
@@ -876,7 +1734,7 @@ module.exports = (app) => {
           $match: {
             user: { $ne: ObjectId(req.body.user_id) },
             main_category: req.body.main_cat,
-            inStock:true,
+            inStock: true,
             $or: [
               {
                 sub_category1: {
@@ -901,7 +1759,7 @@ module.exports = (app) => {
           {
             $match: {
               user: { $ne: ObjectId(req.body.user_id) },
-              inStock:true,
+              inStock: true,
             },
           }, // filter the results
           { $limit: 10 },
@@ -918,9 +1776,6 @@ module.exports = (app) => {
           { $sample: { size: 10 } },
         ]);
       }
-
-      console.log(otherProducts);
-      
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -1083,6 +1938,8 @@ module.exports = (app) => {
         user: req.body.user_id,
       });
 
+     
+
       return httpRespond.severResponse(res, {
         status: true,
       });
@@ -1099,17 +1956,20 @@ module.exports = (app) => {
   app.post("/api/add/review_product/", async (req, res) => {
     try {
       //add fav products
-      await new ReviewProduct({
+      const saved = await new ReviewProduct({
         user: req.body.user_id,
         product: req.body.product_id,
         comment: req.body.comment,
         rateNumber: req.body.rateNumber,
       }).save();
+      console.log(saved);
 
       return httpRespond.severResponse(res, {
         status: true,
+        res: saved,
       });
     } catch (e) {
+      console.log(e);
       return httpRespond.severResponse(res, {
         status: false,
         e: e,
@@ -1140,14 +2000,14 @@ module.exports = (app) => {
 
   app.get("/api/view/fetch_product_review/:product_id", async (req, res) => {
     try {
-      let per_page = 10;
+      let per_page = 12;
       let page_no = parseInt(req.query.page);
       let pagination = {
         limit: per_page,
         skip: per_page * (page_no - 1),
       };
       const data = await ReviewProduct.find({
-        product_id: req.params.product_id,
+        product: req.params.product_id,
       })
         .populate("product")
         .populate("user")
@@ -1155,12 +2015,21 @@ module.exports = (app) => {
         .limit(pagination.limit)
         .skip(pagination.skip);
 
+      const reviews_count = await ReviewProduct.countDocuments({
+        product: req.params.product_id,
+      });
+
+      const number_of_product_review_pages = Math.ceil(
+        reviews_count / per_page
+      );
+
       //console.log(data);
 
       return httpRespond.severResponse(res, {
         status: true,
         data,
         endOfFile: data.length === 0 ? true : false,
+        number_of_product_review_pages,
       });
     } catch (e) {
       console.log(e);
@@ -1172,7 +2041,7 @@ module.exports = (app) => {
 
   app.get("/api/view/fetch_shop_review/:shop_id", async (req, res) => {
     try {
-      let per_page = 10;
+      let per_page = 12;
       let page_no = parseInt(req.query.page);
       let pagination = {
         limit: per_page,
@@ -1189,12 +2058,21 @@ module.exports = (app) => {
         .limit(pagination.limit)
         .skip(pagination.skip);
 
+      const shop_reviews_count = await ReviewShop.countDocuments({
+        shop: req.params.shop_id,
+      });
+
+      const number_of_shop_review_pages = Math.ceil(
+        shop_reviews_count / per_page
+      );
+
       //console.log(data);
 
       return httpRespond.severResponse(res, {
         status: true,
         data,
         endOfFile: data.length === 0 ? true : false,
+        number_of_shop_review_pages,
       });
     } catch (e) {
       console.log(e);
@@ -1204,12 +2082,11 @@ module.exports = (app) => {
     }
   });
 
-
   app.post("/api/edit/remove_from_stock", async (req, res) => {
     try {
-      const product = await Product.findOne({_id:req.body.product_id})
-      product.inStock = false
-      product.save()
+      const product = await Product.findOne({ _id: req.body.product_id });
+      product.inStock = false;
+      product.save();
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -1223,15 +2100,12 @@ module.exports = (app) => {
     }
   });
 
-
-
   app.post("/api/edit/add_to_stock_without_qty", async (req, res) => {
     try {
-      const product = await Product.findOne({_id:req.body.product_id})
-      product.inStock = true
-      product.save()
+      const product = await Product.findOne({ _id: req.body.product_id });
+      product.inStock = true;
+      product.save();
       console.log(product);
-      
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -1246,12 +2120,11 @@ module.exports = (app) => {
   });
   app.post("/api/edit/add_to_stock_with_qty", async (req, res) => {
     try {
-      const product = await Product.findOne({_id:req.body.product_id})
-      product.product_qty = req.body.product_qty
-      product.inStock = true
-      product.save()
+      const product = await Product.findOne({ _id: req.body.product_id });
+      product.product_qty = req.body.product_qty;
+      product.inStock = true;
+      product.save();
       console.log(product);
-      
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -1264,5 +2137,93 @@ module.exports = (app) => {
       });
     }
   });
- 
+
+  app.get("/api/view/fetch_more_shop_product/:shop_id", async (req, res) => {
+    try {
+      let per_page = 20;
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+      const data = await Product.aggregate([
+        {
+          $match: {
+            user: { $eq: ObjectId(req.params.shop_id) },
+            inStock: true,
+          },
+        }, // filter the results
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+        { $sample: { size: pagination.limit } },
+      ]);
+
+      const count = await Product.countDocuments({
+        user: { $eq: ObjectId(req.params.shop_id) },
+      });
+
+      const productPageCount = Math.ceil(count / per_page);
+
+      //console.log(data);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        endOfFile: data.length === 0 ? true : false,
+        productPageCount,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get(
+    "/api/view/fetch_more_shop_category_product/:shop_id/:selected",
+    async (req, res) => {
+      try {
+        let per_page = 20;
+        let page_no = parseInt(req.query.page);
+        let pagination = {
+          limit: per_page,
+          skip: per_page * (page_no - 1),
+        };
+        const data = await Product.aggregate([
+          {
+            $match: {
+              user: { $eq: ObjectId(req.params.shop_id) },
+              main_category: req.params.selected,
+              inStock: true,
+            },
+          }, // filter the results
+          { $skip: pagination.skip },
+          { $limit: pagination.limit },
+          { $sample: { size: pagination.limit } },
+        ]);
+
+        const count = await Product.countDocuments({
+          user: { $eq: ObjectId(req.params.shop_id) },
+          main_category: req.params.selected,
+        });
+
+        const productPageCount = Math.ceil(count / per_page);
+
+        //console.log(data);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          data,
+          endOfFile: data.length === 0 ? true : false,
+          productPageCount,
+        });
+      } catch (e) {
+        console.log(e);
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
 };

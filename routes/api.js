@@ -4,6 +4,9 @@ const Variant = mongoose.model("variants");
 const Product = mongoose.model("products");
 const ShoppingCart = mongoose.model("shoppingcarts");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const ReviewShop = mongoose.model("reviewShops");
+const MainCategory = mongoose.model("mainCategories");
+let ObjectId = require("mongodb").ObjectID;
 
 let messageBody = "";
 const smsFunctions = require("../functions/SMS");
@@ -366,10 +369,10 @@ module.exports = (app) => {
         (product.product_can_be_customized = productCanBeCustomized);
       product.product_weight = product_weight;
       product.product_weight_unit = product_weight_unit;
-      if(parseInt(product_qty) > 0){
-        product.inStock = true
+      if (parseInt(product_qty) > 0) {
+        product.inStock = true;
       }
-      
+
       product.save();
 
       return httpRespond.severResponse(res, {
@@ -663,6 +666,98 @@ module.exports = (app) => {
     } catch (e) {
       console.log(e);
 
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/view/fetch_shop_data/:shop_id", async (req, res) => {
+    try {
+      //get sellers info
+      const seller_info = await User.findOne({ _id: req.params.shop_id });
+
+      //get shop reviews
+      const shop_reviews = await ReviewShop.find({
+        shop: req.params.shop_id,
+      })
+        .populate("shop")
+        .populate("user")
+        .sort("-dateReviewed")
+        .limit(12);
+
+      const shop_reviews_count = await ReviewShop.countDocuments({
+        shop: req.params.shop_id,
+      });
+
+      const shopReviewPageCount = Math.ceil(shop_reviews_count / 12);
+
+      //get products
+      const products = await Product.aggregate([
+        {
+          $match: {
+            user: { $eq: ObjectId(req.params.shop_id) },
+            inStock: true,
+          },
+        }, // filter the results
+        { $limit: 20 },
+        { $sample: { size: 20 } },
+      ]);
+      const count = await Product.aggregate([
+        {
+          $match: {
+            user: { $eq: ObjectId(req.params.shop_id) },
+            inStock: true,
+          },
+        },
+      ]);
+
+      const productPageCount = Math.ceil(count.length / 20);
+
+      //get header products
+      const shop_header_products = await Product.aggregate([
+        {
+          $match: {
+            user: { $eq: ObjectId(req.params.shop_id) },
+            inStock: true,
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+
+      //get categories
+
+      const categories = await Product.aggregate([
+        {
+          $match: {
+            user: { $eq: ObjectId(req.params.shop_id) },
+            inStock: true,
+          },
+        }, 
+        {
+          $group: {
+            _id: "$main_category",
+            count: { $sum: 1 }
+          }
+        }
+      ])
+      
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        shop_reviews,
+        shopReviewPageCount,
+        seller_info,
+        products,
+        productPageCount,
+        shop_header_products,
+        categories
+
+      });
+    } catch (e) {
+      console.log(e);
+      
       return httpRespond.severResponse(res, {
         status: false,
       });
