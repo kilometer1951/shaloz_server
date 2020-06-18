@@ -8,12 +8,12 @@ let userSchema = new Schema({
   last_name: String,
   phone: String,
   email: String,
-  password:String,
+  password: String,
   shop_logo: {
     type: String,
     default: "https://oarnation.com/content/no-picture.jpg",
   },
-  shop_slogan:{ type: String, default: "" },
+  shop_slogan: { type: String, default: "" },
   deviceToken: { type: String, default: "" },
   shop_name: { type: String, default: "" },
   ssn_number: { type: String, default: "" },
@@ -27,24 +27,21 @@ let userSchema = new Schema({
   country: { type: String, default: "" },
   country_code: { type: String, default: "+1" },
   date_created_seller_account: { type: Date, default: Date.now },
-  shop_setup:{ type: String, default: "not_complete" },
-  about:{ type: String, default: "" },
+  shop_setup: { type: String, default: "not_complete" },
+  about: { type: String, default: "" },
 
-  offers_discount_on_price_threshold:{ type: Boolean, default: false },
-  max_items_to_get_discount:{ type: String, default: "" },
-  discount_amount_for_threshold:{ type: String, default: "" },
+  offers_discount_on_price_threshold: { type: Boolean, default: false },
+  max_items_to_get_discount: { type: String, default: "" },
+  discount_amount_for_threshold: { type: String, default: "" },
 
-  offers_free_shipping:{ type: Boolean, default: false },
-  price_threshold:{ type: String, default: "" },
+  offers_free_shipping: { type: Boolean, default: false },
+  price_threshold: { type: String, default: "" },
 
+  auto_discount_amount: { type: String, default: "" },
+  deactivate_user: { type: Boolean, default: false },
+  admin: { type: Boolean, default: false },
 
-  auto_discount_amount:{ type: String, default: "" },
-  deactivate_user:{ type: Boolean, default: false },
-  admin:{ type: Boolean, default: false },
-
-
-
-  
+  loyalty_points: { type: Number, default: 0 },
 });
 
 mongoose.model("users", userSchema);

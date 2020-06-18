@@ -37,6 +37,9 @@ var productSchema = new Schema({
  local_currency:{type:String, default:""},
 
 
+
+notify_when_product_out_of_stock:{ type: Boolean, default: true },
+
 });
 
 mongoose.model("products", productSchema);
