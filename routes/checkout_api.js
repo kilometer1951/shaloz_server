@@ -36,6 +36,22 @@ cloudinary.config({
   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
 });
 
+
+const displayPrice = (product_price, discount) => {
+  if (discount === '') {
+    return parseFloat(product_price);
+  } else {
+    let price = parseInt(product_price);
+    let _discount = parseInt(discount);
+
+    let total_d = _discount / 100;
+    let total_p = price * total_d;
+    let total = price - total_p;
+
+    return total.toFixed(2);
+  }
+};
+
 module.exports = (app) => {
   app.get("/api/view/shipping_details/:user_id", async (req, res) => {
     try {
@@ -199,6 +215,42 @@ module.exports = (app) => {
     }
   });
 
+
+  app.post("/api/update_cart_item_price/", async (req, res) => {
+    try {
+      const shopping_cart = await ShoppingCart.findOne({
+        _id: req.body.cart_id,
+        user:req.body.user_id
+      }).populate("items.product")
+
+     
+        await ShoppingCart.updateOne(
+          {
+            _id: req.body.cart_id,
+            user: req.body.user_id,
+            items: {
+              $elemMatch: { _id: req.body.item_id },
+            },
+          },
+          {
+            $set: { "items.$.price": displayPrice(shopping_cart.items[0].product.product_price, shopping_cart.items[0].product.discount)},
+          }
+        );
+      
+        console.log("response");
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+        message: e,
+      });
+    }
+  });
+
   app.get(
     "/api/view/get_shipping_rate/:user_id/:seller_id/:total_qty/:unit",
     async (req, res) => {
@@ -256,7 +308,8 @@ module.exports = (app) => {
           }),
         };
 
-        console.log(req.params.total_qty);
+        //console.log(req.params.total_qty);
+        
         
 
         request(options, async function (error, response) {
@@ -350,7 +403,7 @@ module.exports = (app) => {
 
 
 
-        messageBody = "Hi "+seller_info.shop_name+" you have a new order from "+user.first_name+". Open Shaloz to view the order. shaloz://view_orders"
+        messageBody = "Hi "+seller_info.shop_name+" you have a new order from "+user.first_name+". Open the Shaloz app to view the order. shaloz://view_orders"
               await smsFunctions.sendSMS(seller_info.phone, messageBody);
 
       return httpRespond.severResponse(res, {
