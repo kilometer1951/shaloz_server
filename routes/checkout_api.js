@@ -314,7 +314,7 @@ module.exports = (app) => {
           transfer_group: req.body.cart_id,
           description:
             "Payment for products",
-          statement_descriptor: "theShops"
+          statement_descriptor: "shaloz"
         });
 
        
@@ -350,7 +350,7 @@ module.exports = (app) => {
 
 
 
-        messageBody = "Hi "+seller_info.shop_name+" you have a new order from "+user.first_name+". Open theShops to view the order. theShops://view_orders"
+        messageBody = "Hi "+seller_info.shop_name+" you have a new order from "+user.first_name+". Open Shaloz to view the order. shaloz://view_orders"
               await smsFunctions.sendSMS(seller_info.phone, messageBody);
 
       return httpRespond.severResponse(res, {

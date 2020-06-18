@@ -65,10 +65,10 @@ module.exports = (app) => {
           business_profile: {
             mcc: "7278",
             name: `${user.first_name} ${user.last_name}`,
-            product_description: "I sell my products on theShop.",
-            support_email: "support@theshop.com",
+            product_description: "I sell my products on Shaloz.",
+            support_email: "support@shaloz.com",
             support_phone: "+13124010122",
-            url: "https://www.theshop.com",
+            url: "https://www.shaloz.com",
           },
           requested_capabilities: ["card_payments", "transfers"],
           settings: {
@@ -76,10 +76,10 @@ module.exports = (app) => {
               statement_descriptor_prefix: "tS",
             },
             payments: {
-              statement_descriptor: "theShop",
+              statement_descriptor: "Shaloz",
             },
             payouts: {
-              statement_descriptor: "theShop",
+              statement_descriptor: "Shaloz",
             },
           },
         });

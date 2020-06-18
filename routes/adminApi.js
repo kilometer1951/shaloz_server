@@ -269,7 +269,7 @@ module.exports = (app) => {
         messageBody =
           "Hi " +
           shoppingCart.seller.first_name +
-          " we just processed your payment. theShops://purchased_orders";
+          " we just processed your payment. shaloz://purchased_orders";
         await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
       }
       return httpRespond.severResponse(res, {
@@ -284,7 +284,7 @@ module.exports = (app) => {
       messageBody =
         "Hi " +
         shoppingCart.seller.first_name +
-        " we encountered an error while processing your payment. This might be due to verification issues. Please open theShops app and review any verificaiton errors found in your shop. theShops://review_errors";
+        " we encountered an error while processing your payment. This might be due to verification issues. Please open the Shaloz app and review any verificaiton errors found in your shop. shaloz://review_errors";
       await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
       //errors
       //send error message
