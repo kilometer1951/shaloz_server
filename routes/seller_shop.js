@@ -171,7 +171,7 @@ module.exports = (app) => {
                 console.log("charge 4% + 1");
                
                 // update shopping cart
-                shoppingCart.expected_arrival_date = data.actual_delivery_date;
+                shoppingCart.expected_arrival_date = data.estimated_delivery_date;
                 shoppingCart.tracking_number = req.body.tracking_number;
                 //shoppingCart.seller_takes = seller_takes;
                 //shoppingCart.theshop_takes = theshop_takes;
@@ -182,7 +182,7 @@ module.exports = (app) => {
               } else {
                 console.log("charge 6% + 2.50");
                 // update shopping car
-                shoppingCart.expected_arrival_date = data.actual_delivery_date;
+                shoppingCart.expected_arrival_date = data.estimated_delivery_date;
                 shoppingCart.tracking_number = req.body.tracking_number;
                 // shoppingCart.seller_takes = seller_takes;
                 //shoppingCart.theshop_takes = theshop_takes;
@@ -198,7 +198,7 @@ module.exports = (app) => {
                 ", your order has been shipped by " +
                 shoppingCart.seller.shop_name +
                 ". Your order should arrive by " +
-                Moment(new Date(data.actual_delivery_date)).format('MMM Do, YYYY')+
+                Moment(new Date(data.estimated_delivery_date)).format('MMM Do, YYYY')+
                 ". Open the Shaloz app to track your order. shaloz://purchased_orders";
               await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
               return httpRespond.severResponse(res, {
