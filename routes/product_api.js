@@ -2086,6 +2086,7 @@ module.exports = (app) => {
     try {
       const product = await Product.findOne({ _id: req.body.product_id });
       product.inStock = false;
+      product.allow_purchase_when_out_of_stock = false
       product.save();
 
       return httpRespond.severResponse(res, {

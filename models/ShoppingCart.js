@@ -16,7 +16,8 @@ var shoppingcartSchema = new Schema({
   shipping_carrier_rate_estimation:{ type: String, default: "" },
 
   shipping_details:{ type: String, default: "" },
-  date_entered_tracking :{ type: String, default: "" },
+  date_entered_tracking :{ type: Date, default: Date.now },
+
   date_user_checked_out:{ type: String, default: "" },
 
 
@@ -33,6 +34,7 @@ var shoppingcartSchema = new Schema({
   processing_fee: { type: String, default: "" },
   shippment_price: { type: String, default: "" },
   total: { type: String, default: "" },
+  discount_applied:{ type: String, default: "" },
 });
 
 mongoose.model("shoppingcarts", shoppingcartSchema);

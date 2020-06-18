@@ -326,6 +326,7 @@ module.exports = (app) => {
         shoppingCart.total = req.body.total
         shoppingCart.stripe_charge_id = charge.id;
         shoppingCart.date_user_checked_out = new Date();
+        shoppingCart.discount_applied = req.body.discount;
         shoppingCart.save()
 
 

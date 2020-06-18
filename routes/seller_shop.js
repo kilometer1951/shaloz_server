@@ -167,34 +167,9 @@ module.exports = (app) => {
                 event_not_found: false,
               });
             } else {
-              if (parseFloat(shoppingCart.total) < 300) {
+              if (parseFloat(shoppingCart.total) < 300.00) {
                 console.log("charge 4% + 1");
-                // const cart_total = parseFloat(shoppingCart.total).toFixed(2);
-                // const processing_fee = parseFloat(
-                //   shoppingCart.processing_fee
-                // ).toFixed(2);
-
-                // const newTotal = (
-                //   parseFloat(cart_total) - parseFloat(processing_fee)
-                // ).toFixed(2);
-
-                // const theshop_takes = (parseFloat(newTotal) * 0.04 + 1).toFixed(
-                //   2
-                // );
-                // const seller_takes = (
-                //   parseFloat(newTotal) - parseFloat(theshop_takes)
-                // ).toFixed(2);
-
-                // const amount_to_transfer = Math.round(
-                //   parseFloat(seller_takes) * 100
-                // );
-
-                // const transfer = await stripe.transfers.create({
-                //   amount: amount_to_transfer,
-                //   currency: "usd",
-                //   source_transaction: shoppingCart.stripe_charge_id,
-                //   destination: shoppingCart.seller.stripe_seller_account_id,
-                // });
+               
                 // update shopping cart
                 shoppingCart.expected_arrival_date = data.actual_delivery_date;
                 shoppingCart.tracking_number = req.body.tracking_number;
@@ -206,34 +181,7 @@ module.exports = (app) => {
                 shoppingCart.save();
               } else {
                 console.log("charge 6% + 2.50");
-                // const cart_total = parseFloat(shoppingCart.total).toFixed(2);
-                // const processing_fee = parseFloat(
-                //   shoppingCart.processing_fee
-                // ).toFixed(2);
-
-                // const newTotal = (
-                //   parseFloat(cart_total) - parseFloat(processing_fee)
-                // ).toFixed(2);
-
-                // const theshop_takes = (
-                //   parseFloat(newTotal) * 0.06 +
-                //   2.5
-                // ).toFixed(2);
-                // const seller_takes = (
-                //   parseFloat(newTotal) - parseFloat(theshop_takes)
-                // ).toFixed(2);
-
-                // const amount_to_transfer = Math.round(
-                //   parseFloat(seller_takes) * 100
-                // );
-
-                // const transfer = await stripe.transfers.create({
-                //   amount: amount_to_transfer,
-                //   currency: "usd",
-                //   source_transaction: shoppingCart.stripe_charge_id,
-                //   destination: shoppingCart.seller.stripe_seller_account_id,
-                // });
-                // update shopping cart
+                // update shopping car
                 shoppingCart.expected_arrival_date = data.actual_delivery_date;
                 shoppingCart.tracking_number = req.body.tracking_number;
                 // shoppingCart.seller_takes = seller_takes;
@@ -251,7 +199,7 @@ module.exports = (app) => {
                 shoppingCart.seller.shop_name +
                 ". Your order should arrive by " +
                 Moment(new Date(data.actual_delivery_date)).format('MMM Do, YYYY')+
-                ". Open theShops app to track your order. theShops://purchased_orders";
+                ". Open Shaloz app to track your order. Shaloz://purchased_orders";
               await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
               return httpRespond.severResponse(res, {
                 status: true,

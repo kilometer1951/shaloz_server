@@ -247,6 +247,8 @@ module.exports = (app) => {
         productCanBeCustomized,
         product_weight,
         product_weight_unit,
+        product_can_be_customized_is_optional,
+        product_personilization_note,
       } = req.body._data;
 
       let newVariant = [];
@@ -278,6 +280,9 @@ module.exports = (app) => {
           product_can_be_customized: productCanBeCustomized,
           product_weight: product_weight,
           product_weight_unit: product_weight_unit,
+
+          product_can_be_customized_is_optional: product_can_be_customized_is_optional,
+          product_personilization_note: product_personilization_note,
         };
         const createdProduct = await new Product(newProduct).save();
         return httpRespond.severResponse(res, {
@@ -304,8 +309,10 @@ module.exports = (app) => {
           (product.discount_end_date =
             discount_end_date === "Select date" ? "" : discount_end_date),
           (product.product_can_be_customized = productCanBeCustomized);
-        product.product_weight = product_weight;
-        product.product_weight_unit = product_weight_unit;
+        (product.product_weight = product_weight),
+          (product.product_weight_unit = product_weight_unit),
+          (product_can_be_customized_is_optional = product_can_be_customized_is_optional),
+          (product_personilization_note = product_personilization_note);
         product.save();
         return httpRespond.severResponse(res, {
           status: true,
@@ -339,7 +346,7 @@ module.exports = (app) => {
         allow_purchase_when_out_of_stock,
         productCanBeCustomized,
         product_weight,
-        product_weight_unit,
+        product_weight_unit,product_can_be_customized_is_optional,product_personilization_note
       } = req.body._data;
 
       let newVariant = [];
@@ -367,8 +374,10 @@ module.exports = (app) => {
         (product.discount_end_date =
           discount_end_date === "Select date" ? "" : discount_end_date),
         (product.product_can_be_customized = productCanBeCustomized);
-      product.product_weight = product_weight;
-      product.product_weight_unit = product_weight_unit;
+      (product.product_weight = product_weight),
+        (product.product_weight_unit = product_weight_unit),
+        (product.product_can_be_customized_is_optional = product_can_be_customized_is_optional),
+        (product.product_personilization_note = product_personilization_note);
       if (parseInt(product_qty) > 0) {
         product.inStock = true;
       }
@@ -734,15 +743,14 @@ module.exports = (app) => {
             user: { $eq: ObjectId(req.params.shop_id) },
             inStock: true,
           },
-        }, 
+        },
         {
           $group: {
             _id: "$main_category",
-            count: { $sum: 1 }
-          }
-        }
-      ])
-      
+            count: { $sum: 1 },
+          },
+        },
+      ]);
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -752,12 +760,11 @@ module.exports = (app) => {
         products,
         productPageCount,
         shop_header_products,
-        categories
-
+        categories,
       });
     } catch (e) {
       console.log(e);
-      
+
       return httpRespond.severResponse(res, {
         status: false,
       });

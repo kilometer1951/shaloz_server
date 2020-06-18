@@ -51,7 +51,7 @@ module.exports = (app) => {
       messageBody =
         "Your verification code is: " +
         code +
-        ". theShop is a marketplace where you can buy and sell anything";
+        ". Shaloz is a marketplace where you can buy and sell anything";
       await smsFunctions.verification(req.body.phone, messageBody, code);
       return httpRespond.severResponse(res, {
         status: true,
@@ -76,7 +76,7 @@ module.exports = (app) => {
         messageBody =
           "Your verification code is: " +
           code +
-          ". theShops is a marketplace that allows you to build your online store and start selling in minutes. Buy and sell with theShops";
+          ". Shaloz is a marketplace that allows you to build your online store and start selling in minutes. Buy and sell with Shaloz";
         await smsFunctions.verification(req.body.phone, messageBody, code);
         return httpRespond.severResponse(res, {
           status: true,
@@ -121,7 +121,7 @@ module.exports = (app) => {
         first_name: req.body.first_name,
         last_name: req.body.last_name,
         phone: req.body.phone,
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
         stripe_payment_id: customer.id,
         password: password.encryptPassword(req.body.password),
         country: "usa",
@@ -153,7 +153,7 @@ module.exports = (app) => {
   app.post("/api/login_users", async (req, res) => {
     //login
     try {
-      const user = await User.findOne({ email: req.body.email });            
+      const user = await User.findOne({ email: req.body.email.toLowerCase() });            
       if (!user) {
         return httpRespond.severResponse(res, {
           status: false,

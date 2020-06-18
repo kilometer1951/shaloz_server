@@ -96,5 +96,5 @@ require("./routes/runSchedule")(agenda);
 
 const port = process.env.PORT || 5002;
 http.listen(port, () => {
-  console.log("theShop server connected successfully at port:", port);
+  console.log("Shaloz server connected successfully at port:", port);
 });

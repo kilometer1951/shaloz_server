@@ -43,7 +43,6 @@ let userSchema = new Schema({
   admin:{ type: Boolean, default: false },
 
 
-  logged_in:{ type: Boolean, default: true },
 
   
 });
