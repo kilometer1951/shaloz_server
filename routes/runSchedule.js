@@ -29,18 +29,20 @@ module.exports = (agenda) => {
   };
 
   const runBuyerCartTask = async () => {
-    const shopping_cart = await ShoppingCart.find({has_checkedout:false}).populate("user");
-    //send message to all users 
+    const shopping_cart = await ShoppingCart.find({
+      has_checkedout: false,
+    }).populate("user");
+    //send message to all users
     let messageBody;
-    let phone ;
-    for(let i = 0; i <= shopping_cart.length ; i++) {
-       messageBody = `Hi ${shopping_cart[i].user.first_name}, you added items to your shopping cart and haven't completed your purchase. You can complete it now while they're still available. Open the Shaloz app to view your cart shaloz://cart`;
-      phone = shopping_cart[i].user.phone
-      smsFunctions.sendSMS(phone, messageBody);
-     // console.log(shopping_cart[i].user.phone);
-
+    let phone;
+    if (shopping_cart.length !== 0) {
+      for (let i = 0; i <= shopping_cart.length; i++) {
+        messageBody = `Hi ${shopping_cart[i].user.first_name}, you added items to your shopping cart and haven't completed your purchase. You can complete it now while they're still available. Open the Shaloz app to view your cart shaloz://cart`;
+        phone = shopping_cart[i].user.phone;
+        smsFunctions.sendSMS(phone, messageBody);
+        // console.log(shopping_cart[i].user.phone);
+      }
     }
-    
   };
 
   const run = async () => {
