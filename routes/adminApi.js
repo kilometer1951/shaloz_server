@@ -205,7 +205,7 @@ module.exports = (app) => {
 
       if (shoppingCart) {
         if (parseFloat(shoppingCart.total) < 300) {
-          console.log("charge 4% + 2");
+          console.log("charge 5%");
           const cart_total = parseFloat(shoppingCart.total).toFixed(2);
           const processing_fee = parseFloat(
             shoppingCart.processing_fee
