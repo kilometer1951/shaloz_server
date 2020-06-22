@@ -52,6 +52,7 @@ module.exports = (agenda) => {
     agenda.define("check buyer cart", async (job) => {
       await runBuyerCartTask();
     });
+   
   };
 
   (async function () {

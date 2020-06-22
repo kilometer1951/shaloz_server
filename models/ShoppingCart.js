@@ -18,7 +18,7 @@ var shoppingcartSchema = new Schema({
   shipping_details:{ type: String, default: "" },
   date_entered_tracking :{ type: Date, default: Date.now },
 
-  date_user_checked_out:{ type: String, default: "" },
+  date_user_checked_out:{ type: Date },
 
 
   stripe_refund_id: { type: String, default: "" },
@@ -27,7 +27,7 @@ var shoppingcartSchema = new Schema({
 
   seller_takes: { type: String, default: "0.00" },
   theshop_takes: { type: String, default: "" },
-  date_paid: { type: String, default: "" },
+  date_paid: { type: Date },
 
   sub_total: { type: String, default: "" },
   tax: { type: String, default: "" },
