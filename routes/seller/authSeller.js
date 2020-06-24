@@ -163,6 +163,7 @@ module.exports = (app) => {
       user.shop_postal_code = req.body.postalCode;
       user.shop_address = req.body.address;
       user.shop_name = req.body.shopName;
+      user.country = "United States";
       user.save();
 
       //update shipping info
