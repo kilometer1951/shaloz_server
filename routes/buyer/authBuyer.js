@@ -27,6 +27,15 @@ const upload = multer({
 // });
 
 
+const Shopify = require('shopify-api-node');
+ 
+const shopify = new Shopify({
+  shopName: 'Shaloz',
+  apiKey: '366fb00f09f6cde2e1442388719cdb76',
+  password: 'Louis1951@1'
+});
+
+
 const tokenForUser = (user) => {
   const timestamp = new Date().getTime();
   return jwt.encode({ sub: user, iat: timestamp },"sdsfsfsf");
@@ -182,12 +191,21 @@ module.exports = (app) => {
       });
     }
   });
-  //   app.post("/api/update_device_token", async (req, res) => {
-  //     const client = await Client.findOne({ _id: req.body.clientId });
-  //     client.deviceToken = req.body.token;
-  //     client.save();
-  //     return httpRespond.severResponse(res, {
-  //       status: true,
-  //     });
-  //   });
+    // app.post("/api/update_device_token", async (req, res) => {
+    //   const client = await Client.findOne({ _id: req.body.clientId });
+    //   client.deviceToken = req.body.token;
+    //   client.save();
+    //   return httpRespond.severResponse(res, {
+    //     status: true,
+    //   });
+    // });
+
+
+    app.get("/api/test", async (req, res) => {
+      console.log(shopify);
+      
+      res.send({status:true})
+    
+    
+    });
 };
