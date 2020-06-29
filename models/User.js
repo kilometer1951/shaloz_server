@@ -42,6 +42,9 @@ let userSchema = new Schema({
   admin: { type: Boolean, default: false },
 
   loyalty_points: { type: Number, default: 0 },
+
+  sales_tax: { type: String, default: "" },
+
 });
 
 mongoose.model("users", userSchema);

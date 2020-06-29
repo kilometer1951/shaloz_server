@@ -93,7 +93,7 @@ module.exports = (app) => {
       });
     }
   });
-  
+
   app.get(
     "/api/admin/view/main_category/:main_category_name/:sub_category1",
     async (req, res) => {
@@ -161,7 +161,7 @@ module.exports = (app) => {
   app.get("/api/admin/fetch_purcahsed_package", async (req, res) => {
     try {
       console.log(parseInt(req.query.page));
-      
+
       let per_page = 10;
       let page_no = parseInt(req.query.page);
       let pagination = {
@@ -172,7 +172,7 @@ module.exports = (app) => {
         has_checkedout: true,
         order_shipped: true,
         seller_takes: "0.00",
-        stripe_refund_id:{$eq: ""}
+        stripe_refund_id: { $eq: "" },
       })
         .populate("items.product")
         .populate("seller")
@@ -215,7 +215,7 @@ module.exports = (app) => {
             parseFloat(cart_total) - parseFloat(processing_fee)
           ).toFixed(2);
 
-          const theshop_takes = (parseFloat(newTotal) * 0.04 + 2).toFixed(2);
+          const theshop_takes = (parseFloat(newTotal) * 0.05).toFixed(2);
           const seller_takes = (
             parseFloat(newTotal) - parseFloat(theshop_takes)
           ).toFixed(2);
@@ -294,9 +294,6 @@ module.exports = (app) => {
     }
   });
 
-
-
-
   app.get("/api/view/fetch_cancel_order/:user_id", async (req, res) => {
     try {
       let per_page = 10;
@@ -330,7 +327,20 @@ module.exports = (app) => {
     }
   });
 
-
-  
-
+  app.post("/api/admin/insert_many", async (req, res) => {
+    try {
+      let _id = "5eeb8211e9ec867bee56c032";
+      let data = [
+        {
+          subCategoryOne: _id,
+          name: "Everything Else",
+        },      
+      ];
+      const response = await SubCategoryTwo.insertMany(data);
+      res.send(response);
+    } catch (e) {
+      console.log(e);
+      res.send(e);
+    }
+  });
 };

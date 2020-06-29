@@ -109,6 +109,7 @@ module.exports = (app) => {
         .populate("items.product")
         .populate("seller")
         .populate("user")
+        .sort({date_user_checked_out: -1})
         .limit(pagination.limit)
         .skip(pagination.skip);
 
@@ -381,6 +382,7 @@ module.exports = (app) => {
         .populate("items.product")
         .populate("seller")
         .populate("user")
+        .sort({date_user_checked_out: -1})
         .limit(pagination.limit)
         .skip(pagination.skip);
 

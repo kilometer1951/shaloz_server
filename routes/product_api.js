@@ -49,7 +49,7 @@ module.exports = (app) => {
       let musical_instru;
       let wedding_party;
       let work_out_suplement;
-      let barber_product;
+      let art_design;
       let all_cat;
       let deals;
 
@@ -234,10 +234,10 @@ module.exports = (app) => {
           },
         ]);
 
-        barber_product = await Product.aggregate([
+        art_design = await Product.aggregate([
           {
             $match: {
-              main_category: "Barber Products & Supplies",
+              main_category: "Art & Design",
               inStock: true,
             },
           }, // filter the results
@@ -252,7 +252,9 @@ module.exports = (app) => {
           },
         ]);
 
-        all_cat = await Product.aggregate([{ $sample: { size: 4 } }]);
+        
+
+        all_cat = await Product.aggregate([{ $sample: { size: 20 } }]);
       } else {
         deals = await Product.aggregate([
           {
@@ -444,11 +446,11 @@ module.exports = (app) => {
           },
         ]);
 
-        barber_product = await Product.aggregate([
+        art_design = await Product.aggregate([
           {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
-              main_category: "Barber Products & Supplies",
+              main_category: "Art & Design",
               inStock: true,
             },
           }, // filter the results
@@ -470,7 +472,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -492,7 +494,7 @@ module.exports = (app) => {
         musical_instru,
         wedding_party,
         work_out_suplement,
-        barber_product,
+        art_design,
         all_cat,
         deals,
       };
