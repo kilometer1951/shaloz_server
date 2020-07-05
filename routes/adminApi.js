@@ -210,9 +210,12 @@ module.exports = (app) => {
           const processing_fee = parseFloat(
             shoppingCart.processing_fee
           ).toFixed(2);
+          const tax = parseFloat(
+            shoppingCart.tax
+          ).toFixed(2);
 
           const newTotal = (
-            parseFloat(cart_total) - parseFloat(processing_fee)
+            parseFloat(cart_total) - parseFloat(processing_fee) - parseFloat(tax)
           ).toFixed(2);
 
           const theshop_takes = (parseFloat(newTotal) * 0.05).toFixed(2);
@@ -243,7 +246,7 @@ module.exports = (app) => {
           ).toFixed(2);
 
           const newTotal = (
-            parseFloat(cart_total) - parseFloat(processing_fee)
+            parseFloat(cart_total) - parseFloat(processing_fee) - parseFloat(tax)
           ).toFixed(2);
 
           const theshop_takes = (parseFloat(newTotal) * 0.06 + 2.5).toFixed(2);
@@ -276,6 +279,8 @@ module.exports = (app) => {
         status: true,
       });
     } catch (e) {
+      console.log(e);
+      
       const shoppingCart = await ShoppingCart.findOne({
         _id: req.body.cart_id,
       })
@@ -329,12 +334,12 @@ module.exports = (app) => {
 
   app.post("/api/admin/insert_many", async (req, res) => {
     try {
-      let _id = "5eeb8211e9ec867bee56c032";
-      let data = [
+      let _id = "5efdfc8262ca593b5bccefa2";
+      let data = [ 
         {
-          subCategoryOne: _id,
+          mainCategory: _id,
           name: "Everything Else",
-        },      
+        },
       ];
       const response = await SubCategoryTwo.insertMany(data);
       res.send(response);

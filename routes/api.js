@@ -7,6 +7,7 @@ const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 const ReviewShop = mongoose.model("reviewShops");
 const MainCategory = mongoose.model("mainCategories");
 let ObjectId = require("mongodb").ObjectID;
+const Moment = require("moment");
 
 let messageBody = "";
 const smsFunctions = require("../functions/SMS");
@@ -346,7 +347,9 @@ module.exports = (app) => {
         allow_purchase_when_out_of_stock,
         productCanBeCustomized,
         product_weight,
-        product_weight_unit,product_can_be_customized_is_optional,product_personilization_note
+        product_weight_unit,
+        product_can_be_customized_is_optional,
+        product_personilization_note,
       } = req.body._data;
 
       let newVariant = [];
@@ -636,7 +639,7 @@ module.exports = (app) => {
         .skip(pagination.skip)
         .sort({ date: -1 });
 
-      console.log(my_shop_product);
+      console.log(my_shop_product.length);
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -761,6 +764,88 @@ module.exports = (app) => {
         productPageCount,
         shop_header_products,
         categories,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/view/fetchSellerWeeklyGraphData/:seller_id", async (req, res) => {
+    try {
+      const start_of_week = Moment(new Date()).startOf("isoWeek");
+      const end_of_week = Moment(new Date()).endOf("isoWeek");
+
+      const data = await ShoppingCart.aggregate([
+        {
+          $match: {
+            $or: [
+              { seller: ObjectId(req.params.seller_id) },
+              { has_checkedout: true },
+              { order_shipped: true },
+              { stripe_refund_id: { $eq: "" } },
+              {
+                date_paid: {
+                  $gte: start_of_week,
+                  $lte: end_of_week,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: { day: { $dayOfYear: "$date_paid" } },
+            pay: { $push: { seller_takes: "$seller_takes" } },
+          },
+        },
+      ]);
+
+      //(Moment().dayOfYear(data[0]._id.day))._d
+      // ["day 1", "day 2", "day 3", "day 4", "day 5", "day 6", "day 7"];
+      const newArr = [0, 0, 0, 0, 0, 0, 0];
+      data.map((value, index) => {
+        try {
+          //add and push
+          const d = Moment().dayOfYear(value._id.day);
+          const dow = d.weekday();
+
+          let count = 0;
+          for (let i = 0; i <= value.pay.length; i++) {
+            if (value.pay[i] !== undefined) {
+              let price = parseFloat(value.pay[i].seller_takes);
+              count += price;
+            }
+          }
+
+          if (dow === 0) {
+            newArr[6] = count;
+          } else if (dow === 1) {
+            newArr[1] = count;
+          } else if (dow === 2) {
+            newArr[2] = count;
+          } else if (dow === 3) {
+            newArr[3] = count;
+          } else if (dow === 4) {
+            newArr[4] = count;
+          } else if (dow === 5) {
+            newArr[5] = count;
+          }
+
+        } catch (e) {
+          console.log(e);
+        }
+      });
+
+      console.log(newArr);
+      
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        newArr,
       });
     } catch (e) {
       console.log(e);

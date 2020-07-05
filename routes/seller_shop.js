@@ -109,7 +109,7 @@ module.exports = (app) => {
         .populate("items.product")
         .populate("seller")
         .populate("user")
-        .sort({date_user_checked_out: -1})
+        .sort({ date_user_checked_out: -1 })
         .limit(pagination.limit)
         .skip(pagination.skip);
 
@@ -170,11 +170,14 @@ module.exports = (app) => {
             } else {
               //
 
-              if (parseFloat(shoppingCart.total) < 300.00) {
+              if (parseFloat(shoppingCart.total) < 300.0) {
                 console.log("charge 4% + 1");
-               
+
                 // update shopping cart
-                shoppingCart.expected_arrival_date = data.estimated_delivery_date === null ? data.actual_delivery_date : data.estimated_delivery_dat;
+                shoppingCart.expected_arrival_date =
+                  data.estimated_delivery_date === null
+                    ? data.actual_delivery_date
+                    : data.estimated_delivery_dat;
                 shoppingCart.tracking_number = req.body.tracking_number;
                 //shoppingCart.seller_takes = seller_takes;
                 //shoppingCart.theshop_takes = theshop_takes;
@@ -185,7 +188,10 @@ module.exports = (app) => {
               } else {
                 console.log("charge 6% + 2.50");
                 // update shopping car
-                shoppingCart.expected_arrival_date = data.estimated_delivery_date === null ? data.actual_delivery_date : data.estimated_delivery_dat;
+                shoppingCart.expected_arrival_date =
+                  data.estimated_delivery_date === null
+                    ? data.actual_delivery_date
+                    : data.estimated_delivery_dat;
                 shoppingCart.tracking_number = req.body.tracking_number;
                 // shoppingCart.seller_takes = seller_takes;
                 //shoppingCart.theshop_takes = theshop_takes;
@@ -201,7 +207,13 @@ module.exports = (app) => {
                 ", your order has been shipped by " +
                 shoppingCart.seller.shop_name +
                 ". Your order should arrive by " +
-                Moment(new Date(data.estimated_delivery_date === null ? data.actual_delivery_date : data.estimated_delivery_dat)).format('MMM Do, YYYY')+
+                Moment(
+                  new Date(
+                    data.estimated_delivery_date === null
+                      ? data.actual_delivery_date
+                      : data.estimated_delivery_dat
+                  )
+                ).format("MMM Do, YYYY") +
                 ". Open the Shaloz app to track your order. shaloz://purchased_orders";
               await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
               return httpRespond.severResponse(res, {
@@ -228,7 +240,7 @@ module.exports = (app) => {
   });
 
   app.get(
-    "/api/view/seller_weekly_activity/:seller_id/:dateTime",
+    "/api/view/seller_weekly_activity/:seller_id",
     async (req, res) => {
       try {
         let per_page = 8;
@@ -237,39 +249,18 @@ module.exports = (app) => {
           limit: per_page,
           skip: per_page * (page_no - 1),
         };
-        let curr = new Date(req.params.dateTime); // get current date
-        let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        let last = first + 6; // last day is the first day + 6
-
-        const firstDayOfWeek = Moment(
-          new Date(curr.setDate(first)),
-          "DD-MM-YYYY"
-        ).add(1, "day");
-        const lastDayOfWeek = Moment(
-          new Date(curr.setDate(last)),
-          "DD-MM-YYYY"
-        ).add(1, "day");
-
-        const startOfWeek = Moment(firstDayOfWeek).format();
-        const endOfWeek = Moment(lastDayOfWeek).format();
-
-        //convert date to regular time zone
-        let newStartDate = Moment(startOfWeek).format("YYYY-MM-DD");
-        let newStartOfWeekDateTime = new Date(
-          newStartDate + "" + "T05:00:00.000Z"
-        );
-
-        let newEndDate = Moment(endOfWeek).format("YYYY-MM-DD");
-        let newEndOfWeekDateTime = new Date(newEndDate + "" + "T05:00:00.000Z");
+      
+        const start_of_week =  Moment(new Date()).startOf('isoWeek');
+        const end_of_week =  Moment(new Date()).endOf('isoWeek');
 
         const weeklyActivity = await ShoppingCart.find({
           seller: req.params.seller_id,
           has_checkedout: true,
           order_shipped: true,
           stripe_refund_id: { $eq: "" },
-          date_added: {
-            $gte: newStartOfWeekDateTime,
-            $lte: newEndOfWeekDateTime,
+          date_paid: {
+            $gte: start_of_week,
+            $lte: end_of_week,
           },
         })
           .populate("items.product")
@@ -292,35 +283,14 @@ module.exports = (app) => {
     }
   );
 
-  app.get("/api/get_earnings/:seller_id/:dateTime", async (req, res) => {
+  app.get("/api/get_earnings/:seller_id", async (req, res) => {
     try {
       const seller_info = await User.findOne({ _id: req.params.seller_id });
 
       const earnings = {};
-      let curr = new Date(req.params.dateTime); // get current date
-      let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-      let last = first + 6; // last day is the first day + 6
+      const start_of_week =  Moment(new Date()).startOf('isoWeek');
+      const end_of_week =  Moment(new Date()).endOf('isoWeek');
 
-      const firstDayOfWeek = Moment(
-        new Date(curr.setDate(first)),
-        "DD-MM-YYYY"
-      ).add(1, "day");
-      const lastDayOfWeek = Moment(
-        new Date(curr.setDate(last)),
-        "DD-MM-YYYY"
-      ).add(1, "day");
-
-      const startOfWeek = Moment(firstDayOfWeek).format();
-      const endOfWeek = Moment(lastDayOfWeek).format();
-
-      //convert date to regular time zone
-      let newStartDate = Moment(startOfWeek).format("YYYY-MM-DD");
-      let newStartOfWeekDateTime = new Date(
-        newStartDate + "" + "T05:00:00.000Z"
-      );
-
-      let newEndDate = Moment(endOfWeek).format("YYYY-MM-DD");
-      let newEndOfWeekDateTime = new Date(newEndDate + "" + "T05:00:00.000Z");
 
       const balance = await stripe.balance.retrieve({
         stripeAccount: seller_info.stripe_seller_account_id,
@@ -331,12 +301,11 @@ module.exports = (app) => {
         order_shipped: true,
         has_checkedout: true,
         stripe_refund_id: { $eq: "" },
-        date_added: {
-          $gte: newStartOfWeekDateTime,
-          $lte: newEndOfWeekDateTime,
+        date_paid: {
+          $gte: start_of_week,
+          $lte: end_of_week,
         },
       });
-      // console.log(total_earned_per_week);
 
       let total = 0;
 
@@ -351,8 +320,9 @@ module.exports = (app) => {
 
       earnings.total_earned_per_week = parseFloat(total).toFixed(2);
 
-      //console.log(Moment(curr).format());
 
+
+      
       return httpRespond.severResponse(res, {
         status: true,
         earnings,
@@ -382,7 +352,7 @@ module.exports = (app) => {
         .populate("items.product")
         .populate("seller")
         .populate("user")
-        .sort({date_user_checked_out: -1})
+        .sort({ date_user_checked_out: -1 })
         .limit(pagination.limit)
         .skip(pagination.skip);
 
