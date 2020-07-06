@@ -579,7 +579,6 @@ module.exports = (app) => {
             .bucket(bucketName)
             .upload(req.file.path, {
               gzip: true,
-
               metadata: {
                 cacheControl: "public, max-age=31536000",
               },
@@ -849,4 +848,77 @@ module.exports = (app) => {
       }
     }
   );
+
+  app.get("/api/shop/fetch_shop_categories/:shop_id", async (req, res) => {
+    try {
+      const categories = await Product.aggregate([
+        {
+          $match: {
+            user: { $eq: ObjectId(req.params.shop_id) },
+            inStock: true,
+          },
+        },
+        {
+          $group: {
+            _id: "$main_category",
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+      console.log(categories);
+      
+      return httpRespond.severResponse(res, {
+        status: true,
+        categories,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+
+
+  app.get("/api/view/apply_shop_filter/:shop_id/:main_cat", async (req, res) => {
+    try {
+      let per_page = 20;
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await Product.aggregate([
+        {
+          $match: {
+            user: { $eq: ObjectId(req.params.shop_id) },
+            main_category:req.params.main_cat,
+            inStock: true,
+          },
+        }, // filter the results
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+        { $sample: { size: pagination.limit } },
+      ]);
+
+     
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        endOfFile: data.length === 0 ? true : false,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+
+
+
 };

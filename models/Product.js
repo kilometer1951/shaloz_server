@@ -34,7 +34,7 @@ var productSchema = new Schema({
   total_rate_number:{type:String, default:""},
   product_can_be_customized_is_optional:{ type: Boolean, default: true },
   product_personilization_note:{type:String, default:""},
- local_currency:{type:String, default:""},
+ local_currency:{type:String, default:"USD"},
 
 
 
