@@ -214,7 +214,7 @@ module.exports = (app) => {
                       : data.estimated_delivery_dat
                   )
                 ).format("MMM Do, YYYY") +
-                ". Open the Shaloz app to track your order. shaloz://purchased_orders";
+                ". Your tracking number is "+req.body.tracking_number+". Open the Shaloz app to track your order. shaloz://purchased_orders";
               await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
               return httpRespond.severResponse(res, {
                 status: true,
