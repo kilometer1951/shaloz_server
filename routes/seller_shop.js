@@ -240,7 +240,7 @@ module.exports = (app) => {
   });
 
   app.get(
-    "/api/view/seller_weekly_activity/:seller_id",
+    "/api/view/seller_weekly_activity/:seller_id/:start_of_week/:end_of_week",
     async (req, res) => {
       try {
         let per_page = 8;
@@ -250,8 +250,7 @@ module.exports = (app) => {
           skip: per_page * (page_no - 1),
         };
       
-        const start_of_week =  Moment(new Date()).startOf('isoWeek');
-        const end_of_week =  Moment(new Date()).endOf('isoWeek');
+     
 
         const weeklyActivity = await ShoppingCart.find({
           seller: req.params.seller_id,
@@ -259,8 +258,8 @@ module.exports = (app) => {
           order_shipped: true,
           stripe_refund_id: { $eq: "" },
           date_paid: {
-            $gte: start_of_week,
-            $lte: end_of_week,
+            $gte: new Date(req.params.start_of_week),
+            $lte: new Date(req.params.end_of_week),
           },
         })
           .populate("items.product")
@@ -283,13 +282,15 @@ module.exports = (app) => {
     }
   );
 
-  app.get("/api/get_earnings/:seller_id", async (req, res) => {
+  app.get("/api/get_earnings/:seller_id/:start_of_week/:end_of_week", async (req, res) => {
     try {
       const seller_info = await User.findOne({ _id: req.params.seller_id });
 
       const earnings = {};
-      const start_of_week =  Moment(new Date()).startOf('isoWeek');
-      const end_of_week =  Moment(new Date()).endOf('isoWeek');
+      // const start_of_week =  Moment(new Date()).startOf('isoWeek');
+      // const end_of_week =  Moment(new Date()).endOf('isoWeek');
+
+
 
 
       const balance = await stripe.balance.retrieve({
@@ -302,8 +303,8 @@ module.exports = (app) => {
         has_checkedout: true,
         stripe_refund_id: { $eq: "" },
         date_paid: {
-          $gte: start_of_week,
-          $lte: end_of_week,
+          $gte: new Date(req.params.start_of_week),
+          $lte: new Date(req.params.end_of_week),
         },
       });
 

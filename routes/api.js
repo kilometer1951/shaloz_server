@@ -774,85 +774,79 @@ module.exports = (app) => {
     }
   });
 
-  app.get("/api/view/fetchSellerWeeklyGraphData/:seller_id", async (req, res) => {
-    try {
-      const start_of_week = Moment(new Date()).startOf("isoWeek");
-      const end_of_week = Moment(new Date()).endOf("isoWeek");
-
-      const data = await ShoppingCart.aggregate([
-        {
-          $match: {
-            $or: [
-              { seller: ObjectId(req.params.seller_id) },
-              { has_checkedout: true },
-              { order_shipped: true },
-              { stripe_refund_id: { $eq: "" } },
-              {
-                date_paid: {
-                  $gte: start_of_week,
-                  $lte: end_of_week,
-                },
+  app.get(
+    "/api/view/fetchSellerWeeklyGraphData/:seller_id/:start_of_week/:end_of_week",
+    async (req, res) => {
+      try {
+        const data = await ShoppingCart.aggregate([
+          {
+            $match: {
+              seller: ObjectId(req.params.seller_id),
+              order_shipped: true,
+              has_checkedout: true,
+              stripe_refund_id: { $eq: "" },
+              date_paid: {
+                $gte: new Date(req.params.start_of_week),
+                $lte: new Date(req.params.end_of_week),
               },
-            ],
+            },
           },
-        },
-        {
-          $group: {
-            _id: { day: { $dayOfYear: "$date_paid" } },
-            pay: { $push: { seller_takes: "$seller_takes" } },
+          {
+            $group: {
+              _id: { day: { $dayOfYear: "$date_paid" } },
+              pay: { $push: { seller_takes: "$seller_takes" } },
+            },
           },
-        },
-      ]);
+        ]);
 
-      //(Moment().dayOfYear(data[0]._id.day))._d
-      // ["day 1", "day 2", "day 3", "day 4", "day 5", "day 6", "day 7"];
-      const newArr = [0, 0, 0, 0, 0, 0, 0];
-      data.map((value, index) => {
-        try {
-          //add and push
-          const d = Moment().dayOfYear(value._id.day);
-          const dow = d.weekday();
+        //(Moment().dayOfYear(data[0]._id.day))._d
+        // ["day 1", "day 2", "day 3", "day 4", "day 5", "day 6", "day 7"];
+        const newArr = [0, 0, 0, 0, 0, 0, 0];
+        data.map((value, index) => {
+          try {
+            //add and push
+            const d = Moment().dayOfYear(value._id.day);
+            const dow = d.weekday();
 
-          let count = 0;
-          for (let i = 0; i <= value.pay.length; i++) {
-            if (value.pay[i] !== undefined) {
-              let price = parseFloat(value.pay[i].seller_takes);
-              count += price;
+            let count = 0;
+            for (let i = 0; i <= value.pay.length; i++) {
+              if (value.pay[i] !== undefined) {
+                let price = parseFloat(value.pay[i].seller_takes);
+                count += price;
+              }
             }
+
+            if (dow === 0) {
+              newArr[6] = count;
+            } else if (dow === 1) {
+              newArr[1] = count;
+            } else if (dow === 2) {
+              newArr[2] = count;
+            } else if (dow === 3) {
+              newArr[3] = count;
+            } else if (dow === 4) {
+              newArr[4] = count;
+            } else if (dow === 5) {
+              newArr[5] = count;
+            }
+          } catch (e) {
+            console.log(e);
           }
+        });
 
-          if (dow === 0) {
-            newArr[6] = count;
-          } else if (dow === 1) {
-            newArr[1] = count;
-          } else if (dow === 2) {
-            newArr[2] = count;
-          } else if (dow === 3) {
-            newArr[3] = count;
-          } else if (dow === 4) {
-            newArr[4] = count;
-          } else if (dow === 5) {
-            newArr[5] = count;
-          }
+        // console.log(newArr);
 
-        } catch (e) {
-          console.log(e);
-        }
-      });
+        return httpRespond.severResponse(res, {
+          status: true,
+          newArr,
+        });
+      } catch (e) {
+        console.log(e);
 
-      console.log(newArr);
-      
-
-      return httpRespond.severResponse(res, {
-        status: true,
-        newArr,
-      });
-    } catch (e) {
-      console.log(e);
-
-      return httpRespond.severResponse(res, {
-        status: false,
-      });
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
     }
-  });
+  );
 };

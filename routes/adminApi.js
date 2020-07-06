@@ -272,7 +272,7 @@ module.exports = (app) => {
         messageBody =
           "Hi " +
           shoppingCart.seller.first_name +
-          " we just processed your payment. shaloz://purchased_orders";
+          " we just processed your payment. shaloz://view_earning";
         await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
       }
       return httpRespond.severResponse(res, {
