@@ -101,46 +101,45 @@ module.exports = (app) => {
 
   app.post(
     "/api/upload_shop_image/:user_id",
-    upload.single("photo"),
     async (req, res) => {
-      console.log("hhhhhhh");
+      console.log(req.body);
 
       try {
         const user = await User.findOne({ _id: req.params.user_id });
 
-        if (user.cloud_id === "") {
-          //new upload
-          const response = await storage_google
-            .bucket(bucketName)
-            .upload(req.file.path, {
-              gzip: true,
+        // if (user.cloud_id === "") {
+        //   //new upload
+        //   const response = await storage_google
+        //     .bucket(bucketName)
+        //     .upload(req.file.path, {
+        //       gzip: true,
 
-              metadata: {
-                cacheControl: "public, max-age=31536000",
-              },
-            });
-          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
-          user.shop_logo = uri;
-          user.cloud_id = response[0].metadata.name;
-          user.save();
-        } else {
-          //delete old photo and upload new photo
-          await storage_google.bucket(bucketName).file(user.cloud_id).delete();
-          // //upload new photo
-          const response = await storage_google
-            .bucket(bucketName)
-            .upload(req.file.path, {
-              gzip: true,
+        //       metadata: {
+        //         cacheControl: "public, max-age=31536000",
+        //       },
+        //     });
+        //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+        //   user.shop_logo = uri;
+        //   user.cloud_id = response[0].metadata.name;
+        //   user.save();
+        // } else {
+        //   //delete old photo and upload new photo
+        //   await storage_google.bucket(bucketName).file(user.cloud_id).delete();
+        //   // //upload new photo
+        //   const response = await storage_google
+        //     .bucket(bucketName)
+        //     .upload(req.file.path, {
+        //       gzip: true,
 
-              metadata: {
-                cacheControl: "public, max-age=31536000",
-              },
-            });
-          let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
-          user.shop_logo = uri;
-          user.cloud_id = response[0].metadata.name;
-          user.save();
-        }
+        //       metadata: {
+        //         cacheControl: "public, max-age=31536000",
+        //       },
+        //     });
+        //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+        //   user.shop_logo = uri;
+        //   user.cloud_id = response[0].metadata.name;
+        //   user.save();
+        // }
 
         return httpRespond.severResponse(res, {
           status: true,
