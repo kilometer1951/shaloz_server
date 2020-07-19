@@ -100,7 +100,7 @@ module.exports = (app) => {
   });
 
   app.post(
-    "/api/upload_shop_image/:user_id", upload.single("photo"),
+    "/api/upload_shop_image/:user_id",
     async (req, res) => {
       console.log(req.file);
       try {
