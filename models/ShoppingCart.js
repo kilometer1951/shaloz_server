@@ -24,6 +24,8 @@ var shoppingcartSchema = new Schema({
   stripe_refund_id: { type: String, default: "" },
   stripe_transfer_id: { type: String, default: "" },
   stripe_charge_id: { type: String, default: "" },
+  date_refunded: { type: Date },
+
 
   seller_takes: { type: String, default: "0.00" },
   theshop_takes: { type: String, default: "" },

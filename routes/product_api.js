@@ -61,7 +61,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -79,7 +79,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -97,7 +97,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -115,7 +115,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -133,7 +133,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -151,7 +151,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -169,7 +169,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -187,7 +187,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -205,7 +205,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -223,7 +223,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -241,7 +241,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -254,7 +254,7 @@ module.exports = (app) => {
 
         
 
-        all_cat = await Product.aggregate([{ $sample: { size: 20 } }]);
+        all_cat = await Product.aggregate([{ $sample: { size: 30 } }]);
       } else {
         deals = await Product.aggregate([
           {
@@ -264,7 +264,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -283,7 +283,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -302,7 +302,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -321,7 +321,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -340,7 +340,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -359,7 +359,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -378,7 +378,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -397,7 +397,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -416,7 +416,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -435,7 +435,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 6 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -454,7 +454,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 10 } },
+          { $sample: { size: 20 } },
           {
             $lookup: {
               from: "users",
@@ -472,7 +472,7 @@ module.exports = (app) => {
               inStock: true,
             },
           }, // filter the results
-          { $sample: { size: 20 } },
+          { $sample: { size: 30 } },
           {
             $lookup: {
               from: "users",
@@ -1067,7 +1067,7 @@ module.exports = (app) => {
         ],
       })
         .sort("-date")
-        .limit(5)
+        .limit(30)
         .populate("user")
         .populate("variants");
 
@@ -1080,7 +1080,7 @@ module.exports = (app) => {
           { last_name: { $regex: new RegExp(req.params.value, "i") } },
           { shop_name: { $regex: new RegExp(req.params.value, "i") } },
         ],
-      }).limit(6);
+      }).limit(20);
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -1105,8 +1105,8 @@ module.exports = (app) => {
             inStock: true,
           },
         }, // filter the results
-        { $limit: 5 },
-        { $sample: { size: 5 } },
+        { $limit: 20 },
+        { $sample: { size: 20 } },
       ]);
 
       const shops = await User.aggregate([
@@ -1116,8 +1116,8 @@ module.exports = (app) => {
             _id: { $ne: ObjectId(req.params.user_id) },
           },
         }, // filter the results
-        { $limit: 6 },
-        { $sample: { size: 6 } },
+        { $limit: 20 },
+        { $sample: { size: 20 } },
       ]);
 
       //categories
@@ -2229,4 +2229,6 @@ module.exports = (app) => {
       }
     }
   );
+
+  
 };

@@ -40,6 +40,21 @@ const storage_google = new Storage({
 });
 
 module.exports = (app) => {
+  app.post("/api/update_shop_category/:shop_id", async (req, res) => {
+    try {
+     const updated = await User.updateOne({ _id: ObjectId(req.params.shop_id) }, { $set: {store_categories: req.body.selectedCategories} });
+     console.log(updated);
+     
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
   app.get("/api/user_info/:user_id", async (req, res) => {
     try {
       const user = await User.findOne({ _id: req.params.user_id });
@@ -866,7 +881,7 @@ module.exports = (app) => {
         },
       ]);
       console.log(categories);
-      
+
       return httpRespond.severResponse(res, {
         status: true,
         categories,
@@ -878,47 +893,60 @@ module.exports = (app) => {
     }
   });
 
+  app.get(
+    "/api/view/apply_shop_filter/:shop_id/:main_cat",
+    async (req, res) => {
+      try {
+        let per_page = 20;
+        let page_no = parseInt(req.query.page);
+        let pagination = {
+          limit: per_page,
+          skip: per_page * (page_no - 1),
+        };
 
+        const data = await Product.aggregate([
+          {
+            $match: {
+              user: { $eq: ObjectId(req.params.shop_id) },
+              main_category: req.params.main_cat,
+              inStock: true,
+            },
+          }, // filter the results
+          { $skip: pagination.skip },
+          { $limit: pagination.limit },
+          { $sample: { size: pagination.limit } },
+        ]);
 
-  app.get("/api/view/apply_shop_filter/:shop_id/:main_cat", async (req, res) => {
+        return httpRespond.severResponse(res, {
+          status: true,
+          data,
+          endOfFile: data.length === 0 ? true : false,
+        });
+      } catch (e) {
+        console.log(e);
+
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
+  app.post("/api/update_user_last_activity", async (req, res) => {
     try {
-      let per_page = 20;
-      let page_no = parseInt(req.query.page);
-      let pagination = {
-        limit: per_page,
-        skip: per_page * (page_no - 1),
-      };
-
-      const data = await Product.aggregate([
-        {
-          $match: {
-            user: { $eq: ObjectId(req.params.shop_id) },
-            main_category:req.params.main_cat,
-            inStock: true,
-          },
-        }, // filter the results
-        { $skip: pagination.skip },
-        { $limit: pagination.limit },
-        { $sample: { size: pagination.limit } },
-      ]);
-
-     
-
+     const resp = await User.updateOne({ _id: ObjectId(req.body.user_id) }, [
+        { $set: { last_activity: new Date() } },
+      ]);      
       return httpRespond.severResponse(res, {
         status: true,
-        data,
-        endOfFile: data.length === 0 ? true : false,
       });
     } catch (e) {
-      console.log(e);
-
       return httpRespond.severResponse(res, {
         status: false,
+        e: e,
       });
     }
   });
-
-
 
 
 };

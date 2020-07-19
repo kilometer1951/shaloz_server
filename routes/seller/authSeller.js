@@ -73,7 +73,7 @@ module.exports = (app) => {
           requested_capabilities: ["card_payments", "transfers"],
           settings: {
             card_payments: {
-              statement_descriptor_prefix: "tS",
+              statement_descriptor_prefix: "Sz",
             },
             payments: {
               statement_descriptor: "Shaloz",

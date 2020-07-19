@@ -44,6 +44,8 @@ let userSchema = new Schema({
   loyalty_points: { type: Number, default: 0 },
 
   sales_tax: { type: String, default: "" },
+  last_activity:{ type: Date, default: Date.now },
+  store_categories: { type: Array, default: [] },
 
 });
 

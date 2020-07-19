@@ -5,6 +5,7 @@ const SubCategoryOne = mongoose.model("subCategoriesOne");
 const SubCategoryTwo = mongoose.model("subCategoriesTwo");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 const ShoppingCart = mongoose.model("shoppingcarts");
+var ObjectId = require("mongodb").ObjectID;
 
 let messageBody = "";
 const smsFunctions = require("../functions/SMS");
@@ -210,12 +211,12 @@ module.exports = (app) => {
           const processing_fee = parseFloat(
             shoppingCart.processing_fee
           ).toFixed(2);
-          const tax = parseFloat(
-            shoppingCart.tax
-          ).toFixed(2);
+          const tax = parseFloat(shoppingCart.tax).toFixed(2);
 
           const newTotal = (
-            parseFloat(cart_total) - parseFloat(processing_fee) - parseFloat(tax)
+            parseFloat(cart_total) -
+            parseFloat(processing_fee) -
+            parseFloat(tax)
           ).toFixed(2);
 
           const theshop_takes = (parseFloat(newTotal) * 0.05).toFixed(2);
@@ -246,7 +247,9 @@ module.exports = (app) => {
           ).toFixed(2);
 
           const newTotal = (
-            parseFloat(cart_total) - parseFloat(processing_fee) - parseFloat(tax)
+            parseFloat(cart_total) -
+            parseFloat(processing_fee) -
+            parseFloat(tax)
           ).toFixed(2);
 
           const theshop_takes = (parseFloat(newTotal) * 0.06 + 2.5).toFixed(2);
@@ -280,7 +283,7 @@ module.exports = (app) => {
       });
     } catch (e) {
       console.log(e);
-      
+
       const shoppingCart = await ShoppingCart.findOne({
         _id: req.body.cart_id,
       })
@@ -299,43 +302,43 @@ module.exports = (app) => {
     }
   });
 
-  app.get("/api/view/fetch_cancel_order/:user_id", async (req, res) => {
-    try {
-      let per_page = 10;
-      let page_no = parseInt(req.query.page);
-      let pagination = {
-        limit: per_page,
-        skip: per_page * (page_no - 1),
-      };
-      const data = await ShoppingCart.find({
-        has_checkedout: true,
-        stripe_refund_id: { $eq: "" },
-        order_shipped: false,
-      })
-        .populate("items.product")
-        .populate("seller")
-        .populate("user")
-        .sort("-date_added")
-        .limit(pagination.limit)
-        .skip(pagination.skip);
+  // app.get("/api/view/fetch_cancel_order/:user_id", async (req, res) => {
+  //   try {
+  //     let per_page = 10;
+  //     let page_no = parseInt(req.query.page);
+  //     let pagination = {
+  //       limit: per_page,
+  //       skip: per_page * (page_no - 1),
+  //     };
+  //     const data = await ShoppingCart.find({
+  //       has_checkedout: true,
+  //       stripe_refund_id: { $eq: "" },
+  //       order_shipped: false,
+  //     })
+  //       .populate("items.product")
+  //       .populate("seller")
+  //       .populate("user")
+  //       .sort("-date_added")
+  //       .limit(pagination.limit)
+  //       .skip(pagination.skip);
 
-      return httpRespond.severResponse(res, {
-        status: true,
-        data,
-        endOfFile: data.length === 0 ? true : false,
-      });
-    } catch (e) {
-      console.log(e);
-      return httpRespond.severResponse(res, {
-        status: false,
-      });
-    }
-  });
+  //     return httpRespond.severResponse(res, {
+  //       status: true,
+  //       data,
+  //       endOfFile: data.length === 0 ? true : false,
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //     return httpRespond.severResponse(res, {
+  //       status: false,
+  //     });
+  //   }
+  // });
 
   app.post("/api/admin/insert_many", async (req, res) => {
     try {
       let _id = "5efdfc8262ca593b5bccefa2";
-      let data = [ 
+      let data = [
         {
           mainCategory: _id,
           name: "Everything Else",
@@ -346,6 +349,294 @@ module.exports = (app) => {
     } catch (e) {
       console.log(e);
       res.send(e);
+    }
+  });
+
+  app.get("/api/admin/all_users", async (req, res) => {
+    try {
+      let per_page = 20;
+
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await User.aggregate([
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+        { $sample: { size: pagination.limit } },
+      ]);
+      const count = await User.countDocuments({});
+      const pageCount = Math.ceil(count / per_page);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        pageCount,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+  app.get("/api/admin/buyers", async (req, res) => {
+    try {
+      let per_page = 20;
+
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await User.aggregate([
+        {
+          $match: {
+            shop_setup: { $eq: "not_complete" },
+          },
+        },
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+        { $sample: { size: pagination.limit } },
+      ]);
+      const count = await User.countDocuments({});
+      const pageCount = Math.ceil(count / per_page);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        pageCount,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+  app.get("/api/admin/sellers", async (req, res) => {
+    try {
+      let per_page = 20;
+
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await User.aggregate([
+        {
+          $match: {
+            shop_setup: { $eq: "complete" },
+          },
+        },
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+        { $sample: { size: pagination.limit } },
+      ]);
+      const count = await User.countDocuments({});
+      const pageCount = Math.ceil(count / per_page);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        pageCount,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+  app.get("/api/admin/pay_seller", async (req, res) => {
+    try {
+      let per_page = 20;
+
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await ShoppingCart.find({
+        has_checkedout: true,
+        order_shipped: true,
+        stripe_refund_id: { $eq: "" },
+        seller_takes: "0.00",
+      })
+        .populate("items.product")
+        .populate("seller")
+        .populate("user")
+        .sort({ date_user_checked_out: -1 })
+        .limit(pagination.limit)
+        .skip(pagination.skip);
+
+      const count = await User.countDocuments({});
+      const pageCount = Math.ceil(count / per_page);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        pageCount,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/admin/fetch_orders_to_cancel", async (req, res) => {
+    try {
+      let per_page = 20;
+
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await ShoppingCart.find({
+        has_checkedout: true,
+        order_shipped: false,
+      })
+        .populate("items.product")
+        .populate("seller")
+        .populate("user")
+        .sort({ date_user_checked_out: -1 })
+        .limit(pagination.limit)
+        .skip(pagination.skip);
+
+      const count = await User.countDocuments({});
+      const pageCount = Math.ceil(count / per_page);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        pageCount,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/admin/search_by_orderId/:orderId", async (req, res) => {
+    try {
+      const data = await ShoppingCart.find({
+        _id: ObjectId(req.params.orderId),
+        order_shipped: true,
+        has_checkedout: true,
+      })
+        .populate("items.product")
+        .populate("seller")
+        .populate("user");
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        pageCount: 0,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.get("/api/admin/search_by_orderId_cancel/:orderId", async (req, res) => {
+    try {
+      const data = await ShoppingCart.find({
+        _id: ObjectId(req.params.orderId),
+        order_shipped: false,
+        has_checkedout: true,
+        stripe_refund_id: { $eq: "" },
+      })
+        .populate("items.product")
+        .populate("seller")
+        .populate("user");
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        pageCount: 0,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.post("/api/admin/cancel_order", async (req, res) => {
+    try {
+      const cart = await ShoppingCart.findOne({
+        _id: req.body.cart_id,
+        order_shipped: false,
+        has_checkedout: true,
+        stripe_refund_id: { $eq: "" },
+      })
+        .populate("seller")
+        .populate("user");
+
+      if (cart) {
+        const amount_to_refund = Math.round(
+          parseFloat(req.body.amount_to_return) * 100
+        );
+        //    .1 refund client
+        const refund = await stripe.refunds.create({
+          charge: cart.stripe_charge_id,
+          amount: amount_to_refund,
+        });
+
+        //update cart
+
+        cart.stripe_refund_id = refund.id;
+        cart.order_shipped = true;
+        cart.save();
+        //send sms
+        messageBody =
+          "Hi " +
+          cart.seller.first_name +
+          " One of your customers cancelled their orders. This might be due to delay shipments. For any issues or questions, you can send us an email at support@shaloz.com To view your orders, visit shaloz://view_orders";
+        await smsFunctions.sendSMS(cart.seller.phone, messageBody);
+
+        const message2 =
+          "Hi " +
+          cart.user.first_name +
+          " Your order has been cancelled. Thanks for shopping on Shaloz. For any issues or questions, you can send us an email at support@shaloz.com To view your orders, visit shaloz://purchased_orders";
+        await smsFunctions.sendSMS(cart.user.phone, message2);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+        });
+      } else {
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+        message: e,
+      });
     }
   });
 };

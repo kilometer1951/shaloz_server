@@ -133,6 +133,7 @@ module.exports = (app) => {
         _id: req.body.cart_id,
         has_checkedout: true,
         order_shipped: false,
+        stripe_refund_id: { $eq: "" },
       })
         .populate("user")
         .populate("seller");
@@ -223,12 +224,15 @@ module.exports = (app) => {
             }
           } catch (e) {
             console.log(e);
-
             return httpRespond.severResponse(res, {
               status: false,
               event_not_found: false,
             });
           }
+        });
+      } else {
+        return httpRespond.severResponse(res, {
+          status: false,
         });
       }
     } catch (e) {

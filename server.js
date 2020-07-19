@@ -28,6 +28,7 @@ require("./models/FavoriteProduct");
 require("./models/FavoriteShop");
 require("./models/VideoAd");
 require("./models/AgendaJob");
+require("./models/Admin");
 
 // require("./models/Message");
 // require("./models/Conversation");
@@ -90,6 +91,7 @@ require("./routes/seller_shop")(app);
 require("./routes/video_ad")(app);
 //require("./socket/message_socket")(io);
 require("./routes/runSchedule")(agenda);
+require("./routes/adminAuth")(app);
 
 
 
