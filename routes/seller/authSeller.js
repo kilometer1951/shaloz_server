@@ -103,9 +103,10 @@ module.exports = (app) => {
     "/api/upload_shop_image/:user_id",
     upload.single("photo"),
     async (req, res) => {
+      console.log("hhhhhhh");
+
       try {
         const user = await User.findOne({ _id: req.params.user_id });
-console.log(req.file);
 
         if (user.cloud_id === "") {
           //new upload
