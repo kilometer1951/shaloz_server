@@ -100,10 +100,9 @@ module.exports = (app) => {
   });
 
   app.post(
-    "/api/upload_shop_image/:user_id",
+    "/api/upload_shop_image/:user_id", upload.single("photo"),
     async (req, res) => {
-      console.log("hererere");
-
+      console.log(req.file);
       try {
         const user = await User.findOne({ _id: req.params.user_id });
 
