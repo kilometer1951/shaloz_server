@@ -102,7 +102,7 @@ module.exports = (app) => {
   app.post(
     "/api/upload_shop_image/:user_id",
     async (req, res) => {
-      console.log(req.body);
+      console.log("hererere");
 
       try {
         const user = await User.findOne({ _id: req.params.user_id });
