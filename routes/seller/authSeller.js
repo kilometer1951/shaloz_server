@@ -101,18 +101,18 @@ module.exports = (app) => {
 
   app.post(
     "/api/upload_shop_image/:user_id",
+    upload.single("photo"),
     async (req, res) => {
-      console.log(req.body);
       try {
         const user = await User.findOne({ _id: req.params.user_id });
+console.log(req);
 
-        // if (user.cloud_id === "") {
-        //   //new upload
+        //if (user.cloud_id === "") {
+          //new upload
         //   const response = await storage_google
         //     .bucket(bucketName)
         //     .upload(req.file.path, {
         //       gzip: true,
-
         //       metadata: {
         //         cacheControl: "public, max-age=31536000",
         //       },
@@ -140,10 +140,10 @@ module.exports = (app) => {
         //   user.save();
         // }
 
-        return httpRespond.severResponse(res, {
-          status: true,
-          message: "upload complete",
-        });
+        // return httpRespond.severResponse(res, {
+        //   status: true,
+        //   message: "upload complete",
+        // });
       } catch (e) {
         console.log(e);
         return httpRespond.severResponse(res, {
