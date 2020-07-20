@@ -105,7 +105,7 @@ module.exports = (app) => {
     async (req, res) => {
       try {
         const user = await User.findOne({ _id: req.params.user_id });
-console.log(req);
+console.log(req.file);
 
         //if (user.cloud_id === "") {
           //new upload
