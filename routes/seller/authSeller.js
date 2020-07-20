@@ -13,15 +13,39 @@ const fs = require("fs");
 //const cloudinary = require("cloudinary");
 
 const multer = require("multer");
+// const storage = multer.diskStorage({
+//   filename: function (req, file, callback) {
+//     callback(null, Date.now() + file.originalname);
+//   },
+// });
+// const upload = multer({
+//   storage: storage,
+//   limits: { fieldSize: 25 * 1024 * 1024 },
+// });
+
 const storage = multer.diskStorage({
-  filename: function (req, file, callback) {
-    callback(null, Date.now() + file.originalname);
+  destination: function (req, file, cb) {
+    cb(null, '/filepath')
   },
-});
-const upload = multer({
-  storage: storage,
-  limits: { fieldSize: 25 * 1024 * 1024 },
-});
+
+  filename: function (req, file, cb) {
+
+    let filename = 'filenametogive';
+     req.body.file = filename
+
+    cb(null, filename)
+  }
+})
+
+const upload = multer({ storage: storage })
+
+
+
+
+
+
+
+
 // cloudinary.config({
 //   cloud_name: "ibc",
 //   api_key: "887482388487867",
@@ -100,12 +124,10 @@ module.exports = (app) => {
   });
 
   app.post(
-    "/api/upload_shop_image/:user_id",
-    upload.single("photo"),
-    async (req, res) => {
+    "/api/upload_shop_image/:user_id", async (req, res) => {
       try {
         const user = await User.findOne({ _id: req.params.user_id });
-console.log(req.file);
+console.log(req.body);
 
         //if (user.cloud_id === "") {
           //new upload
