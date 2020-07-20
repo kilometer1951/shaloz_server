@@ -13,30 +13,17 @@ const fs = require("fs");
 //const cloudinary = require("cloudinary");
 
 const multer = require("multer");
-// const storage = multer.diskStorage({
-//   filename: function (req, file, callback) {
-//     callback(null, Date.now() + file.originalname);
-//   },
-// });
-// const upload = multer({
-//   storage: storage,
-//   limits: { fieldSize: 25 * 1024 * 1024 },
-// });
-
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "/filepath");
-  },
-
-  filename: function (req, file, cb) {
-    let filename = "filenametogive";
-    req.body.file = filename;
-
-    cb(null, filename);
+  filename: function (req, file, callback) {
+    callback(null, Date.now() + file.originalname);
   },
 });
+const upload = multer({
+  storage: storage,
+  limits: { fieldSize: 25 * 1024 * 1024 },
+});
 
-const upload = multer({ storage: storage });
+
 
 // cloudinary.config({
 //   cloud_name: "ibc",
@@ -115,58 +102,60 @@ module.exports = (app) => {
     }
   });
 
-  app.post("/api/upload_shop_image/:user_id", async (req, res) => {
-    try {
-      const user = await User.findOne({ _id: req.params.user_id });
-      upload((req, res) => {
-        console.log(req.file);
-      });
+  app.post(
+    "/api/upload_shop_image/:user_id", upload.single("photo"),
+    async (req, res) => {
+      try {
+        const user = await User.findOne({ _id: req.params.user_id });
 
-      //if (user.cloud_id === "") {
-      //new upload
-      //   const response = await storage_google
-      //     .bucket(bucketName)
-      //     .upload(req.file.path, {
-      //       gzip: true,
-      //       metadata: {
-      //         cacheControl: "public, max-age=31536000",
-      //       },
-      //     });
-      //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
-      //   user.shop_logo = uri;
-      //   user.cloud_id = response[0].metadata.name;
-      //   user.save();
-      // } else {
-      //   //delete old photo and upload new photo
-      //   await storage_google.bucket(bucketName).file(user.cloud_id).delete();
-      //   // //upload new photo
-      //   const response = await storage_google
-      //     .bucket(bucketName)
-      //     .upload(req.file.path, {
-      //       gzip: true,
+console.log(req.file);
 
-      //       metadata: {
-      //         cacheControl: "public, max-age=31536000",
-      //       },
-      //     });
-      //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
-      //   user.shop_logo = uri;
-      //   user.cloud_id = response[0].metadata.name;
-      //   user.save();
-      // }
+        //if (user.cloud_id === "") {
+          //new upload
+        //   const response = await storage_google
+        //     .bucket(bucketName)
+        //     .upload(req.file.path, {
+        //       gzip: true,
+        //       metadata: {
+        //         cacheControl: "public, max-age=31536000",
+        //       },
+        //     });
+        //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+        //   user.shop_logo = uri;
+        //   user.cloud_id = response[0].metadata.name;
+        //   user.save();
+        // } else {
+        //   //delete old photo and upload new photo
+        //   await storage_google.bucket(bucketName).file(user.cloud_id).delete();
+        //   // //upload new photo
+        //   const response = await storage_google
+        //     .bucket(bucketName)
+        //     .upload(req.file.path, {
+        //       gzip: true,
 
-      // return httpRespond.severResponse(res, {
-      //   status: true,
-      //   message: "upload complete",
-      // });
-    } catch (e) {
-      console.log(e);
-      return httpRespond.severResponse(res, {
-        status: false,
-        message: e,
-      });
+        //       metadata: {
+        //         cacheControl: "public, max-age=31536000",
+        //       },
+        //     });
+        //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+        //   user.shop_logo = uri;
+        //   user.cloud_id = response[0].metadata.name;
+        //   user.save();
+        // }
+
+        // return httpRespond.severResponse(res, {
+        //   status: true,
+        //   message: "upload complete",
+        // });
+      } catch (e) {
+        console.log(e);
+        return httpRespond.severResponse(res, {
+          status: false,
+          message: e,
+        });
+      }
     }
-  });
+  );
 
   app.post("/api/update_shop_location", async (req, res) => {
     try {
@@ -349,7 +338,7 @@ module.exports = (app) => {
 
       return httpRespond.severResponse(res, {
         status: true,
-        user,
+        user
       });
     } catch (e) {
       console.log(e);
