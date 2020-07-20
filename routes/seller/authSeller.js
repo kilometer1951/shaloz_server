@@ -25,26 +25,18 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '/filepath')
+    cb(null, "/filepath");
   },
 
   filename: function (req, file, cb) {
+    let filename = "filenametogive";
+    req.body.file = filename;
 
-    let filename = 'filenametogive';
-     req.body.file = filename
+    cb(null, filename);
+  },
+});
 
-    cb(null, filename)
-  }
-})
-
-const upload = multer({ storage: storage })
-
-
-
-
-
-
-
+const upload = multer({ storage: storage });
 
 // cloudinary.config({
 //   cloud_name: "ibc",
@@ -123,58 +115,58 @@ module.exports = (app) => {
     }
   });
 
-  app.post(
-    "/api/upload_shop_image/:user_id", async (req, res) => {
-      try {
-        const user = await User.findOne({ _id: req.params.user_id });
-console.log(req.body);
+  app.post("/api/upload_shop_image/:user_id", async (req, res) => {
+    try {
+      const user = await User.findOne({ _id: req.params.user_id });
+      upload((req, res) => {
+        console.log(req.file);
+      });
 
-        //if (user.cloud_id === "") {
-          //new upload
-        //   const response = await storage_google
-        //     .bucket(bucketName)
-        //     .upload(req.file.path, {
-        //       gzip: true,
-        //       metadata: {
-        //         cacheControl: "public, max-age=31536000",
-        //       },
-        //     });
-        //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
-        //   user.shop_logo = uri;
-        //   user.cloud_id = response[0].metadata.name;
-        //   user.save();
-        // } else {
-        //   //delete old photo and upload new photo
-        //   await storage_google.bucket(bucketName).file(user.cloud_id).delete();
-        //   // //upload new photo
-        //   const response = await storage_google
-        //     .bucket(bucketName)
-        //     .upload(req.file.path, {
-        //       gzip: true,
+      //if (user.cloud_id === "") {
+      //new upload
+      //   const response = await storage_google
+      //     .bucket(bucketName)
+      //     .upload(req.file.path, {
+      //       gzip: true,
+      //       metadata: {
+      //         cacheControl: "public, max-age=31536000",
+      //       },
+      //     });
+      //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+      //   user.shop_logo = uri;
+      //   user.cloud_id = response[0].metadata.name;
+      //   user.save();
+      // } else {
+      //   //delete old photo and upload new photo
+      //   await storage_google.bucket(bucketName).file(user.cloud_id).delete();
+      //   // //upload new photo
+      //   const response = await storage_google
+      //     .bucket(bucketName)
+      //     .upload(req.file.path, {
+      //       gzip: true,
 
-        //       metadata: {
-        //         cacheControl: "public, max-age=31536000",
-        //       },
-        //     });
-        //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
-        //   user.shop_logo = uri;
-        //   user.cloud_id = response[0].metadata.name;
-        //   user.save();
-        // }
+      //       metadata: {
+      //         cacheControl: "public, max-age=31536000",
+      //       },
+      //     });
+      //   let uri = `https://storage.googleapis.com/${bucketName}/${response[0].metadata.name}`;
+      //   user.shop_logo = uri;
+      //   user.cloud_id = response[0].metadata.name;
+      //   user.save();
+      // }
 
-        // return httpRespond.severResponse(res, {
-        //   status: true,
-        //   message: "upload complete",
-        // });
-      } catch (e) {
-        console.log(e);
-        return httpRespond.severResponse(res, {
-          status: false,
-          message: e,
-        });
-      }
+      // return httpRespond.severResponse(res, {
+      //   status: true,
+      //   message: "upload complete",
+      // });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+        message: e,
+      });
     }
-  );
+  });
 
   app.post("/api/update_shop_location", async (req, res) => {
     try {
@@ -357,7 +349,7 @@ console.log(req.body);
 
       return httpRespond.severResponse(res, {
         status: true,
-        user
+        user,
       });
     } catch (e) {
       console.log(e);
