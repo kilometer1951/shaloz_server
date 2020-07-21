@@ -100,27 +100,7 @@ module.exports = (app) => {
   });
 
 
-  app.post(
-    "/auth/test_",
-    async (req, res) => {
-      console.log("jjj");
-      try {
-      
-       
-        return httpRespond.authRespond(res, {
-          status: true,
-        
-        });
-      } catch (e) {
-        console.log(e);
-        return httpRespond.authRespond(res, {
-          status: false,
-          message: e
-        });
-      }
-    }
-  );
-
+ 
 
   app.post(
     "/api/upload_shop_image/:user_id", upload.single("photo"), async (req, res) => {     
@@ -142,6 +122,7 @@ module.exports = (app) => {
           user.shop_logo = uri;
           user.cloud_id = response[0].metadata.name;
           user.save();
+          
         } else {
           //delete old photo and upload new photo
           await storage_google.bucket(bucketName).file(user.cloud_id).delete();
@@ -366,4 +347,29 @@ module.exports = (app) => {
       });
     }
   });
+
+
+
+
+  // app.post(
+  //   "/test/test_",  upload.single("photo"),
+  //   async (req, res) => {
+  //     console.log(req.file);
+  //     try {
+      
+       
+  //       return httpRespond.severResponse(res, {
+  //         status: true,
+        
+  //       });
+  //     } catch (e) {
+  //       console.log(e);
+  //       return httpRespond.severResponse(res, {
+  //         status: false,
+  //         message: e
+  //       });
+  //     }
+  //   }
+  // );
+
 };
