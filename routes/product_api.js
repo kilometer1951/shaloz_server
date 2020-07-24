@@ -219,7 +219,7 @@ module.exports = (app) => {
         work_out_suplement = await Product.aggregate([
           {
             $match: {
-              main_category: "Workout Supplements",
+              main_category: "Workout Supplements & Equipments",
               inStock: true,
             },
           }, // filter the results
@@ -431,7 +431,7 @@ module.exports = (app) => {
           {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
-              main_category: "Workout Supplements",
+              main_category: "Workout Supplements & Equipments",
               inStock: true,
             },
           }, // filter the results
