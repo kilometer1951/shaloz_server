@@ -42,54 +42,62 @@ module.exports = (app) => {
     try {
       //find the user and update isActive to true
       const user = await User.findOne({ _id: req.body.user_id });
-      if (user.stripe_seller_account_id === "") {
-        //onbord the user for stripe connect
-        const accountDetails = await stripe.accounts.create({
-          type: "custom",
-          country: "US",
-          business_type: "individual",
-          individual: {
-            first_name: user.first_name,
-            last_name: user.last_name,
-            phone: user.phone,
-            email: user.email,
-            address: {
-              city: "Griffith",
-              country: "US",
-              line1: "1814 dylane drive",
-              line2: null,
-              postal_code: "46319",
-              state: "IN",
+      if (user.shop_setup === "not_complete") {
+        if (user.stripe_seller_account_id === "") {
+          //onbord the user for stripe connect
+          const accountDetails = await stripe.accounts.create({
+            type: "custom",
+            country: "US",
+            business_type: "individual",
+            individual: {
+              first_name: user.first_name,
+              last_name: user.last_name,
+              phone: user.phone,
+              email: user.email,
+              address: {
+                city: "Griffith",
+                country: "US",
+                line1: "1814 dylane drive",
+                line2: null,
+                postal_code: "46319",
+                state: "IN",
+              },
             },
-          },
-          business_profile: {
-            mcc: "7278",
-            name: `${user.first_name} ${user.last_name}`,
-            product_description: "I sell my products on Shaloz.",
-            support_email: "support@shaloz.com",
-            support_phone: "+13124010122",
-            url: "https://www.shaloz.com",
-          },
-          requested_capabilities: ["card_payments", "transfers"],
-          settings: {
-            card_payments: {
-              statement_descriptor_prefix: "Sz",
+            business_profile: {
+              mcc: "7278",
+              name: `${user.first_name} ${user.last_name}`,
+              product_description: "I sell my products on Shaloz.",
+              support_email: "support@shaloz.com",
+              support_phone: "+13124010122",
+              url: "https://www.shaloz.com",
             },
-            payments: {
-              statement_descriptor: "Shaloz",
+            requested_capabilities: ["card_payments", "transfers"],
+            settings: {
+              card_payments: {
+                statement_descriptor_prefix: "Sz",
+              },
+              payments: {
+                statement_descriptor: "Shaloz",
+              },
+              payouts: {
+                statement_descriptor: "Shaloz",
+              },
             },
-            payouts: {
-              statement_descriptor: "Shaloz",
-            },
-          },
-        });
-        user.stripe_seller_account_id = accountDetails.id;
-        await user.save();
-      }
+          });
+          user.stripe_seller_account_id = accountDetails.id;
+          await user.save();
+        }
 
-      return httpRespond.severResponse(res, {
-        status: true,
-      });
+        return httpRespond.severResponse(res, {
+          status: true,
+          message:"null"
+        });
+      } else {
+        return httpRespond.severResponse(res, {
+          status: true,
+          message:"account exist",
+        });
+      }
     } catch (e) {
       console.log(e);
       return httpRespond.severResponse(res, {
@@ -99,11 +107,10 @@ module.exports = (app) => {
     }
   });
 
-
- 
-
   app.post(
-    "/api/upload_shop_image/:user_id", upload.single("photo"), async (req, res) => {     
+    "/api/upload_shop_image/:user_id",
+    upload.single("photo"),
+    async (req, res) => {
       try {
         const user = await User.findOne({ _id: req.params.user_id });
 
@@ -122,8 +129,7 @@ module.exports = (app) => {
           user.shop_logo = uri;
           user.cloud_id = response[0].metadata.name;
           user.save();
-          
-        }else{
+        } else {
           //delete old photo and upload new photo
           await storage_google.bucket(bucketName).file(user.cloud_id).delete();
           // //upload new photo
@@ -337,7 +343,7 @@ module.exports = (app) => {
 
       return httpRespond.severResponse(res, {
         status: true,
-        user
+        user,
       });
     } catch (e) {
       console.log(e);
@@ -348,19 +354,15 @@ module.exports = (app) => {
     }
   });
 
-
-
-
   // app.post(
   //   "/test/test_",  upload.single("photo"),
   //   async (req, res) => {
   //     console.log(req.file);
   //     try {
-      
-       
+
   //       return httpRespond.severResponse(res, {
   //         status: true,
-        
+
   //       });
   //     } catch (e) {
   //       console.log(e);
@@ -371,5 +373,4 @@ module.exports = (app) => {
   //     }
   //   }
   // );
-
 };

@@ -245,6 +245,7 @@ module.exports = (app) => {
           const processing_fee = parseFloat(
             shoppingCart.processing_fee
           ).toFixed(2);
+          const tax = parseFloat(shoppingCart.tax).toFixed(2);
 
           const newTotal = (
             parseFloat(cart_total) -
@@ -293,7 +294,7 @@ module.exports = (app) => {
         "Hi " +
         shoppingCart.seller.first_name +
         " we encountered an error while processing your payment. This might be due to verification issues. Please open the Shaloz app and review any verificaiton errors found in your shop. shaloz://review_errors";
-      await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
+     // await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
       //errors
       //send error message
       return httpRespond.severResponse(res, {
