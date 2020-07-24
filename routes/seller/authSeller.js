@@ -123,7 +123,7 @@ module.exports = (app) => {
           user.cloud_id = response[0].metadata.name;
           user.save();
           
-        } else {
+        }else{
           //delete old photo and upload new photo
           await storage_google.bucket(bucketName).file(user.cloud_id).delete();
           // //upload new photo

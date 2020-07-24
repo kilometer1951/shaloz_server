@@ -111,7 +111,7 @@ module.exports = (app) => {
         cell_phone_acc = await Product.aggregate([
           {
             $match: {
-              main_category: "Cell Phones & Accessories",
+              main_category: "Mobile Phones & Accessories",
               inStock: true,
             },
           }, // filter the results
@@ -317,7 +317,7 @@ module.exports = (app) => {
           {
             $match: {
               user: { $ne: ObjectId(req.params.user_id) },
-              main_category: "Cell Phones & Accessories",
+              main_category: "Mobile Phones & Accessories",
               inStock: true,
             },
           }, // filter the results
