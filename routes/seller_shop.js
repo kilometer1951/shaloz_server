@@ -3,6 +3,7 @@ const User = mongoose.model("users");
 const Variant = mongoose.model("variants");
 const Product = mongoose.model("products");
 const ShoppingCart = mongoose.model("shoppingcarts");
+const TrackStoreVisitor = mongoose.model("trackStoreVisitors");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 var ObjectId = require("mongodb").ObjectID;
 var request = require("request");
@@ -203,7 +204,7 @@ module.exports = (app) => {
               }
 
               messageBody =
-                "Hi " +
+                "Shaloz, Hi " +
                 shoppingCart.user.first_name +
                 ", your order has been shipped by " +
                 shoppingCart.seller.shop_name +
@@ -215,7 +216,9 @@ module.exports = (app) => {
                       : data.estimated_delivery_dat
                   )
                 ).format("MMM Do, YYYY") +
-                ". Your tracking number is "+req.body.tracking_number+". Open the Shaloz app to track your order. shaloz://purchased_orders";
+                ". Your tracking number is " +
+                req.body.tracking_number +
+                ". Open the Shaloz app to track your order. shaloz://purchased_orders";
               await smsFunctions.sendSMS(shoppingCart.user.phone, messageBody);
               return httpRespond.severResponse(res, {
                 status: true,
@@ -253,8 +256,6 @@ module.exports = (app) => {
           limit: per_page,
           skip: per_page * (page_no - 1),
         };
-      
-     
 
         const weeklyActivity = await ShoppingCart.find({
           seller: req.params.seller_id,
@@ -286,59 +287,56 @@ module.exports = (app) => {
     }
   );
 
-  app.get("/api/get_earnings/:seller_id/:start_of_week/:end_of_week", async (req, res) => {
-    try {
-      const seller_info = await User.findOne({ _id: req.params.seller_id });
+  app.get(
+    "/api/get_earnings/:seller_id/:start_of_week/:end_of_week",
+    async (req, res) => {
+      try {
+        const seller_info = await User.findOne({ _id: req.params.seller_id });
 
-      const earnings = {};
-      // const start_of_week =  Moment(new Date()).startOf('isoWeek');
-      // const end_of_week =  Moment(new Date()).endOf('isoWeek');
+        const earnings = {};
+        // const start_of_week =  Moment(new Date()).startOf('isoWeek');
+        // const end_of_week =  Moment(new Date()).endOf('isoWeek');
 
+        const balance = await stripe.balance.retrieve({
+          stripeAccount: seller_info.stripe_seller_account_id,
+        });
 
+        const total_earned_per_week = await ShoppingCart.find({
+          seller: req.params.seller_id,
+          order_shipped: true,
+          has_checkedout: true,
+          stripe_refund_id: { $eq: "" },
+          date_paid: {
+            $gte: new Date(req.params.start_of_week),
+            $lte: new Date(req.params.end_of_week),
+          },
+        });
 
+        let total = 0;
 
-      const balance = await stripe.balance.retrieve({
-        stripeAccount: seller_info.stripe_seller_account_id,
-      });
+        for (var i = 0; i < total_earned_per_week.length; i++) {
+          let total_earned = parseFloat(total_earned_per_week[i].seller_takes);
+          total += parseFloat(total_earned);
+        }
 
-      const total_earned_per_week = await ShoppingCart.find({
-        seller: req.params.seller_id,
-        order_shipped: true,
-        has_checkedout: true,
-        stripe_refund_id: { $eq: "" },
-        date_paid: {
-          $gte: new Date(req.params.start_of_week),
-          $lte: new Date(req.params.end_of_week),
-        },
-      });
+        earnings.available_balance = parseFloat(
+          (balance.pending[0].amount + balance.available[0].amount) / 100
+        ).toFixed(2);
 
-      let total = 0;
+        earnings.total_earned_per_week = parseFloat(total).toFixed(2);
 
-      for (var i = 0; i < total_earned_per_week.length; i++) {
-        let total_earned = parseFloat(total_earned_per_week[i].seller_takes);
-        total += parseFloat(total_earned);
+        return httpRespond.severResponse(res, {
+          status: true,
+          earnings,
+        });
+      } catch (e) {
+        console.log(e);
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
       }
-
-      earnings.available_balance = parseFloat(
-        (balance.pending[0].amount + balance.available[0].amount) / 100
-      ).toFixed(2);
-
-      earnings.total_earned_per_week = parseFloat(total).toFixed(2);
-
-
-
-      
-      return httpRespond.severResponse(res, {
-        status: true,
-        earnings,
-      });
-    } catch (e) {
-      console.log(e);
-      return httpRespond.severResponse(res, {
-        status: false,
-      });
     }
-  });
+  );
 
   app.get("/api/view/completed_orders_history/:seller_id", async (req, res) => {
     try {
@@ -558,6 +556,40 @@ module.exports = (app) => {
       );
 
       console.log(newUpdate.individual);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.post("/api/track_store_visitors", async (req, res) => {
+    try {
+      const data = await TrackStoreVisitor.findOne({
+        user: req.body.user_id,
+        seller: req.body.seller_id,
+      });
+      if (!data) {
+        //add
+        await new TrackStoreVisitor({
+          user: req.body.user_id,
+          seller: req.body.seller_id,
+          number_of_times_viewed: 1,
+        }).save();
+      } else {
+        //update
+        data.dateViewed = new Date();
+        data.number_of_times_viewed += 1;
+        data.save();
+      }
+
+      console.log(data);
+      
 
       return httpRespond.severResponse(res, {
         status: true,

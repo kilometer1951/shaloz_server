@@ -291,7 +291,7 @@ module.exports = (app) => {
         .populate("user")
         .populate("seller");
       messageBody =
-        "Hi " +
+        "Shaloz, Hi " +
         shoppingCart.seller.first_name +
         " we encountered an error while processing your payment. This might be due to verification issues. Please open the Shaloz app and review any verificaiton errors found in your shop. shaloz://review_errors";
      // await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
@@ -613,7 +613,7 @@ module.exports = (app) => {
         cart.save();
         //send sms
         messageBody =
-          "Hi " +
+          "Shaloz, Hi " +
           cart.seller.first_name +
           " One of your customers cancelled their orders. This might be due to delay shipments. For any issues or questions, you can send us an email at support@shaloz.com To view your orders, visit shaloz://view_orders";
         await smsFunctions.sendSMS(cart.seller.phone, messageBody);

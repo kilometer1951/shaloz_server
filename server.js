@@ -19,6 +19,7 @@ require("./models/MainCategory");
 require("./models/Product");
 require("./models/Variant");
 require("./models/ShoppingCart");
+require("./models/TrackStoreVisitor");
 require("./models/Shipping");
 require("./models/ReviewProduct");
 require("./models/ReviewShop");

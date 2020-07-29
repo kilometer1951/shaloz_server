@@ -58,7 +58,7 @@ module.exports = (app) => {
       const code = Math.floor(Math.random() * 100) + 9000;
       //  send verification code
       messageBody =
-        "Your verification code is: " +
+        "Shaloz, Your verification code is: " +
         code +
         ". Shaloz is a marketplace where you can buy and sell anything";
       await smsFunctions.verification(req.body.phone, messageBody, code);
@@ -83,7 +83,7 @@ module.exports = (app) => {
         const code = Math.floor(Math.random() * 100) + 9000;
         //  send verification code
         messageBody =
-          "Your verification code is: " +
+          "Shaloz, Your verification code is: " +
           code +
           ". Shaloz is a marketplace that allows you to build your online store and start selling in minutes. Buy and sell with Shaloz";
         await smsFunctions.verification(req.body.phone, messageBody, code);

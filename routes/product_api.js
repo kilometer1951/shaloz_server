@@ -600,7 +600,7 @@ module.exports = (app) => {
           { $sample: { size: 4 } },
         ]);
 
-        //add recentyl viewed only if it does not exist
+        //add recently viewed only if it does not exist
         const data = await RecentView.findOne({
           user: req.params.user_id,
           product: req.params.product_id,
@@ -636,7 +636,12 @@ module.exports = (app) => {
           await new RecentView({
             user: req.params.user_id,
             product: req.params.product_id,
+            seller:product.user
           }).save();
+        } else {
+          //update
+          data.dateViewed = new Date()
+          data.save()
         }
 
         const recent_viewed = await RecentView.find({

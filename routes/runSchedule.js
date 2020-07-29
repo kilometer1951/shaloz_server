@@ -38,7 +38,7 @@ module.exports = (agenda) => {
       for (let i = 0; i < shopping_cart.length; i++) {
         smsFunctions.sendSMS(
           shopping_cart[i].user.phone,
-          `Hi ${shopping_cart[i].user.first_name}, you added items to your shopping cart and haven't completed your purchase. You can complete it now while they're still available. Open the Shaloz app to view your cart shaloz://cart`
+          `Shaloz, Hi ${shopping_cart[i].user.first_name}, you added items to your shopping cart and haven't completed your purchase. You can complete it now while they're still available. Open the Shaloz app to view your cart shaloz://cart`
         );
       }
     }

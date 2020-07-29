@@ -403,7 +403,7 @@ module.exports = (app) => {
 
 
 
-        messageBody = "Hi "+seller_info.shop_name+" you have a new order from "+user.first_name+". Open the Shaloz app to view the order. shaloz://view_orders"
+        messageBody = "Shaloz, Hi "+seller_info.shop_name+" you have a new order from "+user.first_name+". Open the Shaloz app to view the order. shaloz://view_orders"
               await smsFunctions.sendSMS(seller_info.phone, messageBody);
 
       return httpRespond.severResponse(res, {

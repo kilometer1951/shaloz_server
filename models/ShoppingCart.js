@@ -37,6 +37,8 @@ var shoppingcartSchema = new Schema({
   shippment_price: { type: String, default: "" },
   total: { type: String, default: "" },
   discount_applied:{ type: String, default: "" },
+
+  shipping_status:{ type: String, default: "ship" }
 });
 
 mongoose.model("shoppingcarts", shoppingcartSchema);
