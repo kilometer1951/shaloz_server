@@ -252,8 +252,6 @@ module.exports = (app) => {
           },
         ]);
 
-        
-
         all_cat = await Product.aggregate([{ $sample: { size: 30 } }]);
       } else {
         deals = await Product.aggregate([
@@ -636,12 +634,12 @@ module.exports = (app) => {
           await new RecentView({
             user: req.params.user_id,
             product: req.params.product_id,
-            seller:product.user
+            seller: product.user,
           }).save();
         } else {
           //update
-          data.dateViewed = new Date()
-          data.save()
+          data.dateViewed = new Date();
+          data.save();
         }
 
         const recent_viewed = await RecentView.find({
@@ -1945,8 +1943,6 @@ module.exports = (app) => {
         user: req.body.user_id,
       });
 
-     
-
       return httpRespond.severResponse(res, {
         status: true,
       });
@@ -2093,7 +2089,7 @@ module.exports = (app) => {
     try {
       const product = await Product.findOne({ _id: req.body.product_id });
       product.inStock = false;
-      product.allow_purchase_when_out_of_stock = false
+      product.allow_purchase_when_out_of_stock = false;
       product.save();
 
       return httpRespond.severResponse(res, {
@@ -2234,6 +2230,4 @@ module.exports = (app) => {
       }
     }
   );
-
-  
 };

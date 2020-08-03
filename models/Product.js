@@ -27,19 +27,16 @@ var productSchema = new Schema({
   allow_purchase_when_out_of_stock: { type: Boolean, default: false },
   product_can_be_customized: { type: Boolean, default: false },
   deleted: { type: Boolean, default: false },
-  product_offers_free_shipping:{ type: Boolean, default: false },
-  max_price_for_free_shipping:{ type: String, default: "" },
-  product_weight:{ type: String, default: "" },
-  product_weight_unit:{ type: String, default: "" },
-  total_rate_number:{type:String, default:""},
-  product_can_be_customized_is_optional:{ type: Boolean, default: true },
-  product_personilization_note:{type:String, default:""},
- local_currency:{type:String, default:"USD"},
+  product_offers_free_shipping: { type: Boolean, default: false },
+  max_price_for_free_shipping: { type: String, default: "" },
+  product_weight: { type: String, default: "" },
+  product_weight_unit: { type: String, default: "" },
+  total_rate_number: { type: String, default: "" },
+  product_can_be_customized_is_optional: { type: Boolean, default: true },
+  product_personilization_note: { type: String, default: "" },
+  local_currency: { type: String, default: "USD" },
 
-
-
-notify_when_product_out_of_stock:{ type: Boolean, default: true },
-
+  notify_when_product_out_of_stock: { type: Boolean, default: true },
 });
 
 mongoose.model("products", productSchema);

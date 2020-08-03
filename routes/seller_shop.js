@@ -589,7 +589,6 @@ module.exports = (app) => {
       }
 
       console.log(data);
-      
 
       return httpRespond.severResponse(res, {
         status: true,

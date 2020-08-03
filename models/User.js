@@ -44,12 +44,11 @@ let userSchema = new Schema({
   loyalty_points: { type: Number, default: 0 },
 
   sales_tax: { type: String, default: "" },
-  last_activity:{ type: Date, default: Date.now },
+  last_activity: { type: Date, default: Date.now },
   store_categories: { type: Array, default: [] },
   default_currency_sign: { type: String, default: "$" },
   default_currency: { type: String, default: "USD" },
   language: { type: String, default: "english" },
-
 });
 
 mongoose.model("users", userSchema);

@@ -3,8 +3,7 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   mongoose = require("mongoose"),
   Agenda = require("agenda"),
-  cors = require("cors")
-
+  cors = require("cors");
 
 let http = require("http").Server(app);
 let io = require("socket.io")(http);
@@ -34,7 +33,7 @@ require("./models/Admin");
 // require("./models/Message");
 // require("./models/Conversation");
 
-app.use(cors())
+app.use(cors());
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -43,9 +42,8 @@ mongoose.connect(config.database, {
   socketTimeoutMS: 0,
   keepAlive: true,
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
-
 
 mongoose.connection.on("open", () => {
   mongoose.connection.db.collection("agendaJobs", (err, collection) => {
@@ -55,9 +53,9 @@ mongoose.connection.on("open", () => {
         $unset: {
           lockedAt: undefined,
           lastModifiedBy: undefined,
-          lastRunAt: undefined
+          lastRunAt: undefined,
         },
-        $set: { nextRunAt: new Date() }
+        $set: { nextRunAt: new Date() },
       },
       { multi: true },
       (e, numUnlocked) => {
@@ -70,16 +68,13 @@ mongoose.connection.on("open", () => {
   });
 });
 
-
 const agenda = new Agenda({
   db: {
     address: config.database,
     collection: "agendaJobs",
-    options: { useNewUrlParser: true , useUnifiedTopology: true}
-  }
+    options: { useNewUrlParser: true, useUnifiedTopology: true },
+  },
 });
-
-
 
 require("./routes/buyer/authBuyer")(app);
 require("./routes/seller/authSeller")(app);
@@ -93,9 +88,6 @@ require("./routes/video_ad")(app);
 //require("./socket/message_socket")(io);
 require("./routes/runSchedule")(agenda);
 require("./routes/adminAuth")(app);
-
-
-
 
 const port = process.env.PORT || 5002;
 http.listen(port, () => {
