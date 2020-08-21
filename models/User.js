@@ -49,6 +49,7 @@ let userSchema = new Schema({
   default_currency_sign: { type: String, default: "$" },
   default_currency: { type: String, default: "USD" },
   language: { type: String, default: "english" },
+  shop_isApproved: { type: Boolean, default: false },
 });
 
 mongoose.model("users", userSchema);

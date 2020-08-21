@@ -29,6 +29,7 @@ require("./models/FavoriteShop");
 require("./models/VideoAd");
 require("./models/AgendaJob");
 require("./models/Admin");
+require("./models/Subscriber");
 
 // require("./models/Message");
 // require("./models/Conversation");
@@ -88,6 +89,7 @@ require("./routes/video_ad")(app);
 //require("./socket/message_socket")(io);
 require("./routes/runSchedule")(agenda);
 require("./routes/adminAuth")(app);
+require("./routes/subscribe")(app);
 
 const port = process.env.PORT || 5002;
 http.listen(port, () => {

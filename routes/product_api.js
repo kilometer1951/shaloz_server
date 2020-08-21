@@ -760,6 +760,7 @@ module.exports = (app) => {
           $match: {
             user: { $ne: ObjectId(req.params.user_id) },
             inStock: true,
+            product_approval_status: true,
           },
         }, // filter the results
         { $skip: pagination.skip },
@@ -2224,6 +2225,292 @@ module.exports = (app) => {
         });
       } catch (e) {
         console.log(e);
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
+  app.get(
+    "/api/dynamic_search/search_product/:user_id/:value",
+    async (req, res) => {
+      try {
+        let otherProducts = [];
+        let otherShops = [];
+        //search products
+        const products = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              inStock: true,
+              //product_approval_status: true,
+              $or: [
+                { product_name: { $regex: new RegExp(req.params.value, "i") } },
+                {
+                  main_category: { $regex: new RegExp(req.params.value, "i") },
+                },
+                {
+                  sub_category1: { $regex: new RegExp(req.params.value, "i") },
+                },
+                {
+                  sub_category2: { $regex: new RegExp(req.params.value, "i") },
+                },
+              ],
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
+          { $limit: 10 },
+          { $sample: { size: 10 } },
+        ]);
+
+        //search shops
+        const shops = await User.aggregate([
+          {
+            $match: {
+              _id: { $ne: ObjectId(req.params.user_id) },
+              shop_setup: "complete",
+              //  shop_isApproved: true,
+              $or: [
+                { first_name: { $regex: new RegExp(req.params.value, "i") } },
+                { last_name: { $regex: new RegExp(req.params.value, "i") } },
+                { shop_name: { $regex: new RegExp(req.params.value, "i") } },
+              ],
+            },
+          },
+          { $limit: 10 },
+          { $sample: { size: 10 } },
+        ]);
+
+        otherProducts = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.body.user_id) },
+              inStock: true,
+            },
+          }, // filter the results
+          { $limit: 10 },
+          { $sample: { size: 10 } },
+        ]);
+
+        otherShops = await User.aggregate([
+          {
+            $match: {
+              _id: { $ne: ObjectId(req.body.user_id) },
+              shop_setup: "complete",
+            },
+          }, // filter the results
+          { $limit: 10 },
+          { $sample: { size: 10 } },
+        ]);
+
+        //if data is null
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          products,
+          shops,
+          otherShops,
+          otherProducts,
+        });
+      } catch (e) {
+        console.log(e);
+
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
+  app.get(
+    "/api/dynamic_search/load_more_product_data/:user_id/:value",
+    async (req, res) => {
+      try {
+        let per_page = 10;
+        let page_no = parseInt(req.query.page);
+        let pagination = {
+          limit: per_page,
+          skip: per_page * (page_no - 1),
+        };
+        const products = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              inStock: true,
+              //product_approval_status: true,
+              $or: [
+                { product_name: { $regex: new RegExp(req.params.value, "i") } },
+                {
+                  main_category: { $regex: new RegExp(req.params.value, "i") },
+                },
+                {
+                  sub_category1: { $regex: new RegExp(req.params.value, "i") },
+                },
+                {
+                  sub_category2: { $regex: new RegExp(req.params.value, "i") },
+                },
+              ],
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
+          { $skip: pagination.skip },
+          { $limit: pagination.limit },
+          { $sample: { size: pagination.limit } },
+        ]);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          products,
+          endOfFile: products.length === 0 ? true : false,
+        });
+      } catch (e) {
+        console.log(e);
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+  app.get(
+    "/api/dynamic_search/load_more_shop_data/:user_id/:value",
+    async (req, res) => {
+      try {
+        let per_page = 10;
+        let page_no = parseInt(req.query.page);
+        let pagination = {
+          limit: per_page,
+          skip: per_page * (page_no - 1),
+        };
+        const shops = await User.aggregate([
+          {
+            $match: {
+              _id: { $ne: ObjectId(req.params.user_id) },
+              shop_setup: "complete",
+              //  shop_isApproved: true,
+              $or: [
+                { first_name: { $regex: new RegExp(req.params.value, "i") } },
+                { last_name: { $regex: new RegExp(req.params.value, "i") } },
+                { shop_name: { $regex: new RegExp(req.params.value, "i") } },
+              ],
+            },
+          },
+          { $skip: pagination.skip },
+          { $limit: pagination.limit },
+          { $sample: { size: pagination.limit } },
+        ]);
+
+        console.log(shops);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          shops,
+          endOfFile: shops.length === 0 ? true : false,
+        });
+      } catch (e) {
+        console.log(e);
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
+  app.get(
+    "/api/dynamic_search/refresh_search_product/:user_id/:value",
+    async (req, res) => {
+      try {
+        //search products
+        const products = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.params.user_id) },
+              inStock: true,
+              //product_approval_status: true,
+              $or: [
+                { product_name: { $regex: new RegExp(req.params.value, "i") } },
+                {
+                  main_category: { $regex: new RegExp(req.params.value, "i") },
+                },
+                {
+                  sub_category1: { $regex: new RegExp(req.params.value, "i") },
+                },
+                {
+                  sub_category2: { $regex: new RegExp(req.params.value, "i") },
+                },
+              ],
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "seller",
+            },
+          },
+          { $limit: 10 },
+          { $sample: { size: 10 } },
+        ]);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          products,
+          // shops: shops,
+        });
+      } catch (e) {
+        console.log(e);
+
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
+
+  app.get(
+    "/api/dynamic_search/refresh_search_shop/:user_id/:value",
+    async (req, res) => {
+      try {
+        //search shops
+        const shops = await User.aggregate([
+          {
+            $match: {
+              _id: { $ne: ObjectId(req.params.user_id) },
+              shop_setup: "complete",
+              //  shop_isApproved: true,
+              $or: [
+                { first_name: { $regex: new RegExp(req.params.value, "i") } },
+                { last_name: { $regex: new RegExp(req.params.value, "i") } },
+                { shop_name: { $regex: new RegExp(req.params.value, "i") } },
+              ],
+            },
+          },
+          { $limit: 10 },
+          { $sample: { size: 10 } },
+        ]);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+          shops,
+        });
+      } catch (e) {
+        console.log(e);
+
         return httpRespond.severResponse(res, {
           status: false,
         });
