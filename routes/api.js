@@ -965,4 +965,20 @@ module.exports = (app) => {
       });
     }
   });
+
+  app.get("/api/check_shop_name/:shopName", async (req, res) => {
+    try {
+      const response = await User.findOne({ shop_name: req.params.shopName });
+      console.log(response);
+
+      return httpRespond.severResponse(res, {
+        status: response ? true : false,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+        e: e,
+      });
+    }
+  });
 };

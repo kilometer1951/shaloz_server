@@ -206,7 +206,7 @@ module.exports = (app) => {
 
       if (shoppingCart) {
         if (parseFloat(shoppingCart.total) < 300) {
-          console.log("charge 5%");
+          console.log("charge 5% + 2");
           const cart_total = parseFloat(shoppingCart.total).toFixed(2);
           const processing_fee = parseFloat(
             shoppingCart.processing_fee
@@ -219,7 +219,7 @@ module.exports = (app) => {
             parseFloat(tax)
           ).toFixed(2);
 
-          const theshop_takes = (parseFloat(newTotal) * 0.05).toFixed(2);
+          const theshop_takes = (parseFloat(newTotal) * 0.05 + 2.0).toFixed(2);
           const seller_takes = (
             parseFloat(newTotal) - parseFloat(theshop_takes)
           ).toFixed(2);
@@ -240,7 +240,7 @@ module.exports = (app) => {
           shoppingCart.date_paid = new Date();
           shoppingCart.save();
         } else {
-          console.log("charge 6% + 2.50");
+          console.log("charge 6% + 3");
           const cart_total = parseFloat(shoppingCart.total).toFixed(2);
           const processing_fee = parseFloat(
             shoppingCart.processing_fee
@@ -294,7 +294,7 @@ module.exports = (app) => {
         "Shaloz, Hi " +
         shoppingCart.seller.first_name +
         " we encountered an error while processing your payment. This might be due to verification issues. Please open the Shaloz app and review any verificaiton errors found in your shop. shaloz://review_errors";
-     // await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
+      // await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
       //errors
       //send error message
       return httpRespond.severResponse(res, {

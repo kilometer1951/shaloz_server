@@ -50,6 +50,8 @@ let userSchema = new Schema({
   default_currency: { type: String, default: "USD" },
   language: { type: String, default: "english" },
   shop_isApproved: { type: Boolean, default: false },
+  can_redeem_points: { type: Boolean, default: false },
+  points: { type: Number, default: 0 },
 });
 
 mongoose.model("users", userSchema);

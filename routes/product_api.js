@@ -635,10 +635,12 @@ module.exports = (app) => {
             user: req.params.user_id,
             product: req.params.product_id,
             seller: product.user,
+            number_of_times_viewed: 1,
           }).save();
         } else {
           //update
           data.dateViewed = new Date();
+          data.number_of_times_viewed += 1;
           data.save();
         }
 
@@ -686,6 +688,10 @@ module.exports = (app) => {
         });
 
         const main_cat = await MainCategory.find({});
+
+        product.number_of_views += 1;
+        product.last_date_viewed = new Date();
+        product.save();
 
         return httpRespond.severResponse(res, {
           status: true,
@@ -1734,8 +1740,9 @@ module.exports = (app) => {
 
       let otherProducts = [];
       let shops = [];
+      let data = [];
 
-      const data = await Product.aggregate([
+      data = await Product.aggregate([
         {
           $match: {
             user: { $ne: ObjectId(req.body.user_id) },
@@ -1780,6 +1787,19 @@ module.exports = (app) => {
           }, // filter the results
           { $limit: 10 },
           { $sample: { size: 10 } },
+        ]);
+
+        data = await Product.aggregate([
+          {
+            $match: {
+              user: { $ne: ObjectId(req.body.user_id) },
+              main_category: req.body.main_cat,
+              inStock: true,
+            },
+          }, // filter the results
+          { $skip: pagination.skip },
+          { $limit: pagination.limit },
+          { $sample: { size: pagination.limit } },
         ]);
       }
 
@@ -1965,6 +1985,7 @@ module.exports = (app) => {
         product: req.body.product_id,
         comment: req.body.comment,
         rateNumber: req.body.rateNumber,
+        shopBelongsTo: req.body.shop_id,
       }).save();
       console.log(saved);
 
@@ -2053,22 +2074,23 @@ module.exports = (app) => {
       };
       console.log(req.params.shop_id);
 
-      const data = await ReviewShop.find({
-        shop: req.params.shop_id,
+      const data = await ReviewProduct.find({
+        shopBelongsTo: req.params.shop_id,
       })
-        .populate("shop")
+        .populate("shopBelongsTo")
+        .populate("product")
         .populate("user")
         .sort("-dateReviewed")
         .limit(pagination.limit)
         .skip(pagination.skip);
 
-      const shop_reviews_count = await ReviewShop.countDocuments({
-        shop: req.params.shop_id,
-      });
+      // const shop_reviews_count = await ReviewProduct.countDocuments({
+      //   shopBelongsTo: req.params.shop_id,
+      // });
 
-      const number_of_shop_review_pages = Math.ceil(
-        shop_reviews_count / per_page
-      );
+      // const number_of_shop_review_pages = Math.ceil(
+      //   shop_reviews_count / per_page
+      // );
 
       //console.log(data);
 
@@ -2076,7 +2098,6 @@ module.exports = (app) => {
         status: true,
         data,
         endOfFile: data.length === 0 ? true : false,
-        number_of_shop_review_pages,
       });
     } catch (e) {
       console.log(e);

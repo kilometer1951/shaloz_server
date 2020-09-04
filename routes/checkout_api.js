@@ -36,9 +36,8 @@ cloudinary.config({
   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
 });
 
-
 const displayPrice = (product_price, discount) => {
-  if (discount === '') {
+  if (discount === "") {
     return parseFloat(product_price);
   } else {
     let price = parseInt(product_price);
@@ -58,9 +57,15 @@ module.exports = (app) => {
       const data = await Shipping.findOne({
         user: req.params.user_id,
       });
+      const userRewardData = await User.findOne(
+        { _id: req.params.user_id },
+        { can_redeem_points: 1, points: 1 }
+      );
+
       return httpRespond.severResponse(res, {
         status: true,
         data,
+        userRewardData,
       });
     } catch (e) {
       console.log(e);
@@ -215,29 +220,32 @@ module.exports = (app) => {
     }
   });
 
-
   app.post("/api/update_cart_item_price/", async (req, res) => {
     try {
       const shopping_cart = await ShoppingCart.findOne({
         _id: req.body.cart_id,
-        user:req.body.user_id
-      }).populate("items.product")
+        user: req.body.user_id,
+      }).populate("items.product");
 
-     
-        await ShoppingCart.updateOne(
-          {
-            _id: req.body.cart_id,
-            user: req.body.user_id,
-            items: {
-              $elemMatch: { _id: req.body.item_id },
-            },
+      await ShoppingCart.updateOne(
+        {
+          _id: req.body.cart_id,
+          user: req.body.user_id,
+          items: {
+            $elemMatch: { _id: req.body.item_id },
           },
-          {
-            $set: { "items.$.price": displayPrice(shopping_cart.items[0].product.product_price, shopping_cart.items[0].product.discount)},
-          }
-        );
-      
-        console.log("response");
+        },
+        {
+          $set: {
+            "items.$.price": displayPrice(
+              shopping_cart.items[0].product.product_price,
+              shopping_cart.items[0].product.discount
+            ),
+          },
+        }
+      );
+
+      console.log("response");
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -260,8 +268,8 @@ module.exports = (app) => {
         });
 
         const user = await User.findOne({
-            _id: req.params.user_id,
-          });
+          _id: req.params.user_id,
+        });
 
         const seller_info = await User.findOne({
           _id: req.params.seller_id,
@@ -293,7 +301,7 @@ module.exports = (app) => {
               },
               ship_from: {
                 company_name: seller_info.shop_name,
-                name: seller_info.first_name + " "+ seller_info.last_name,
+                name: seller_info.first_name + " " + seller_info.last_name,
                 phone: seller_info.phone,
                 address_line1: seller_info.shop_address,
                 address_line2: "",
@@ -303,24 +311,28 @@ module.exports = (app) => {
                 country_code: "US",
                 address_residential_indicator: "no",
               },
-              packages: [{ weight: { value: parseFloat(req.params.total_qty), unit:  req.params.unit} }],
+              packages: [
+                {
+                  weight: {
+                    value: parseFloat(req.params.total_qty),
+                    unit: req.params.unit,
+                  },
+                },
+              ],
             },
           }),
         };
 
         //console.log(req.params.total_qty);
-        
-        
 
         request(options, async function (error, response) {
           if (error) {
             console.log(error);
-            
-            throw new Error(error)
-          };
+
+            throw new Error(error);
+          }
           const data = JSON.parse(response.body);
-         // console.log(data.rate_response.rates[0]);
-          
+          // console.log(data.rate_response.rates[0]);
 
           return httpRespond.severResponse(res, {
             status: true,
@@ -328,7 +340,7 @@ module.exports = (app) => {
           });
         });
       } catch (e) {
-       // console.log(e);
+        // console.log(e);
         return httpRespond.severResponse(res, {
           status: false,
           message: e,
@@ -337,74 +349,76 @@ module.exports = (app) => {
     }
   );
 
-
-
   app.post("/api/add/checkout_pay/", async (req, res) => {
     try {
-
-        //get user details
+      //get user details
       const user = await User.findOne({
         _id: req.body.user_id,
       });
 
-      //get shopping cart 
+      //get shopping cart
       const shoppingCart = await ShoppingCart.findOne({
         _id: req.body.cart_id,
-      })
+      });
 
-      //get seller phone number 
+      //get seller phone number
       const seller_info = await User.findOne({
         _id: shoppingCart.seller,
       });
 
-        //charge card
-        let amount = Math.round(parseFloat(req.body.total) * 100);
-        const charge = await stripe.charges.create({
-          amount: amount,
-          currency: "usd",
-          customer: user.stripe_payment_id,
-          source: req.body.card_id,
-          transfer_group: req.body.cart_id,
-          description:
-            "Payment for products",
-          statement_descriptor: "shaloz"
+      //charge card
+      let amount = Math.round(parseFloat(req.body.total) * 100);
+      const charge = await stripe.charges.create({
+        amount: amount,
+        currency: "usd",
+        customer: user.stripe_payment_id,
+        source: req.body.card_id,
+        transfer_group: req.body.cart_id,
+        description: "Payment for products",
+        statement_descriptor: "shaloz",
+      });
+
+      shoppingCart.has_checkedout = true;
+      shoppingCart.sub_total = req.body.sub_total;
+      shoppingCart.shippment_price = req.body.shippment_price;
+      shoppingCart.tax = req.body.tax;
+      shoppingCart.processing_fee = req.body.processing_fee;
+      shoppingCart.total = req.body.total;
+      shoppingCart.stripe_charge_id = charge.id;
+      shoppingCart.date_user_checked_out = new Date();
+      shoppingCart.discount_applied = req.body.discount;
+      shoppingCart.save();
+
+      //points
+      const points = user.points + Math.round(req.body.total);
+      user.points = points;
+      user.can_redeem_points = points >= 1000 ? true : false;
+      user.save();
+
+      //update product qty
+      for (let i = 0; i < shoppingCart.items.length; i++) {
+        const product = await Product.findOne({
+          _id: shoppingCart.items[i].product,
         });
-
-       
-        shoppingCart.has_checkedout = true
-        shoppingCart.sub_total = req.body.sub_total
-        shoppingCart.shippment_price = req.body.shippment_price
-        shoppingCart.tax = req.body.tax
-        shoppingCart.processing_fee = req.body.processing_fee
-        shoppingCart.total = req.body.total
-        shoppingCart.stripe_charge_id = charge.id;
-        shoppingCart.date_user_checked_out = new Date();
-        shoppingCart.discount_applied = req.body.discount;
-        shoppingCart.save()
-
-
-        //update product qty
-        for(let i = 0; i < shoppingCart.items.length; i++){
-          const product = await Product.findOne({_id: shoppingCart.items[i].product})
-          const qty_in_stock = parseInt(product.product_qty)
-          const qty_bought = parseInt(shoppingCart.items[i].qty)
-          const newQty = qty_in_stock - qty_bought
-          if(newQty <= 0){
-            if(!product.allow_purchase_when_out_of_stock){
-              product.inStock = false
-            }
+        const qty_in_stock = parseInt(product.product_qty);
+        const qty_bought = parseInt(shoppingCart.items[i].qty);
+        const newQty = qty_in_stock - qty_bought;
+        if (newQty <= 0) {
+          if (!product.allow_purchase_when_out_of_stock) {
+            product.inStock = false;
           }
-          product.product_qty = newQty
-          product.save()
         }
+        product.product_qty = newQty;
+        product.save();
+      }
 
-
-
-
-
-
-        messageBody = "Shaloz, Hi "+seller_info.shop_name+" you have a new order from "+user.first_name+". Open the Shaloz app to view the order. shaloz://view_orders"
-              await smsFunctions.sendSMS(seller_info.phone, messageBody);
+      messageBody =
+        "Shaloz, Hi " +
+        seller_info.shop_name +
+        " you have a new order from " +
+        user.first_name +
+        ". Open the Shaloz app to view the order. shaloz://view_orders";
+      await smsFunctions.sendSMS(seller_info.phone, messageBody);
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -418,7 +432,3 @@ module.exports = (app) => {
     }
   });
 };
-
-
-
-

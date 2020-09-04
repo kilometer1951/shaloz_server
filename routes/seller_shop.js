@@ -600,4 +600,55 @@ module.exports = (app) => {
       });
     }
   });
+
+  app.post("/api/seller/refund_order", async (req, res) => {
+    try {
+      const cart = await ShoppingCart.findOne({
+        _id: req.body.cart_id,
+        order_shipped: false,
+        has_checkedout: true,
+        stripe_refund_id: { $eq: "" },
+      })
+        .populate("seller")
+        .populate("user");
+
+      if (cart) {
+        const amount_to_refund = Math.round(
+          parseFloat(req.body.amount_to_return) * 100
+        );
+        //    .1 refund client
+        const refund = await stripe.refunds.create({
+          charge: cart.stripe_charge_id,
+          amount: amount_to_refund,
+        });
+
+        //update cart
+
+        cart.stripe_refund_id = refund.id;
+        cart.order_shipped = true;
+        cart.save();
+        //send sms
+
+        const message2 =
+          "Hi " +
+          cart.user.first_name +
+          " Your order has been cancelled. Thanks for shopping on Shaloz. For any issues or questions, you can send us an email at support@shaloz.com To view your orders, visit shaloz://purchased_orders";
+        await smsFunctions.sendSMS(cart.user.phone, message2);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+        });
+      } else {
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      return httpRespond.severResponse(res, {
+        status: false,
+        message: e,
+      });
+    }
+  });
 };

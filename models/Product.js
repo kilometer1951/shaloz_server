@@ -38,6 +38,9 @@ var productSchema = new Schema({
   notify_when_product_out_of_stock: { type: Boolean, default: true },
 
   product_approval_status: { type: Boolean, default: false },
+
+  number_of_views: { type: Number, default: 0 },
+  last_date_viewed: { type: Date, default: Date.now },
 });
 
 mongoose.model("products", productSchema);
