@@ -83,7 +83,7 @@ module.exports = (app) => {
         messageBody =
           "Shaloz, Your verification code is: " +
           code +
-          ". Shaloz is a marketplace that allows you to build your online store and start selling in minutes. Buy and sell with Shaloz";
+          ". Shaloz is the only platform that allow buyers to earn points while shopping for the things they love. Buyers can cash out points at anytime! With Shaloz, sellers spend less time managing their shop and more time on the fun stuff.";
         await smsFunctions.verification(req.body.phone, messageBody, code);
         return httpRespond.severResponse(res, {
           status: true,
@@ -99,6 +99,24 @@ module.exports = (app) => {
       return httpRespond.severResponse(res, {
         status: false,
         message: e,
+      });
+    }
+  });
+
+  app.post("/api/mail_chimp", async (req, res) => {
+    try {
+      await mailchimp.post("/lists/776496a53d/members", {
+        email_address: req.body.email.trim().toLowerCase(),
+        status: "subscribed",
+      });
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e.detail);
+      return httpRespond.severResponse(res, {
+        status: false,
       });
     }
   });
@@ -133,10 +151,6 @@ module.exports = (app) => {
         currency: "USD",
       };
 
-      await mailchimp.post("/lists/776496a53d/members", {
-        email_address: req.body.email.trim().toLowerCase(),
-        status: "subscribed",
-      });
       const createdUser = await new User(newUser).save();
 
       const newShipping = {
