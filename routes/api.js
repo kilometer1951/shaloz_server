@@ -301,9 +301,9 @@ module.exports = (app) => {
           product_can_be_customized: productCanBeCustomized,
           product_weight: product_weight,
           product_weight_unit: product_weight_unit,
-
           product_can_be_customized_is_optional: product_can_be_customized_is_optional,
           product_personilization_note: product_personilization_note,
+          product_approval_status: false,
         };
         const createdProduct = await new Product(newProduct).save();
         return httpRespond.severResponse(res, {
@@ -312,28 +312,27 @@ module.exports = (app) => {
         });
       } else {
         //edit
-        (product.product_name = product_name),
-          (product.product_price = product_price),
-          (product.product_details = product_details),
-          (product.product_qty = product_qty),
-          (product.main_category = main_category),
-          (product.sub_category1 =
-            sub_category1 === "Select" ? "" : sub_category1),
-          (product.sub_category2 =
-            sub_category2 === "Select" ? "" : sub_category2),
-          (product.variants = newVariant),
-          (product.user = user_id),
-          (product.discount = discount),
-          (product.allow_purchase_when_out_of_stock = allow_purchase_when_out_of_stock),
-          (product.discount_start_date =
-            discount_start_date === "Select date" ? "" : discount_start_date),
-          (product.discount_end_date =
-            discount_end_date === "Select date" ? "" : discount_end_date),
-          (product.product_can_be_customized = productCanBeCustomized);
-        (product.product_weight = product_weight),
-          (product.product_weight_unit = product_weight_unit),
-          (product_can_be_customized_is_optional = product_can_be_customized_is_optional),
-          (product_personilization_note = product_personilization_note);
+        product.product_name = product_name;
+        product.product_price = product_price;
+        product.product_details = product_details;
+        product.product_qty = product_qty;
+        product.main_category = main_category;
+        product.sub_category1 = sub_category1 === "Select" ? "" : sub_category1;
+        product.sub_category2 = sub_category2 === "Select" ? "" : sub_category2;
+        product.variants = newVariant;
+        product.user = user_id;
+        product.discount = discount;
+        product.allow_purchase_when_out_of_stock = allow_purchase_when_out_of_stock;
+        product.discount_start_date =
+          discount_start_date === "Select date" ? "" : discount_start_date;
+        product.discount_end_date =
+          discount_end_date === "Select date" ? "" : discount_end_date;
+        product.product_can_be_customized = productCanBeCustomized;
+        product.product_weight = product_weight;
+        product.product_weight_unit = product_weight_unit;
+        product.product_can_be_customized_is_optional = product_can_be_customized_is_optional;
+        product.product_personilization_note = product_personilization_note;
+        product.product_approval_status = false;
         product.save();
         return httpRespond.severResponse(res, {
           status: true,
@@ -380,27 +379,26 @@ module.exports = (app) => {
       }
 
       const product = await Product.findOne({ _id: _id });
-      (product.product_name = product_name),
-        (product.product_price = product_price),
-        (product.product_details = product_details),
-        (product.product_qty = product_qty),
-        (product.main_category = main_category),
-        (product.sub_category1 =
-          sub_category1 === "Select" ? "" : sub_category1),
-        (product.sub_category2 =
-          sub_category2 === "Select" ? "" : sub_category2),
-        (product.variants = newVariant),
-        (product.discount = discount),
-        (product.allow_purchase_when_out_of_stock = allow_purchase_when_out_of_stock),
-        (product.discount_start_date =
-          discount_start_date === "Select date" ? "" : discount_start_date),
-        (product.discount_end_date =
-          discount_end_date === "Select date" ? "" : discount_end_date),
-        (product.product_can_be_customized = productCanBeCustomized);
-      (product.product_weight = product_weight),
-        (product.product_weight_unit = product_weight_unit),
-        (product.product_can_be_customized_is_optional = product_can_be_customized_is_optional),
-        (product.product_personilization_note = product_personilization_note);
+      product.product_name = product_name;
+      product.product_price = product_price;
+      product.product_details = product_details;
+      product.product_qty = product_qty;
+      product.main_category = main_category;
+      product.sub_category1 = sub_category1 === "Select" ? "" : sub_category1;
+      product.sub_category2 = sub_category2 === "Select" ? "" : sub_category2;
+      product.variants = newVariant;
+      product.discount = discount;
+      product.allow_purchase_when_out_of_stock = allow_purchase_when_out_of_stock;
+      product.discount_start_date =
+        discount_start_date === "Select date" ? "" : discount_start_date;
+      product.discount_end_date =
+        discount_end_date === "Select date" ? "" : discount_end_date;
+      product.product_can_be_customized = productCanBeCustomized;
+      product.product_weight = product_weight;
+      product.product_weight_unit = product_weight_unit;
+      product.product_can_be_customized_is_optional = product_can_be_customized_is_optional;
+      product.product_personilization_note = product_personilization_note;
+      product.product_approval_status = false;
       if (parseInt(product_qty) > 0) {
         product.inStock = true;
       }
@@ -729,6 +727,7 @@ module.exports = (app) => {
           $match: {
             user: { $eq: ObjectId(req.params.shop_id) },
             inStock: true,
+            product_approval_status: true,
           },
         }, // filter the results
         { $limit: 20 },
@@ -739,6 +738,7 @@ module.exports = (app) => {
           $match: {
             user: { $eq: ObjectId(req.params.shop_id) },
             inStock: true,
+            product_approval_status: true,
           },
         },
       ]);
@@ -751,6 +751,7 @@ module.exports = (app) => {
           $match: {
             user: { $eq: ObjectId(req.params.shop_id) },
             inStock: true,
+            product_approval_status: true,
           },
         }, // filter the results
         { $limit: 12 },
@@ -764,6 +765,7 @@ module.exports = (app) => {
           $match: {
             user: { $eq: ObjectId(req.params.shop_id) },
             inStock: true,
+            product_approval_status: true,
           },
         },
         {
@@ -889,6 +891,7 @@ module.exports = (app) => {
           $match: {
             user: { $eq: ObjectId(req.params.shop_id) },
             inStock: true,
+            product_approval_status: true,
           },
         },
         {
@@ -928,6 +931,7 @@ module.exports = (app) => {
               user: { $eq: ObjectId(req.params.shop_id) },
               main_category: req.params.main_cat,
               inStock: true,
+              product_approval_status: true,
             },
           }, // filter the results
           { $skip: pagination.skip },

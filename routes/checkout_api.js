@@ -10,6 +10,9 @@ const MainCategory = mongoose.model("mainCategories");
 const SubCategoryOne = mongoose.model("subCategoriesOne");
 const SubCategoryTwo = mongoose.model("subCategoriesTwo");
 const ShoppingCart = mongoose.model("shoppingcarts");
+const LoyaltyPoints = mongoose.model("loyaltyPoints");
+const ShipmentCostPerProduct = mongoose.model("shipmentCostPerProducts");
+
 const Shipping = mongoose.model("shippings");
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 var ObjectId = require("mongodb").ObjectID;
@@ -38,7 +41,7 @@ cloudinary.config({
 
 const displayPrice = (product_price, discount) => {
   if (discount === "") {
-    return parseFloat(product_price);
+    return parseFloat(product_price).toFixed(2);
   } else {
     let price = parseInt(product_price);
     let _discount = parseInt(discount);
@@ -62,10 +65,24 @@ module.exports = (app) => {
         { can_redeem_points: 1, points: 1 }
       );
 
+      const loyalty_point_response = await LoyaltyPoints.findOne(
+        {
+          buyer: req.params.user_id,
+          buyer_hasUsedPoints: false,
+        },
+        { buyer_hasRedeemedPoints: 1, amount_in_cash_redeemed: 1 }
+      );
+
+      console.log(loyalty_point_response);
+
       return httpRespond.severResponse(res, {
         status: true,
         data,
         userRewardData,
+        loyalty_point_response:
+          loyalty_point_response === null
+            ? { buyer_hasRedeemedPoints: false, amount_in_cash_redeemed: 0 }
+            : loyalty_point_response,
       });
     } catch (e) {
       console.log(e);
@@ -226,26 +243,35 @@ module.exports = (app) => {
         _id: req.body.cart_id,
         user: req.body.user_id,
       }).populate("items.product");
-
-      await ShoppingCart.updateOne(
-        {
-          _id: req.body.cart_id,
-          user: req.body.user_id,
-          items: {
-            $elemMatch: { _id: req.body.item_id },
+      for (let i = 0; i < shopping_cart.items.length; i++) {
+        await ShoppingCart.updateOne(
+          {
+            _id: req.body.cart_id,
+            user: req.body.user_id,
+            items: {
+              $elemMatch: { _id: shopping_cart.items[i]._id },
+            },
           },
-        },
-        {
-          $set: {
-            "items.$.price": displayPrice(
-              shopping_cart.items[0].product.product_price,
-              shopping_cart.items[0].product.discount
-            ),
-          },
-        }
-      );
+          {
+            $set: {
+              "items.$.price": displayPrice(
+                shopping_cart.items[i].product.product_price,
+                shopping_cart.items[i].product.discount
+              ),
+              "items.$.discount":
+                shopping_cart.items[i].product.discount !== ""
+                  ? (
+                      (parseFloat(shopping_cart.items[i].product.discount) /
+                        100) *
+                      parseFloat(shopping_cart.items[i].product.product_price)
+                    ).toFixed(2)
+                  : "",
+            },
+          }
+        );
+      }
 
-      console.log("response");
+      //console.log("response");
 
       return httpRespond.severResponse(res, {
         status: true,
@@ -260,7 +286,7 @@ module.exports = (app) => {
   });
 
   app.get(
-    "/api/view/get_shipping_rate/:user_id/:seller_id/:total_qty/:unit",
+    "/api/view/get_shipping_rate/:user_id/:seller_id/:total_weight/:unit/:product_id/:product_weight/:cart_id/:product_qty",
     async (req, res) => {
       try {
         const user_shipping_info = await Shipping.findOne({
@@ -314,7 +340,7 @@ module.exports = (app) => {
               packages: [
                 {
                   weight: {
-                    value: parseFloat(req.params.total_qty),
+                    value: parseFloat(req.params.total_weight),
                     unit: req.params.unit,
                   },
                 },
@@ -332,12 +358,97 @@ module.exports = (app) => {
             throw new Error(error);
           }
           const data = JSON.parse(response.body);
-          // console.log(data.rate_response.rates[0]);
 
-          return httpRespond.severResponse(res, {
-            status: true,
-            amount: data.rate_response.rates[0].shipping_amount.amount,
-          });
+          if (data.rate_response.rates.length > 0) {
+            //update shipment calculation
+            const shopping_cart = await ShoppingCart.findOne({
+              _id: req.params.cart_id,
+              user: req.params.user_id,
+            }).populate("items.product");
+
+            const shipment_per_product = await ShipmentCostPerProduct.findOne({
+              cart: req.params.cart_id,
+              product: req.params.product_id,
+            });
+            if (shipment_per_product) {
+              //update
+
+              shipment_per_product.weight = req.params.product_weight;
+              shipment_per_product.unit = req.params.unit;
+              shipment_per_product.qty = req.params.product_qty;
+              shipment_per_product.cost =
+                data.rate_response.rates[0].shipping_amount.amount;
+              shipment_per_product.shipping_to = {
+                address_line1: user_shipping_info.street_address,
+                city_locality: user_shipping_info.city,
+                state_province: user_shipping_info.state,
+                postal_code: user_shipping_info.zipe_code,
+                country: "US",
+              };
+              shipment_per_product.shipping_from = {
+                address_line1: seller_info.shop_address,
+                city_locality: seller_info.shop_location_city,
+                state_province: seller_info.shop_location_state,
+                postal_code: seller_info.shop_postal_code,
+                country: "US",
+              };
+              shipment_per_product.save();
+            } else {
+              //create
+              await new ShipmentCostPerProduct({
+                buyer: req.params.user_id,
+                seller: req.params.seller_id,
+                product: req.params.product_id,
+                cart: req.params.cart_id,
+                weight: req.params.product_weight,
+                unit: req.params.unit,
+                cost: data.rate_response.rates[0].shipping_amount.amount,
+                qty: req.params.product_qty,
+                shipping_to: {
+                  address_line1: user_shipping_info.street_address,
+                  city_locality: user_shipping_info.city,
+                  state_province: user_shipping_info.state,
+                  postal_code: user_shipping_info.zipe_code,
+                  country: "US",
+                },
+                shipping_from: {
+                  address_line1: seller_info.shop_address,
+                  city_locality: seller_info.shop_location_city,
+                  state_province: seller_info.shop_location_state,
+                  postal_code: seller_info.shop_postal_code,
+                  country: "US",
+                },
+              }).save();
+            }
+
+            for (let i = 0; i < shopping_cart.items.length; i++) {
+              await ShoppingCart.updateOne(
+                {
+                  _id: req.params.cart_id,
+                  user: req.params.user_id,
+                  items: {
+                    $elemMatch: { _id: shopping_cart.items[i]._id },
+                  },
+                },
+                {
+                  $set: {
+                    "items.$.shipment_price":
+                      data.rate_response.rates[0].shipping_amount.amount,
+                  },
+                }
+              );
+            }
+
+            return httpRespond.severResponse(res, {
+              status: true,
+              amount: data.rate_response.rates[0].shipping_amount.amount,
+            });
+          } else {
+            return httpRespond.severResponse(res, {
+              status: false,
+              message: "Weight limit exceeded",
+            });
+          }
         });
       } catch (e) {
         // console.log(e);
@@ -366,7 +477,13 @@ module.exports = (app) => {
         _id: shoppingCart.seller,
       });
 
-      //charge card
+      //update loyalty points
+      const loyalty_points = await LoyaltyPoints.findOne({
+        buyer: req.body.user_id,
+        buyer_hasUsedPoints: false,
+      });
+
+      // charge card
       let amount = Math.round(parseFloat(req.body.total) * 100);
       const charge = await stripe.charges.create({
         amount: amount,
@@ -375,18 +492,49 @@ module.exports = (app) => {
         source: req.body.card_id,
         transfer_group: req.body.cart_id,
         description: "Payment for products",
-        statement_descriptor: "shaloz",
+        statement_descriptor: "Shaloz, Inc",
       });
 
+      let total_discount = 0.0;
+      for (let i = 0; i < shoppingCart.items.length; i++) {
+        let discount =
+          shoppingCart.items[i].discount !== ""
+            ? parseFloat(shoppingCart.items[i].discount)
+            : 0.0;
+        total_discount += discount;
+      }
+
+      const store_discount =
+        parseInt(seller_info.max_items_to_get_discount) -
+        shoppingCart.items.length;
+
+      const store_promotion_discount = (
+        parseFloat(req.body.discount) - parseFloat(total_discount)
+      ).toFixed(2);
+
+      shoppingCart.store_promotion_discount = store_promotion_discount;
+
+      shoppingCart.store_promotion_discount_is_applied =
+        store_discount <= 0 ? true : false;
+      shoppingCart.store_promotion_discount_percentage =
+        seller_info.discount_amount_for_threshold;
       shoppingCart.has_checkedout = true;
-      shoppingCart.sub_total = req.body.sub_total;
+      // shoppingCart.sub_total = req.body.sub_total;
       shoppingCart.shippment_price = req.body.shippment_price;
       shoppingCart.tax = req.body.tax;
       shoppingCart.processing_fee = req.body.processing_fee;
-      shoppingCart.total = req.body.total;
+      shoppingCart.client_paid = req.body.total;
       shoppingCart.stripe_charge_id = charge.id;
       shoppingCart.date_user_checked_out = new Date();
-      shoppingCart.discount_applied = req.body.discount;
+      shoppingCart.discount_applied =
+        req.body.discount !== "0.00" ? "true" : "false";
+      shoppingCart.buyer_hasRedeemedPoints =
+        loyalty_points === null ? false : true;
+      shoppingCart.amount_in_points_redeemed =
+        loyalty_points === null ? 0 : loyalty_points.amount_in_points_redeemed;
+      shoppingCart.amount_in_cash_redeemed =
+        loyalty_points === null ? 0 : loyalty_points.amount_in_cash_redeemed;
+
       shoppingCart.save();
 
       //points
@@ -394,6 +542,13 @@ module.exports = (app) => {
       user.points = points;
       user.can_redeem_points = points >= 1000 ? true : false;
       user.save();
+
+      if (loyalty_points) {
+        loyalty_points.seller = shoppingCart.seller;
+        loyalty_points.cart = req.body.cart_id;
+        loyalty_points.buyer_hasUsedPoints = true;
+        loyalty_points.save();
+      }
 
       //update product qty
       for (let i = 0; i < shoppingCart.items.length; i++) {

@@ -36,23 +36,28 @@ module.exports = (app) => {
         limit: per_page,
         skip: per_page * (page_no - 1),
       };
-      const cartData = await ShoppingCart.find({ user: req.params.user_id,has_checkedout:false })
+      const cartData = await ShoppingCart.find({
+        user: req.params.user_id,
+        has_checkedout: false,
+      })
         .populate("items.product")
         .populate("seller")
         .limit(pagination.limit)
         .skip(pagination.skip);
 
+      const cart_count = await ShoppingCart.find({
+        user: req.params.user_id,
+        has_checkedout: false,
+      }).countDocuments();
 
-     const cart_count = await ShoppingCart.find({ user: req.params.user_id,has_checkedout:false }).countDocuments()
-        
-
-     const cartPageCount = Math.ceil(cart_count/per_page)
+      const cartPageCount = Math.ceil(cart_count / per_page);
 
       return httpRespond.severResponse(res, {
         status: true,
         cartData,
         endOfFile: cartData.length === 0 ? true : false,
-        cart_count,cartPageCount
+        cart_count,
+        cartPageCount,
       });
     } catch (e) {
       return httpRespond.severResponse(res, {
@@ -80,9 +85,6 @@ module.exports = (app) => {
         has_checkedout: false,
       });
 
-      console.log(discount);
-      
-
       const items = {
         product: product,
         qty: qty,
@@ -109,17 +111,22 @@ module.exports = (app) => {
       }
 
       //new cart array
-      const cart_count = await ShoppingCart.find({ user: user,has_checkedout:"false" }).countDocuments()
+      const cart_count = await ShoppingCart.find({
+        user: user,
+        has_checkedout: "false",
+      }).countDocuments();
 
       const cartData = await ShoppingCart.find({
         user: user,
         has_checkedout: false,
-      }).populate("items.product").populate("seller")
+      })
+        .populate("items.product")
+        .populate("seller");
 
       return httpRespond.severResponse(res, {
         status: true,
         cartData,
-        cart_count
+        cart_count,
       });
     } catch (e) {
       console.log(e);

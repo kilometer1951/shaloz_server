@@ -1,7 +1,9 @@
 $1 -> 1 point
 
-1 point -> 0.004 cents
+1 point -> 0.002 cents
 
 
 user can start cashing out point after they reach their first 1000 points
 
+discounts are not applied to variants 
+store discounts are applied to the sum of the original prices

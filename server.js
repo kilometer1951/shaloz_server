@@ -30,8 +30,11 @@ require("./models/VideoAd");
 require("./models/AgendaJob");
 require("./models/Admin");
 require("./models/Subscriber");
+require("./models/LoyaltyPoints");
+require("./models/ShipmentCostPerProduct");
+require("./models/Refund");
+require("./models/FeedBack");
 
-// require("./models/Message");
 // require("./models/Conversation");
 
 app.use(cors());
@@ -90,6 +93,7 @@ require("./routes/video_ad")(app);
 require("./routes/runSchedule")(agenda);
 require("./routes/adminAuth")(app);
 require("./routes/subscribe")(app);
+require("./routes/loyalty_api")(app);
 
 const port = process.env.PORT || 5002;
 http.listen(port, () => {

@@ -3,6 +3,8 @@ const User = mongoose.model("users");
 const MainCategory = mongoose.model("mainCategories");
 const SubCategoryOne = mongoose.model("subCategoriesOne");
 const SubCategoryTwo = mongoose.model("subCategoriesTwo");
+const Product = mongoose.model("products");
+
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
 const ShoppingCart = mongoose.model("shoppingcarts");
 var ObjectId = require("mongodb").ObjectID;
@@ -29,6 +31,21 @@ cloudinary.config({
 });
 
 module.exports = (app) => {
+  app.get("/api/admin/check_platform_balance", async (req, res) => {
+    try {
+      const data = await stripe.balance.retrieve();
+      return httpRespond.severResponse(res, {
+        status: true,
+        available: data.available[0].amount,
+        pending: data.pending[0].amount,
+      });
+    } catch (e) {
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
   app.post("/api/admin/add/main_category", async (req, res) => {
     try {
       const newData = {
@@ -205,23 +222,15 @@ module.exports = (app) => {
         .populate("seller");
 
       if (shoppingCart) {
-        if (parseFloat(shoppingCart.total) < 300) {
+        if (parseFloat(req.body.amount_to_pay) < 300) {
           console.log("charge 5% + 2");
-          const cart_total = parseFloat(shoppingCart.total).toFixed(2);
-          const processing_fee = parseFloat(
-            shoppingCart.processing_fee
-          ).toFixed(2);
-          const tax = parseFloat(shoppingCart.tax).toFixed(2);
 
-          const newTotal = (
-            parseFloat(cart_total) -
-            parseFloat(processing_fee) -
-            parseFloat(tax)
+          const theshop_takes = (
+            parseFloat(req.body.amount_to_pay) * 0.05 +
+            2.0
           ).toFixed(2);
-
-          const theshop_takes = (parseFloat(newTotal) * 0.05 + 2.0).toFixed(2);
           const seller_takes = (
-            parseFloat(newTotal) - parseFloat(theshop_takes)
+            parseFloat(req.body.amount_to_pay) - parseFloat(theshop_takes)
           ).toFixed(2);
 
           const amount_to_transfer = Math.round(parseFloat(seller_takes) * 100);
@@ -233,7 +242,8 @@ module.exports = (app) => {
             destination: shoppingCart.seller.stripe_seller_account_id,
           });
           // update shopping cart
-
+          shoppingCart.seller_is_paid = true;
+          shoppingCart.account_deposite_fee = 2.0;
           shoppingCart.seller_takes = seller_takes;
           shoppingCart.theshop_takes = theshop_takes;
           shoppingCart.stripe_transfer_id = transfer.id;
@@ -241,21 +251,13 @@ module.exports = (app) => {
           shoppingCart.save();
         } else {
           console.log("charge 6% + 3");
-          const cart_total = parseFloat(shoppingCart.total).toFixed(2);
-          const processing_fee = parseFloat(
-            shoppingCart.processing_fee
-          ).toFixed(2);
-          const tax = parseFloat(shoppingCart.tax).toFixed(2);
 
-          const newTotal = (
-            parseFloat(cart_total) -
-            parseFloat(processing_fee) -
-            parseFloat(tax)
+          const theshop_takes = (
+            parseFloat(req.body.amount_to_pay) * 0.06 +
+            3.0
           ).toFixed(2);
-
-          const theshop_takes = (parseFloat(newTotal) * 0.06 + 2.5).toFixed(2);
           const seller_takes = (
-            parseFloat(newTotal) - parseFloat(theshop_takes)
+            parseFloat(req.body.amount_to_pay) - parseFloat(theshop_takes)
           ).toFixed(2);
 
           const amount_to_transfer = Math.round(parseFloat(seller_takes) * 100);
@@ -267,6 +269,8 @@ module.exports = (app) => {
             destination: shoppingCart.seller.stripe_seller_account_id,
           });
           // update shopping cart
+          shoppingCart.seller_is_paid = true;
+          shoppingCart.account_deposite_fee = 3.0;
           shoppingCart.seller_takes = seller_takes;
           shoppingCart.theshop_takes = theshop_takes;
           shoppingCart.stripe_transfer_id = transfer.id;
@@ -585,58 +589,296 @@ module.exports = (app) => {
     }
   });
 
-  app.post("/api/admin/cancel_order", async (req, res) => {
+  // app.post("/api/admin/cancel_order", async (req, res) => {
+  //   try {
+  //     const cart = await ShoppingCart.findOne({
+  //       _id: req.body.cart_id,
+  //       order_shipped: false,
+  //       has_checkedout: true,
+  //       stripe_refund_id: { $eq: "" },
+  //     })
+  //       .populate("seller")
+  //       .populate("user");
+
+  //     if (cart) {
+  //       const amount_to_refund = Math.round(
+  //         parseFloat(req.body.amount_to_return) * 100
+  //       );
+  //       //    .1 refund client
+  //       const refund = await stripe.refunds.create({
+  //         charge: cart.stripe_charge_id,
+  //         amount: amount_to_refund,
+  //       });
+
+  //       //update cart
+
+  //       cart.stripe_refund_id = refund.id;
+  //       cart.order_shipped = true;
+  //       cart.save();
+  //       //send sms
+  //       messageBody =
+  //         "Shaloz, Hi " +
+  //         cart.seller.first_name +
+  //         " One of your customers cancelled their orders. This might be due to delay shipments. For any issues or questions, you can send us an email at support@shaloz.com To view your orders, visit shaloz://view_orders";
+  //       await smsFunctions.sendSMS(cart.seller.phone, messageBody);
+
+  //       const message2 =
+  //         "Hi " +
+  //         cart.user.first_name +
+  //         " Your order has been cancelled. Thanks for shopping on Shaloz. For any issues or questions, you can send us an email at support@shaloz.com To view your orders, visit shaloz://purchased_orders";
+  //       await smsFunctions.sendSMS(cart.user.phone, message2);
+
+  //       return httpRespond.severResponse(res, {
+  //         status: true,
+  //       });
+  //     } else {
+  //       return httpRespond.severResponse(res, {
+  //         status: false,
+  //       });
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //     return httpRespond.severResponse(res, {
+  //       status: false,
+  //       message: e,
+  //     });
+  //   }
+  // });
+
+  app.post("/api/add/pay_seller_with_points_redeemed", async (req, res) => {
     try {
-      const cart = await ShoppingCart.findOne({
+      //get the cart
+      const shoppingCart = await ShoppingCart.findOne({
         _id: req.body.cart_id,
-        order_shipped: false,
-        has_checkedout: true,
-        stripe_refund_id: { $eq: "" },
       })
-        .populate("seller")
-        .populate("user");
+        .populate("user")
+        .populate("seller");
 
-      if (cart) {
-        const amount_to_refund = Math.round(
-          parseFloat(req.body.amount_to_return) * 100
-        );
-        //    .1 refund client
-        const refund = await stripe.refunds.create({
-          charge: cart.stripe_charge_id,
-          amount: amount_to_refund,
-        });
+      if (shoppingCart) {
+        if (parseFloat(req.body.amount_to_pay) < 300) {
+          console.log("charge 5% + 2");
 
-        //update cart
+          //regular transfer
 
-        cart.stripe_refund_id = refund.id;
-        cart.order_shipped = true;
-        cart.save();
-        //send sms
+          const theshop_takes_1 = (
+            parseFloat(req.body.amount_to_pay) * 0.05 +
+            2.0
+          ).toFixed(2);
+          const seller_takes_1 = (
+            parseFloat(req.body.amount_to_pay) - parseFloat(theshop_takes_1)
+          ).toFixed(2);
+
+          //cash redeemed transfer
+          const theshop_takes_2 = (
+            parseFloat(shoppingCart.amount_in_cash_redeemed) * 0.05
+          ).toFixed(2);
+          const seller_takes_2 = (
+            parseFloat(shoppingCart.amount_in_cash_redeemed) -
+            parseFloat(theshop_takes_2)
+          ).toFixed(2);
+
+          const amount_to_pay_seller = Math.round(
+            parseFloat(seller_takes_1) * 100
+          );
+          const amount_to_transfer_from_platform = Math.round(
+            parseFloat(seller_takes_2) * 100
+          );
+
+          console.log(amount_to_pay_seller);
+          console.log(amount_to_transfer_from_platform);
+
+          const transfer = await stripe.transfers.create({
+            amount: amount_to_pay_seller,
+            currency: "usd",
+            source_transaction: shoppingCart.stripe_charge_id,
+            destination: shoppingCart.seller.stripe_seller_account_id,
+          });
+
+          const transfer_2 = await stripe.transfers.create({
+            amount: amount_to_transfer_from_platform,
+            currency: "usd",
+            destination: shoppingCart.seller.stripe_seller_account_id,
+          });
+
+          // const transfer_2 = await stripe.transfers.create({
+          //   amount: amount_to_pay_seller,
+          //   currency: "usd",
+          //   source_transaction: shoppingCart.stripe_charge_id,
+          //   destination: shoppingCart.seller.stripe_seller_account_id,
+          // });
+
+          const theshop_takes_total = (
+            parseFloat(theshop_takes_1) + parseFloat(theshop_takes_2)
+          ).toFixed(2);
+
+          const seller_takes_total = (
+            parseFloat(seller_takes_1) + parseFloat(seller_takes_2)
+          ).toFixed(2);
+          console.log(seller_takes_total);
+          console.log("------------------------------------");
+          console.log(theshop_takes_1);
+          console.log(theshop_takes_2);
+          console.log(theshop_takes_total);
+
+          // update shopping cart
+          shoppingCart.seller_is_paid = true;
+          shoppingCart.account_deposite_fee = 2.0;
+          shoppingCart.seller_takes = seller_takes_total;
+          shoppingCart.theshop_takes = theshop_takes_total;
+          shoppingCart.stripe_transfer_id = transfer.id;
+          shoppingCart.stripe_transfer_id_for_points = transfer_2.id;
+          shoppingCart.date_paid = new Date();
+          shoppingCart.save();
+        } else {
+          console.log("charge 6% + 3");
+          //regular transfer
+
+          const theshop_takes_1 = (
+            parseFloat(req.body.amount_to_pay) * 0.06 +
+            3.0
+          ).toFixed(2);
+          const seller_takes_1 = (
+            parseFloat(req.body.amount_to_pay) - parseFloat(theshop_takes_1)
+          ).toFixed(2);
+
+          //cash redeemed transfer
+          const theshop_takes_2 = (
+            parseFloat(shoppingCart.amount_in_cash_redeemed) * 0.06
+          ).toFixed(2);
+          const seller_takes_2 = (
+            parseFloat(shoppingCart.amount_in_cash_redeemed) -
+            parseFloat(theshop_takes_2)
+          ).toFixed(2);
+
+          const amount_to_pay_seller = Math.round(
+            parseFloat(seller_takes_1) * 100
+          );
+          const amount_to_transfer_from_platform = Math.round(
+            parseFloat(seller_takes_2) * 100
+          );
+
+          console.log(amount_to_pay_seller);
+          console.log(amount_to_transfer_from_platform);
+
+          const transfer = await stripe.transfers.create({
+            amount: amount_to_pay_seller,
+            currency: "usd",
+            source_transaction: shoppingCart.stripe_charge_id,
+            destination: shoppingCart.seller.stripe_seller_account_id,
+          });
+
+          const transfer_2 = await stripe.transfers.create({
+            amount: amount_to_transfer_from_platform,
+            currency: "usd",
+            destination: shoppingCart.seller.stripe_seller_account_id,
+          });
+
+          const theshop_takes_total = (
+            parseFloat(theshop_takes_1) + parseFloat(theshop_takes_2)
+          ).toFixed(2);
+
+          const seller_takes_total = (
+            parseFloat(seller_takes_1) + parseFloat(seller_takes_2)
+          ).toFixed(2);
+          console.log(seller_takes_total);
+          console.log("------------------------------------");
+          console.log(theshop_takes_1);
+          console.log(theshop_takes_2);
+          console.log(theshop_takes_total);
+
+          // update shopping cart
+          shoppingCart.seller_is_paid = true;
+          shoppingCart.account_deposite_fee = 3.0;
+          shoppingCart.seller_takes = seller_takes_total;
+          shoppingCart.theshop_takes = theshop_takes_total;
+          shoppingCart.stripe_transfer_id = transfer.id;
+          shoppingCart.stripe_transfer_id_for_points = transfer_2.id;
+          shoppingCart.date_paid = new Date();
+          shoppingCart.save();
+        }
         messageBody =
-          "Shaloz, Hi " +
-          cart.seller.first_name +
-          " One of your customers cancelled their orders. This might be due to delay shipments. For any issues or questions, you can send us an email at support@shaloz.com To view your orders, visit shaloz://view_orders";
-        await smsFunctions.sendSMS(cart.seller.phone, messageBody);
-
-        const message2 =
           "Hi " +
-          cart.user.first_name +
-          " Your order has been cancelled. Thanks for shopping on Shaloz. For any issues or questions, you can send us an email at support@shaloz.com To view your orders, visit shaloz://purchased_orders";
-        await smsFunctions.sendSMS(cart.user.phone, message2);
-
-        return httpRespond.severResponse(res, {
-          status: true,
-        });
-      } else {
-        return httpRespond.severResponse(res, {
-          status: false,
-        });
+          shoppingCart.seller.first_name +
+          " we just processed your payment. shaloz://view_earning";
+        await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
       }
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
     } catch (e) {
       console.log(e);
+
+      const shoppingCart = await ShoppingCart.findOne({
+        _id: req.body.cart_id,
+      })
+        .populate("user")
+        .populate("seller");
+      messageBody =
+        "Shaloz, Hi " +
+        shoppingCart.seller.first_name +
+        " we encountered an error while processing your payment. This might be due to verification issues. Please open the Shaloz app and review any verificaiton errors found in your shop. shaloz://review_errors";
+      // await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
+      //errors
+      //send error message
       return httpRespond.severResponse(res, {
         status: false,
-        message: e,
+      });
+    }
+  });
+
+  app.get("/api/admin/fetch_products_to_approve", async (req, res) => {
+    try {
+      let per_page = 20;
+
+      let page_no = parseInt(req.query.page);
+      let pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1),
+      };
+
+      const data = await Product.find({
+        product_approval_status: false,
+      })
+        .populate("user")
+        .limit(pagination.limit)
+        .skip(pagination.skip);
+
+      const count = await Product.countDocuments({
+        product_approval_status: false,
+      });
+      const pageCount = Math.ceil(count / per_page);
+
+      return httpRespond.severResponse(res, {
+        status: true,
+        data,
+        pageCount,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.post("/api/admin/approve_product", async (req, res) => {
+    try {
+      const data = await Product.findOne({
+        _id: req.body.product_id,
+      });
+
+      data.product_approval_status = true;
+      data.save();
+
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
       });
     }
   });

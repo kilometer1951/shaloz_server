@@ -24,7 +24,7 @@ let userSchema = new Schema({
   shop_location_city: { type: String, default: "" },
   shop_location_state: { type: String, default: "" },
   shop_postal_code: { type: String, default: "" },
-  country: { type: String, default: "" },
+  country: { type: String, default: "US" },
   country_code: { type: String, default: "+1" },
   date_created_seller_account: { type: Date, default: Date.now },
   shop_setup: { type: String, default: "not_complete" },
@@ -50,6 +50,7 @@ let userSchema = new Schema({
   default_currency: { type: String, default: "USD" },
   language: { type: String, default: "english" },
   shop_isApproved: { type: Boolean, default: false },
+
   can_redeem_points: { type: Boolean, default: false },
   points: { type: Number, default: 0 },
 });
