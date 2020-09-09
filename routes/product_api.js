@@ -560,10 +560,34 @@ module.exports = (app) => {
         { $sample: { size: pagination.limit } },
       ]);
 
+      const otherProducts = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.params.user_id) },
+            inStock: true,
+            product_approval_status: true,
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+      const shops = await User.aggregate([
+        {
+          $match: {
+            _id: { $ne: ObjectId(req.params.user_id) },
+            shop_setup: "complete",
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+
       return httpRespond.severResponse(res, {
         status: true,
         deals,
         endOfFile: deals.length === 0 ? true : false,
+        otherProducts,
+        shops,
       });
     } catch (e) {
       console.log(e);
@@ -847,10 +871,34 @@ module.exports = (app) => {
         { $sample: { size: pagination.limit } },
       ]);
 
+      const otherProducts = await Product.aggregate([
+        {
+          $match: {
+            user: { $ne: ObjectId(req.params.seller_id) },
+            inStock: true,
+            product_approval_status: true,
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+      const shops = await User.aggregate([
+        {
+          $match: {
+            _id: { $ne: ObjectId(req.params.seller_id) },
+            shop_setup: "complete",
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+
       return httpRespond.severResponse(res, {
         status: true,
         data,
         endOfFile: data.length === 0 ? true : false,
+        otherProducts,
+        shops,
       });
     } catch (e) {
       console.log(e);
@@ -884,10 +932,34 @@ module.exports = (app) => {
         { $sample: { size: pagination.limit } },
       ]);
 
+      const otherProducts = await Product.aggregate([
+        {
+          $match: {
+            user: { $eq: ObjectId(req.params.seller_id) },
+            inStock: true,
+            product_approval_status: true,
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+      const shops = await User.aggregate([
+        {
+          $match: {
+            _id: { $ne: ObjectId(req.params.seller_id) },
+            shop_setup: "complete",
+          },
+        }, // filter the results
+        { $limit: 12 },
+        { $sample: { size: 12 } },
+      ]);
+
       return httpRespond.severResponse(res, {
         status: true,
         data,
         endOfFile: data.length === 0 ? true : false,
+        otherProducts,
+        shops,
       });
     } catch (e) {
       console.log(e);

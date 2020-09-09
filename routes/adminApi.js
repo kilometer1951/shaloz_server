@@ -3,6 +3,7 @@ const User = mongoose.model("users");
 const MainCategory = mongoose.model("mainCategories");
 const SubCategoryOne = mongoose.model("subCategoriesOne");
 const SubCategoryTwo = mongoose.model("subCategoriesTwo");
+const FeedBack = mongoose.model("feedbacks");
 const Product = mongoose.model("products");
 
 const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
@@ -871,6 +872,25 @@ module.exports = (app) => {
       data.product_approval_status = true;
       data.save();
 
+      return httpRespond.severResponse(res, {
+        status: true,
+      });
+    } catch (e) {
+      console.log(e);
+
+      return httpRespond.severResponse(res, {
+        status: false,
+      });
+    }
+  });
+
+  app.post("/api/admin/submit_app_feed_back", async (req, res) => {
+    try {
+      await new FeedBack({
+        user: req.body.user_id,
+        feed_back_app_section: req.body.feedBackAppSection,
+        content: req.body.content,
+      }).save();
       return httpRespond.severResponse(res, {
         status: true,
       });
