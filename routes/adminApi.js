@@ -807,18 +807,8 @@ module.exports = (app) => {
         status: true,
       });
     } catch (e) {
-      console.log(e);
+      //console.log(e);
 
-      const shoppingCart = await ShoppingCart.findOne({
-        _id: req.body.cart_id,
-      })
-        .populate("user")
-        .populate("seller");
-      messageBody =
-        "Shaloz, Hi " +
-        shoppingCart.seller.first_name +
-        " we encountered an error while processing your payment. This might be due to verification issues. Please open the Shaloz app and review any verificaiton errors found in your shop. shaloz://review_errors";
-      await smsFunctions.sendSMS(shoppingCart.seller.phone, messageBody);
       //errors
       //send error message
       return httpRespond.severResponse(res, {
@@ -826,6 +816,33 @@ module.exports = (app) => {
       });
     }
   });
+
+  app.get(
+    "/api/admin/payment_verification_message/:seller_id",
+    async (req, res) => {
+      try {
+        const seller = await User.findOne({
+          _id: req.params.seller_id,
+        });
+
+        messageBody =
+          "Shaloz, Hi " +
+          seller.first_name +
+          " we encountered an error while processing your payment. This might be due to verification issues. Please open the Shaloz app and review any verificaiton errors found in your shop. shaloz://review_errors";
+        await smsFunctions.sendSMS(seller.phone, messageBody);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+        });
+      } catch (e) {
+        console.log(e);
+
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
+      }
+    }
+  );
 
   app.get("/api/admin/fetch_products_to_approve", async (req, res) => {
     try {
