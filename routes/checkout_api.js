@@ -100,7 +100,7 @@ module.exports = (app) => {
         url: "https://api.shipengine.com/v1/addresses/validate",
         headers: {
           Host: "api.shipengine.com",
-          "API-Key": "TEST_4fXNkXGqxlhbxfcSEnGdfDZXpAK0bpSl84HUKvoZjcs",
+          "API-Key": "whyKvPPQflSdhMR+SA6Wedb9A1OGr+jdNBPjDBctx1w",
           "Content-Type": "application/json",
         },
         body: JSON.stringify([
@@ -308,11 +308,11 @@ module.exports = (app) => {
           url: "https://api.shipengine.com/v1/rates",
           headers: {
             Host: "api.shipengine.com",
-            "API-Key": "TEST_4fXNkXGqxlhbxfcSEnGdfDZXpAK0bpSl84HUKvoZjcs",
+            "API-Key": "whyKvPPQflSdhMR+SA6Wedb9A1OGr+jdNBPjDBctx1w",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            rate_options: { carrier_ids: ["se-222572"] },
+            rate_options: { carrier_ids: ["se-234312"] },
             shipment: {
               validate_address: "validate_and_clean",
               ship_to: {
@@ -358,6 +358,8 @@ module.exports = (app) => {
             throw new Error(error);
           }
           const data = JSON.parse(response.body);
+
+          console.log(data.rate_response);
 
           if (data.rate_response.rates.length > 0) {
             //update shipment calculation
@@ -439,6 +441,8 @@ module.exports = (app) => {
               );
             }
 
+            console.log(data.rate_response.rates[0]);
+
             return httpRespond.severResponse(res, {
               status: true,
               amount: data.rate_response.rates[0].shipping_amount.amount,
@@ -451,7 +455,7 @@ module.exports = (app) => {
           }
         });
       } catch (e) {
-        // console.log(e);
+        console.log(e);
         return httpRespond.severResponse(res, {
           status: false,
           message: e,

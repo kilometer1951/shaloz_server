@@ -54,6 +54,8 @@ var shoppingcartSchema = new Schema({
   seller_is_paid: { type: Boolean, default: false },
   account_deposite_fee: { type: String, default: "" },
   stripe_transfer_id_for_points: { type: String, default: "" },
+
+  carrier: { type: String, default: "USPS" },
 });
 
 mongoose.model("shoppingcarts", shoppingcartSchema);
