@@ -155,6 +155,8 @@ module.exports = (app) => {
             Host: "api.shipengine.com",
             "API-Key": "whyKvPPQflSdhMR+SA6Wedb9A1OGr+jdNBPjDBctx1w",
           },
+          //whyKvPPQflSdhMR+SA6Wedb9A1OGr+jdNBPjDBctx1w
+          //TEST_4fXNkXGqxlhbxfcSEnGdfDZXpAK0bpSl84HUKvoZjcs
         };
         request(options, async function (error, response) {
           try {
@@ -178,7 +180,7 @@ module.exports = (app) => {
               //
 
               if (parseFloat(shoppingCart.total) < 300.0) {
-                console.log("charge 4% + 1");
+                console.log("charge 5% + 2");
 
                 // update shopping cart
                 shoppingCart.expected_arrival_date =
@@ -193,7 +195,7 @@ module.exports = (app) => {
                 shoppingCart.date_entered_tracking = new Date();
                 shoppingCart.save();
               } else {
-                console.log("charge 6% + 2.50");
+                console.log("charge 6% + 3");
                 // update shopping car
                 shoppingCart.expected_arrival_date =
                   data.estimated_delivery_date === null
@@ -424,7 +426,7 @@ module.exports = (app) => {
             req.params.tracking_number,
           headers: {
             Host: "api.shipengine.com",
-            "API-Key": "TEST_4fXNkXGqxlhbxfcSEnGdfDZXpAK0bpSl84HUKvoZjcs",
+            "API-Key": "whyKvPPQflSdhMR+SA6Wedb9A1OGr+jdNBPjDBctx1w",
           },
         };
         request(options, async function (error, response) {
@@ -679,10 +681,6 @@ module.exports = (app) => {
         cart: req.body.cart_id,
         product: req.body.product_id,
       });
-
-      console.log(cart);
-      console.log(refundCollection);
-      console.log(shipmentCostPerProduct);
 
       if (cart) {
         const cartItemContent = cart.items.filter(
