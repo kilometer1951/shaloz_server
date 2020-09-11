@@ -680,6 +680,10 @@ module.exports = (app) => {
         product: req.body.product_id,
       });
 
+      console.log(cart);
+      console.log(refundCollection);
+      console.log(shipmentCostPerProduct);
+
       if (cart) {
         const cartItemContent = cart.items.filter(
           (value) => value.product == req.body.product_id
