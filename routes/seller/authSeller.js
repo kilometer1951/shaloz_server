@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const User = mongoose.model("users");
-const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const config = require("../../config/secret");
+const stripe = require("stripe")(config.stripeSK);
 const Shipping = mongoose.model("shippings");
 
 const password = require("../../functions/password");
@@ -14,7 +15,7 @@ const fs = require("fs");
 
 const multer = require("multer");
 const storage = multer.diskStorage({
-  filename: function (req, file, callback) {    
+  filename: function (req, file, callback) {
     callback(null, Date.now() + file.originalname);
   },
 });
@@ -90,12 +91,12 @@ module.exports = (app) => {
 
         return httpRespond.severResponse(res, {
           status: true,
-          message:"null"
+          message: "null",
         });
       } else {
         return httpRespond.severResponse(res, {
           status: true,
-          message:"account exist",
+          message: "account exist",
         });
       }
     } catch (e) {

@@ -14,7 +14,8 @@ const LoyaltyPoints = mongoose.model("loyaltyPoints");
 const ShipmentCostPerProduct = mongoose.model("shipmentCostPerProducts");
 
 const Shipping = mongoose.model("shippings");
-const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const config = require("../config/secret");
+const stripe = require("stripe")(config.stripeSK);
 var ObjectId = require("mongodb").ObjectID;
 var request = require("request");
 
@@ -474,114 +475,124 @@ module.exports = (app) => {
       //get shopping cart
       const shoppingCart = await ShoppingCart.findOne({
         _id: req.body.cart_id,
+        has_checkedout: false,
       });
-
-      //get seller phone number
-      const seller_info = await User.findOne({
-        _id: shoppingCart.seller,
-      });
-
-      //update loyalty points
-      const loyalty_points = await LoyaltyPoints.findOne({
-        buyer: req.body.user_id,
-        buyer_hasUsedPoints: false,
-      });
-
-      // charge card
-      let amount = Math.round(parseFloat(req.body.total) * 100);
-      const charge = await stripe.charges.create({
-        amount: amount,
-        currency: "usd",
-        customer: user.stripe_payment_id,
-        source: req.body.card_id,
-        transfer_group: req.body.cart_id,
-        description: "Payment for products",
-        statement_descriptor: "Shaloz, Inc",
-      });
-
-      let total_discount = 0.0;
-      for (let i = 0; i < shoppingCart.items.length; i++) {
-        let discount =
-          shoppingCart.items[i].discount !== ""
-            ? parseFloat(shoppingCart.items[i].discount)
-            : 0.0;
-        total_discount += discount;
-      }
-
-      const store_discount =
-        parseInt(seller_info.max_items_to_get_discount) -
-        shoppingCart.items.length;
-
-      const store_promotion_discount = (
-        parseFloat(req.body.discount) - parseFloat(total_discount)
-      ).toFixed(2);
-
-      shoppingCart.store_promotion_discount = store_promotion_discount;
-
-      shoppingCart.store_promotion_discount_is_applied =
-        store_discount <= 0 ? true : false;
-      shoppingCart.store_promotion_discount_percentage =
-        seller_info.discount_amount_for_threshold;
-      shoppingCart.has_checkedout = true;
-      // shoppingCart.sub_total = req.body.sub_total;
-      shoppingCart.shippment_price = req.body.shippment_price;
-      shoppingCart.tax = req.body.tax;
-      shoppingCart.processing_fee = req.body.processing_fee;
-      shoppingCart.client_paid = req.body.total;
-      shoppingCart.stripe_charge_id = charge.id;
-      shoppingCart.date_user_checked_out = new Date();
-      shoppingCart.discount_applied =
-        req.body.discount !== "0.00" ? "true" : "false";
-      shoppingCart.buyer_hasRedeemedPoints =
-        loyalty_points === null ? false : true;
-      shoppingCart.amount_in_points_redeemed =
-        loyalty_points === null ? 0 : loyalty_points.amount_in_points_redeemed;
-      shoppingCart.amount_in_cash_redeemed =
-        loyalty_points === null ? 0 : loyalty_points.amount_in_cash_redeemed;
-
-      shoppingCart.save();
-
-      //points
-      const points = user.points + Math.round(req.body.total);
-      user.points = points;
-      user.can_redeem_points = points >= 1000 ? true : false;
-      user.save();
-
-      if (loyalty_points) {
-        loyalty_points.seller = shoppingCart.seller;
-        loyalty_points.cart = req.body.cart_id;
-        loyalty_points.buyer_hasUsedPoints = true;
-        loyalty_points.save();
-      }
-
-      //update product qty
-      for (let i = 0; i < shoppingCart.items.length; i++) {
-        const product = await Product.findOne({
-          _id: shoppingCart.items[i].product,
+      if (shoppingCart) {
+        //get seller phone number
+        const seller_info = await User.findOne({
+          _id: shoppingCart.seller,
         });
-        const qty_in_stock = parseInt(product.product_qty);
-        const qty_bought = parseInt(shoppingCart.items[i].qty);
-        const newQty = qty_in_stock - qty_bought;
-        if (newQty <= 0) {
-          if (!product.allow_purchase_when_out_of_stock) {
-            product.inStock = false;
-          }
+
+        //update loyalty points
+        const loyalty_points = await LoyaltyPoints.findOne({
+          buyer: req.body.user_id,
+          buyer_hasUsedPoints: false,
+        });
+
+        //process
+
+        // charge card
+        let amount = Math.round(parseFloat(req.body.total) * 100);
+        const charge = await stripe.charges.create({
+          amount: amount,
+          currency: "usd",
+          customer: user.stripe_payment_id,
+          source: req.body.card_id,
+          transfer_group: req.body.cart_id,
+          description: "Payment for products",
+          statement_descriptor: "Shaloz, Inc",
+        });
+
+        let total_discount = 0.0;
+        for (let i = 0; i < shoppingCart.items.length; i++) {
+          let discount =
+            shoppingCart.items[i].discount !== ""
+              ? parseFloat(shoppingCart.items[i].discount)
+              : 0.0;
+          total_discount += discount;
         }
-        product.product_qty = newQty;
-        product.save();
+
+        const store_discount =
+          parseInt(seller_info.max_items_to_get_discount) -
+          shoppingCart.items.length;
+
+        const store_promotion_discount = (
+          parseFloat(req.body.discount) - parseFloat(total_discount)
+        ).toFixed(2);
+
+        shoppingCart.store_promotion_discount = store_promotion_discount;
+
+        shoppingCart.store_promotion_discount_is_applied =
+          store_discount <= 0 ? true : false;
+        shoppingCart.store_promotion_discount_percentage =
+          seller_info.discount_amount_for_threshold;
+        shoppingCart.has_checkedout = true;
+        // shoppingCart.sub_total = req.body.sub_total;
+        shoppingCart.shippment_price = req.body.shippment_price;
+        shoppingCart.tax = req.body.tax;
+        shoppingCart.processing_fee = req.body.processing_fee;
+        shoppingCart.client_paid = req.body.total;
+        shoppingCart.stripe_charge_id = charge.id;
+        shoppingCart.date_user_checked_out = new Date();
+        shoppingCart.discount_applied =
+          req.body.discount !== "0.00" ? "true" : "false";
+        shoppingCart.buyer_hasRedeemedPoints =
+          loyalty_points === null ? false : true;
+        shoppingCart.amount_in_points_redeemed =
+          loyalty_points === null
+            ? 0
+            : loyalty_points.amount_in_points_redeemed;
+        shoppingCart.amount_in_cash_redeemed =
+          loyalty_points === null ? 0 : loyalty_points.amount_in_cash_redeemed;
+
+        shoppingCart.save();
+
+        //points
+        const points = user.points + Math.round(req.body.total);
+        user.points = points;
+        user.can_redeem_points = points >= 1000 ? true : false;
+        user.save();
+
+        if (loyalty_points) {
+          loyalty_points.seller = shoppingCart.seller;
+          loyalty_points.cart = req.body.cart_id;
+          loyalty_points.buyer_hasUsedPoints = true;
+          loyalty_points.save();
+        }
+
+        //update product qty
+        for (let i = 0; i < shoppingCart.items.length; i++) {
+          const product = await Product.findOne({
+            _id: shoppingCart.items[i].product,
+          });
+          const qty_in_stock = parseInt(product.product_qty);
+          const qty_bought = parseInt(shoppingCart.items[i].qty);
+          const newQty = qty_in_stock - qty_bought;
+          if (newQty <= 0) {
+            if (!product.allow_purchase_when_out_of_stock) {
+              product.inStock = false;
+            }
+          }
+          product.product_qty = newQty;
+          product.save();
+        }
+
+        messageBody =
+          "Shaloz, Hi " +
+          seller_info.shop_name +
+          " you have a new order from " +
+          user.first_name +
+          ". Open the Shaloz app to view the order. shaloz://view_orders";
+        await smsFunctions.sendSMS(seller_info.phone, messageBody);
+
+        return httpRespond.severResponse(res, {
+          status: true,
+        });
+      } else {
+        return httpRespond.severResponse(res, {
+          status: false,
+        });
       }
-
-      messageBody =
-        "Shaloz, Hi " +
-        seller_info.shop_name +
-        " you have a new order from " +
-        user.first_name +
-        ". Open the Shaloz app to view the order. shaloz://view_orders";
-      await smsFunctions.sendSMS(seller_info.phone, messageBody);
-
-      return httpRespond.severResponse(res, {
-        status: true,
-      });
     } catch (e) {
       console.log(e);
       return httpRespond.severResponse(res, {

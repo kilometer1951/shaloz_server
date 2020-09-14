@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const User = mongoose.model("users");
 const Shipping = mongoose.model("shippings");
 const jwt = require("jwt-simple");
-const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const config = require("../../config/secret");
+const stripe = require("stripe")(config.stripeSK);
 let messageBody = "";
 
 const password = require("../../functions/password");

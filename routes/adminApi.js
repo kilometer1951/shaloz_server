@@ -6,7 +6,8 @@ const SubCategoryTwo = mongoose.model("subCategoriesTwo");
 const FeedBack = mongoose.model("feedbacks");
 const Product = mongoose.model("products");
 
-const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const config = require("../config/secret");
+const stripe = require("stripe")(config.stripeSK);
 const ShoppingCart = mongoose.model("shoppingcarts");
 var ObjectId = require("mongodb").ObjectID;
 

@@ -11,7 +11,8 @@ const SubCategoryOne = mongoose.model("subCategoriesOne");
 const SubCategoryTwo = mongoose.model("subCategoriesTwo");
 const ShoppingCart = mongoose.model("shoppingcarts");
 const ReviewShop = mongoose.model("reviewShops");
-const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const config = require("../config/secret");
+const stripe = require("stripe")(config.stripeSK);
 let ObjectId = require("mongodb").ObjectID;
 
 let messageBody = "";

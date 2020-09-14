@@ -3,7 +3,8 @@ const User = mongoose.model("users");
 const Variant = mongoose.model("variants");
 const Product = mongoose.model("products");
 const ShoppingCart = mongoose.model("shoppingcarts");
-const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const config = require("../config/secret");
+const stripe = require("stripe")(config.stripeSK);
 var ObjectId = require("mongodb").ObjectID;
 
 let messageBody = "";

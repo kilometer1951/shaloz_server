@@ -3,19 +3,18 @@ const User = mongoose.model("users");
 const MainCategory = mongoose.model("mainCategories");
 const SubCategoryOne = mongoose.model("subCategoriesOne");
 const SubCategoryTwo = mongoose.model("subCategoriesTwo");
-const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const config = require("../config/secret");
+const stripe = require("stripe")(config.stripeSK);
 const Admin = mongoose.model("admins");
 const jwt = require("jwt-simple");
 
 const password = require("../functions/password");
 const httpRespond = require("../functions/httpRespond");
 
-
 const tokenForUser = (user) => {
-    const timestamp = new Date().getTime();
-    return jwt.encode({ sub: user, iat: timestamp },"sdsfsfsf");
-  };
-  
+  const timestamp = new Date().getTime();
+  return jwt.encode({ sub: user, iat: timestamp }, "sdsfsfsf");
+};
 
 module.exports = (app) => {
   app.post("/api/create_admin", async (req, res) => {
@@ -27,7 +26,7 @@ module.exports = (app) => {
         password: password.encryptPassword(req.body.password),
       };
 
-      const data = await new Admin(newData).save();      
+      const data = await new Admin(newData).save();
       return httpRespond.severResponse(res, {
         status: true,
         data,
@@ -41,7 +40,9 @@ module.exports = (app) => {
   app.post("/api/auth/admin", async (req, res) => {
     //login
     try {
-      const admin = await Admin.findOne({ email: req.body.email.toLowerCase() });            
+      const admin = await Admin.findOne({
+        email: req.body.email.toLowerCase(),
+      });
       if (!admin) {
         return httpRespond.severResponse(res, {
           status: false,
@@ -60,7 +61,7 @@ module.exports = (app) => {
         status: true,
         message: "admin found",
         admin: admin,
-        token: tokenForUser(admin)
+        token: tokenForUser(admin),
       });
     } catch (e) {
       console.log(e);

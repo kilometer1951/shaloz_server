@@ -7,7 +7,8 @@ const ShipmentCostPerProduct = mongoose.model("shipmentCostPerProducts");
 const Refund = mongoose.model("refunds");
 
 const TrackStoreVisitor = mongoose.model("trackStoreVisitors");
-const stripe = require("stripe")("sk_test_zIKmTcf9gNJ6fMUcywWPHQSx00a3c6qvsD");
+const config = require("../config/secret");
+const stripe = require("stripe")(config.stripeSK);
 var ObjectId = require("mongodb").ObjectID;
 var request = require("request");
 const Moment = require("moment");
@@ -257,7 +258,7 @@ module.exports = (app) => {
     "/api/view/seller_weekly_activity/:seller_id/:start_of_week/:end_of_week",
     async (req, res) => {
       try {
-        let per_page = 8;
+        let per_page = 10;
         let page_no = parseInt(req.query.page);
         let pagination = {
           limit: per_page,
