@@ -7,4 +7,6 @@ module.exports = {
   AppleTeamID: "TRBNA383H2",
   stripeSK:
     "sk_test_51HRFVNHvI36pmtntw3ddfP34tVwHkbLVIpMYIgSUZOTuDhKdB2S6jYCEGEfyhZWOSGYYtyeNTWW4y7VuCmWi4bxG00lhRVHmtV",
+  bucketName: "shaloz-bucket",
+  projectId: "shaloz",
 };

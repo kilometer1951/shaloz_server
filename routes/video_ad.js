@@ -21,13 +21,13 @@ const upload = multer({
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
 
-const bucketName = "the-shop-123";
+const bucketName = "";
 const path = require("path");
 const serviceKey = path.join(__dirname, "../keys.json");
 const { Storage } = require("@google-cloud/storage");
 const storage_google = new Storage({
   keyFilename: serviceKey,
-  projectId: "theshop-275817",
+  projectId: "",
 });
 
 // cloudinary.config({
@@ -48,30 +48,30 @@ const storage_google = new Storage({
 // let uri = `https://storage.cloud.google.com/${bucketName}/${data[0].metadata.name}`
 // let id = data[0].metadata.name
 module.exports = (app) => {
-//   app.post("/api/test", upload.single("photo"), async (req, res) => {
-//     try {
-//       const data = await storage_google
-//         .bucket(bucketName)
-//         .upload(req.file.path, {
-//           gzip: true,
+  //   app.post("/api/test", upload.single("photo"), async (req, res) => {
+  //     try {
+  //       const data = await storage_google
+  //         .bucket(bucketName)
+  //         .upload(req.file.path, {
+  //           gzip: true,
 
-//           metadata: {
-//             cacheControl: "public, max-age=31536000",
-//           },
-//         });
-// console.log(data);
+  //           metadata: {
+  //             cacheControl: "public, max-age=31536000",
+  //           },
+  //         });
+  // console.log(data);
 
-//       return httpRespond.severResponse(res, {
-//         status: true,
-//       });
-//     } catch (e) {
-//       console.log(e);
+  //       return httpRespond.severResponse(res, {
+  //         status: true,
+  //       });
+  //     } catch (e) {
+  //       console.log(e);
 
-//       return httpRespond.severResponse(res, {
-//         status: false,
-//       });
-//     }
-//   });
+  //       return httpRespond.severResponse(res, {
+  //         status: false,
+  //       });
+  //     }
+  //   });
 
   app.get("/api/view/fetch_video_ad/:user_id/", async (req, res) => {
     try {

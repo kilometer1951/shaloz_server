@@ -33,13 +33,13 @@ const upload = multer({
 //   api_secret: "IDtj1fdfnQNJV-BTQ0mgfGOIIgU",
 // });
 
-const bucketName = "the-shop-123";
+const bucketName = config.bucketName;
 const path = require("path");
 const serviceKey = path.join(__dirname, "../keys.json");
 const { Storage } = require("@google-cloud/storage");
 const storage_google = new Storage({
   keyFilename: serviceKey,
-  projectId: "theshop-275817",
+  projectId: config.projectId,
 });
 
 module.exports = (app) => {
