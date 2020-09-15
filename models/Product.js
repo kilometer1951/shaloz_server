@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+let Float = require("mongoose-float").loadType(mongoose);
 
 var productSchema = new Schema({
   date: { type: Date, default: Date.now },
@@ -12,12 +13,12 @@ var productSchema = new Schema({
   cloud_sub_image_2_id: { type: String, default: "" },
   sub_image_3: { type: String, default: "" },
   cloud_sub_image_3_id: { type: String, default: "" },
-  product_price: { type: String, default: "" },
+  product_price: { type: Float, default: 0.0 },
   product_details: { type: String, default: "" },
   main_category: { type: String, default: "" },
   sub_category1: { type: String, default: "" },
   sub_category2: { type: String, default: "" },
-  product_qty: { type: String, default: "1" },
+  product_qty: { type: Number, default: 1 },
   variants: [{ type: Schema.Types.ObjectId, ref: "variants" }],
   user: { type: Schema.Types.ObjectId, ref: "users" },
   discount: { type: String, default: "" },

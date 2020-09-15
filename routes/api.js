@@ -307,6 +307,7 @@ module.exports = (app) => {
           product_approval_status: false,
         };
         const createdProduct = await new Product(newProduct).save();
+        console.log(createdProduct);
         return httpRespond.severResponse(res, {
           status: true,
           product_id: createdProduct._id,
