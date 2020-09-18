@@ -6,7 +6,7 @@ module.exports = {
   PushNotificationKEYID: "HP5C6549F2",
   AppleTeamID: "TRBNA383H2",
   stripeSK:
-    "sk_test_51HRFVNHvI36pmtntw3ddfP34tVwHkbLVIpMYIgSUZOTuDhKdB2S6jYCEGEfyhZWOSGYYtyeNTWW4y7VuCmWi4bxG00lhRVHmtV",
+    "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",
   bucketName: "shaloz-bucket",
   projectId: "shaloz",
 };
