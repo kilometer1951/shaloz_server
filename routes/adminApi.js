@@ -5,6 +5,7 @@ const SubCategoryOne = mongoose.model("subCategoriesOne");
 const SubCategoryTwo = mongoose.model("subCategoriesTwo");
 const FeedBack = mongoose.model("feedbacks");
 const Product = mongoose.model("products");
+const WebsiteMessage = mongoose.model("websiteMessages");
 
 const config = require("../config/secret");
 const stripe = require("stripe")(config.stripeSK);
@@ -919,4 +920,16 @@ module.exports = (app) => {
   //     res.send(e);
   //   }
   // });
+  app.post("/api/send_message", async (req, res) => {
+    try {
+      await WebsiteMessage({
+        email: req.body.email,
+        message: req.body.message,
+      }).save();
+      res.send({ status: true });
+    } catch (e) {
+      console.log(e);
+      res.send(e);
+    }
+  });
 };

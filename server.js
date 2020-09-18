@@ -34,6 +34,7 @@ require("./models/LoyaltyPoints");
 require("./models/ShipmentCostPerProduct");
 require("./models/Refund");
 require("./models/FeedBack");
+require("./models/WebsiteMessage");
 
 // require("./models/Conversation");
 
