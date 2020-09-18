@@ -342,23 +342,6 @@ module.exports = (app) => {
   //   }
   // });
 
-  app.post("/api/admin/insert_many", async (req, res) => {
-    try {
-      let _id = "5efdfc8262ca593b5bccefa2";
-      let data = [
-        {
-          mainCategory: _id,
-          name: "Everything Else",
-        },
-      ];
-      const response = await SubCategoryTwo.insertMany(data);
-      res.send(response);
-    } catch (e) {
-      console.log(e);
-      res.send(e);
-    }
-  });
-
   app.get("/api/admin/all_users", async (req, res) => {
     try {
       let per_page = 20;
@@ -920,4 +903,20 @@ module.exports = (app) => {
       });
     }
   });
+  // app.post("/api/admin/insert_many", async (req, res) => {
+  //   try {
+  //     let _id = "5f63fa1cb3c5356b35016157";
+  //     let data = [
+  //       {
+  //         subCategoryOne: _id,
+  //         name: "Everything else",
+  //       },
+  //     ];
+  //     const response = await SubCategoryTwo.create(data);
+  //     res.send(response);
+  //   } catch (e) {
+  //     console.log(e);
+  //     res.send(e);
+  //   }
+  // });
 };

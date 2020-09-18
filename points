@@ -7,3 +7,41 @@ user can start cashing out point after they reach their first 1000 points
 
 discounts are not applied to variants 
 store discounts are applied to the sum of the original prices
+
+
+
+
+{mainCategory :ObjectId("5ee791c058e42f480cf12652")}
+
+
+ try {
+      let _id = "5ee791cd58e42f480cf12653";
+      let content = ["Food","At Home","Play & Wear","Pet Pharmacy","Care & Health","Treats","Outdoor & On the Go","Technology","Shaloz Top Rated Picks","","","","","",""];
+      let response = [];
+      for (let i = 0; i < content.length; i++) {
+        let data = {
+          mainCategory: _id,
+          name: content[i],
+        };
+        const d = await SubCategoryOne.create(data);
+        response.push(d);
+      }
+      res.send(response);
+    } catch (e) {
+      console.log(e);
+      res.send(e);
+    }
+  });
+
+
+  let _id = ["","","","","","","","","","",""];
+      for(let i = 0; i< _id.length ; i++){
+        let data = 
+        {
+          subCategoryOne: _id[i],
+          name: "Appliances",
+        }
+        const response = await SubCategoryTwo.create(data);
+        
+      }
+       
